@@ -16,6 +16,10 @@ function run(file) {
 run("tracks.js");
 run("curriculum.js");
 if (fs.existsSync(path.join(base, "js", "curriculum-python-extra.js"))) run("curriculum-python-extra.js");
+fs.readdirSync(path.join(base, "js"))
+  .filter((f) => /^curriculum-python-pack-.*\.js$/.test(f))
+  .sort()
+  .forEach((f) => run(f));
 
 const py = win.getTrack("python");
 if (!py) throw new Error("python track not registered");
