@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THE CONSTRUCT // PYTHON UPLINK</title>
+  <meta name="description" content="A career-track Python trainer that runs real CPython in your browser. Theory, then hands-on exercises in a hacker terminal." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- ░░ CRT SCANLINE / VIGNETTE OVERLAY ░░ -->
+  <div id="crt" aria-hidden="true"></div>
+  <div id="flicker" aria-hidden="true"></div>
+
+  <!-- ░░ BOOT SEQUENCE ░░ -->
+  <div id="boot">
+    <canvas id="matrix" aria-hidden="true"></canvas>
+    <div id="boot-inner">
+      <pre id="boot-logo" aria-hidden="true">
+ ████████╗██╗  ██╗███████╗     ██████╗ ██████╗ ███╗   ██╗███████╗████████╗██████╗ ██╗   ██╗ ██████╗████████╗
+ ╚══██╔══╝██║  ██║██╔════╝    ██╔════╝██╔═══██╗████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██║   ██║██╔════╝╚══██╔══╝
+    ██║   ███████║█████╗      ██║     ██║   ██║██╔██╗ ██║███████╗   ██║   ██████╔╝██║   ██║██║        ██║
+    ██║   ██╔══██║██╔══╝      ██║     ██║   ██║██║╚██╗██║╚════██║   ██║   ██╔══██╗██║   ██║██║        ██║
+    ██║   ██║  ██║███████╗    ╚██████╗╚██████╔╝██║ ╚████║███████║   ██║   ██║  ██║╚██████╔╝╚██████╗   ██║
+    ╚═╝   ╚═╝  ╚═╝╚══════╝     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝  ╚═════╝   ╚═╝
+      </pre>
+      <div id="boot-tag">PYTHON UPLINK · NEURAL TRAINING SIMULATION · v1.0</div>
+      <div id="boot-log" role="log" aria-live="polite"></div>
+      <div id="boot-bar"><div id="boot-bar-fill"></div></div>
+      <button id="jack-in" hidden>[ PRESS ENTER TO JACK IN ]</button>
+      <div id="boot-error" hidden></div>
+    </div>
+  </div>
+
+  <!-- ░░ APP SHELL ░░ -->
+  <div id="app" hidden>
+    <header id="topbar">
+      <button id="btn-menu" class="ghost-btn only-mobile" title="menu" aria-label="open menu">☰</button>
+      <div class="brand glitch" data-text="THE CONSTRUCT">THE&nbsp;CONSTRUCT<span class="brand-sub">// POLYGLOT UPLINK</span></div>
+      <div class="hud">
+        <div class="hud-block">
+          <div class="hud-line">ACCESS&nbsp;LVL <b id="hud-level">0</b> · <span id="hud-title" class="accent">TRESPASSER</span></div>
+          <div class="hud-bar" title="progress to next access level"><div id="hud-xp-fill"></div></div>
+          <div class="hud-line dim"><span id="hud-xp">0</span> XP · SECTORS <span id="hud-sectors">0/0</span></div>
+        </div>
+        <button id="btn-sync" class="ghost-btn" title="sync profile across devices">⇆ SYNC</button>
+        <button id="btn-help" class="ghost-btn" title="briefing">?</button>
+        <button id="btn-reset" class="ghost-btn danger" title="wipe all progress">⟲</button>
+      </div>
+    </header>
+
+    <div id="layout">
+      <nav id="sidebar" aria-label="curriculum"></nav>
+      <div id="nav-backdrop" aria-hidden="true"></div>
+      <main id="main"></main>
+    </div>
+  </div>
+
+  <!-- ░░ BRIEFING MODAL ░░ -->
+  <div id="modal" hidden>
+    <div id="modal-card">
+      <button id="modal-close" class="ghost-btn">✕</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ░░ RUNTIME DEPENDENCIES ░░ -->
+  <!-- editor: CodeMirror + language modes -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/lua/lua.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/ruby/ruby.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+
+  <!-- theory syntax highlighting: Prism + language components -->
+  <script>window.Prism = { manual: true };</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-ruby.min.js"></script>
+
+  <!-- python engine loader (WASM fetched lazily on first Python node) -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.29.4/full/pyodide.js"></script>
+
+  <!-- ░░ APPLICATION ░░ -->
+  <script src="js/tracks.js"></script>
+  <script src="js/curriculum.js"></script>
+  <script src="js/curriculum-python-extra.js"></script>
+  <script src="js/curriculum-js.js"></script>
+  <script src="js/curriculum-ts.js"></script>
+  <script src="js/curriculum-sql.js"></script>
+  <script src="js/curriculum-lua.js"></script>
+  <script src="js/curriculum-ruby.js"></script>
+  <script src="js/runtime.js"></script>
+  <script src="js/runtime-js.js"></script>
+  <script src="js/runtime-sql.js"></script>
+  <script src="js/runtime-lua.js"></script>
+  <script src="js/runtime-ruby.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

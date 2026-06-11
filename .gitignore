@@ -1,0 +1,11 @@
+# dev-only verification tooling deps (large — incl. ruby.wasm)
+_verify/node_modules/
+_verify/curriculum.json
+_verify/harness.py
+sync-worker/node_modules/
+
+# editor / os
+.claude/
+.DS_Store
+Thumbs.db
+*.log

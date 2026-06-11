@@ -1,0 +1,9 @@
+name = "construct-sync"
+main = "worker.js"
+compatibility_date = "2024-09-01"
+
+# Created by:  wrangler kv namespace create CONSTRUCT
+# Paste the printed id below.
+[[kv_namespaces]]
+binding = "CONSTRUCT"
+id = "PASTE_YOUR_KV_NAMESPACE_ID_HERE"
