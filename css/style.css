@@ -559,3 +559,41 @@ textarea.sync-import{ width:100%; height:70px; background:#04140e; border:1px so
   .brand{ font-size:15px; }
   #btn-sync, #btn-help, #btn-reset{ padding:6px 8px; }
 }
+
+/* ============================================================
+   PROTO.EXE — code companion window
+   ============================================================ */
+#btn-buddy{ letter-spacing:0; }
+.companion{
+  position:fixed; right:18px; bottom:18px; z-index:9300;
+  width:204px; background:var(--panel-2); border:1px solid var(--green);
+  box-shadow:0 0 24px rgba(0,255,156,.25); user-select:none;
+}
+.companion-bar{
+  display:flex; align-items:center; gap:6px; padding:5px 8px; cursor:move;
+  background:rgba(0,255,156,.08); border-bottom:1px solid var(--line);
+  font-size:11px; letter-spacing:1px; color:var(--green);
+}
+.companion-title{ text-shadow:var(--glow); }
+.companion-spacer{ flex:1; }
+.companion-x{
+  background:transparent; border:1px solid var(--line); color:var(--magenta);
+  width:18px; height:18px; line-height:1; padding:0; cursor:pointer; font-size:11px;
+}
+.companion-x:hover{ border-color:var(--magenta); box-shadow:0 0 8px rgba(255,46,136,.4); }
+.companion-canvas{
+  display:block; width:204px; height:178px; background:#04100b;
+  image-rendering:pixelated; image-rendering:crisp-edges;
+}
+.companion-status{
+  padding:4px 8px; font-size:10px; letter-spacing:1px; color:var(--text-dim);
+  border-top:1px solid var(--line); background:#04120d; text-align:center;
+}
+.companion-status.fault{ color:var(--magenta); text-shadow:0 0 6px rgba(255,46,136,.5); animation:flick .2s steps(2) infinite; }
+.companion-status.fight{ color:var(--amber); }
+.companion-status.win{ color:var(--green); text-shadow:var(--glow); }
+@keyframes flick{ 0%,100%{opacity:1;} 50%{opacity:.45;} }
+@media (max-width:760px){
+  .companion{ right:8px; bottom:8px; width:170px; }
+  .companion-canvas{ width:170px; height:148px; }
+}

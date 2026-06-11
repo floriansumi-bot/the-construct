@@ -118,6 +118,10 @@
       var r = await runJob({ code: src, tests: (ex && ex.tests) || [], stdin: (ex && ex.sampleStdin) || [] });
       return { results: r.results || [], stdout: r.stdout || "", preexec_error: r.error || null, passed: r.passed || 0, total: r.total || 0, all_ok: !!r.all_ok };
     },
+    checkSyntax: function (code) {
+      try { new Function(code); return { ok: true }; }
+      catch (e) { return { ok: false, error: String((e && e.message) || e) }; }
+    },
   };
 
   /* ---------------- TypeScript adapter ---------------- */
@@ -163,6 +167,15 @@
         return { results: tests.map(function (t) { return { name: t.name, ok: false, msg: js.error }; }), stdout: "", preexec_error: js.error, passed: 0, total: tests.length, all_ok: false };
       }
       return JSRuntime.grade(js.code, ex);
+    },
+    checkSyntax: function (code) {
+      if (!window.ts) return { ok: true };
+      try {
+        var out = window.ts.transpileModule(code, { compilerOptions: { target: window.ts.ScriptTarget.ES2019, module: window.ts.ModuleKind.None }, reportDiagnostics: true });
+        var syn = (out.diagnostics || []).filter(function (d) { return d.category === 1 && d.code >= 1000 && d.code < 2000; });
+        if (syn.length) return { ok: false, error: "TS" + syn[0].code };
+        return JSRuntime.checkSyntax(out.outputText);
+      } catch (e) { return { ok: false, error: String((e && e.message) || e) }; }
     },
   };
 

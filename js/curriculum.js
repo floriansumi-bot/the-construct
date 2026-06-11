@@ -54,11 +54,38 @@ print("NAME:\\tSPIKE")   # NAME:  <tab>  SPIKE
 ~~~
 
 ## One print, many pieces
-print() accepts several values and joins them with a separator (default a space). Override it with **sep=**.
+print() accepts several values and joins them with a separator (default a space). Override it with **sep=**. Mixing **text and numbers** is fine — the comma handles it, no manual conversion needed.
 
 ~~~python
-print("SOL", "GATE", "MARS", sep=" :: ")
-# SOL :: GATE :: MARS
+print("SOL", "GATE", "MARS", sep=" :: ")   # SOL :: GATE :: MARS
+print("CYCLES REMAINING:", 3)              # CYCLES REMAINING: 3
+~~~
+
+## Staying on the same line
+By default print() ends with a newline. Pass **end=""** to keep the next print() on the **same line**.
+
+~~~python
+print("LOADING", end="")
+print("...")            # LOADING... on ONE line
+~~~
+
+## Multi-line strings
+Wrap text in **triple quotes** to span several lines in a single string — one print() can emit a whole banner.
+
+~~~python
+print("""+----------+
+| BEBOP ON |
++----------+""")
+~~~
+
+## Building strings
+- **+** glues two strings together (no automatic space)
+- **\\*** repeats a string (repeating by 0 gives the empty string "")
+
+~~~python
+"Spike" + " " + "Spiegel"   # "Spike Spiegel"
+"=" * 5                      # "====="
+print("=" * 16)              # ================
 ~~~
 
 > INTEL — In this sim a **script** node means: write a normal program. Hit EXECUTE and the kernel runs it for real, then checks what it printed.
@@ -198,10 +225,11 @@ age = input("Age: ")      # "17"  (a string!)
 ~~~
 
 ## Casting
-Convert between types with **int()**, **float()**, **str()**.
+Convert between types with **int()**, **float()**, **str()**. Use **float()** when the value may have a decimal point — \`float("2.5")\` is \`2.5\`, and dividing keeps the decimal.
 
 ~~~python
-age = int(input("Age: "))   # now a real number
+age = int(input("Age: "))       # whole number
+reading = float(input("Hz: "))  # keeps decimals
 ~~~
 
 > WARNING — Forgetting to cast is the #1 rookie bug. \`"10" + "20"\` is \`"1020"\`, but \`10 + 20\` is \`30\`.
@@ -212,6 +240,28 @@ Drop variables straight into text with an **f""** string and \`{curly braces}\`.
 ~~~python
 name, lvl = "Faye", 3
 print(f"{name} :: clearance L{lvl}")
+~~~
+
+Add a **format spec** after a colon to control numbers. **{x:.2f}** shows exactly two decimals (rounding as needed):
+
+~~~python
+print(f"BPM: {120:.2f}")     # BPM: 120.00
+print(f"BPM: {99.999:.2f}")  # BPM: 100.00
+~~~
+
+## Multiple assignment
+Assign several names at once — handy for an instant **swap** with no temp variable.
+
+~~~python
+a, b = 1, 2
+a, b = b, a       # now a == 2, b == 1
+~~~
+
+## Comparisons are booleans
+A comparison like **level > 90** evaluates straight to **True** / **False**, so you can hand it back directly — no if-statement needed.
+
+~~~python
+hot = 95 > 90     # True
 ~~~
 `,
     exercises: [
@@ -367,6 +417,39 @@ burn(100, 25)   # 75
 ## Scope
 Variables created **inside** a function live only there. The outside world can't see them — clean and contained, like a sealed deck on the Bebop.
 
+## Any number of arguments: *args
+Prefix a parameter with **\\*** to collect **all** extra positional arguments into a tuple. **sum()** then folds them up.
+
+~~~python
+def stack(*cells):
+    return sum(cells)    # cells is a tuple
+
+stack(3, 5, 8)   # 16
+stack()          # 0
+~~~
+
+## Functions are values
+A function can be **passed to another function** and called inside it. A **lambda** is a tiny one-expression function written inline.
+
+~~~python
+def apply_twice(fn, x):
+    return fn(fn(x))
+
+apply_twice(lambda n: n * 2, 5)   # 20  (5 -> 10 -> 20)
+~~~
+
+## Recursion
+A function may **call itself**. Always give a **base case** that stops the chain, then a step that shrinks toward it.
+
+~~~python
+def countdown(n):
+    if n == 0:
+        return [0]            # base case
+    return [n] + countdown(n - 1)
+
+countdown(3)   # [3, 2, 1, 0]
+~~~
+
 > INTEL — From here on, most nodes are **function** nodes: you write the \`def\`, the kernel calls it with secret inputs and checks the \`return\`.
 `,
     exercises: [
@@ -400,7 +483,7 @@ Use **return**, not print.
           { name: "returns a value (not None)", code: `r=amplify(4)
 assert r==8, "Use return, not print — got "+repr(r)+"."` },
         ],
-        hint: `return signal * 2`,
+        hint: `Double means multiply by 2 with the * operator, and hand it back with return (not print).`,
         lore: "Crank the gain. Aphex would approve.",
       },
       {
@@ -430,7 +513,7 @@ Define **boot_message(name)** that **returns** the string:
           { name: "boots MAGI", code: `assert boot_message("MAGI")=="MAGI online. All systems nominal.", repr(boot_message("MAGI"))` },
           { name: "uses the parameter", code: `assert boot_message("Tachikoma")=="Tachikoma online. All systems nominal.", repr(boot_message("Tachikoma"))` },
         ],
-        hint: `return f"{name} online. All systems nominal."`,
+        hint: `Build the line with an f-string, dropping {name} in front of the fixed text " online. All systems nominal." — and return it.`,
         lore: "MAGI system: MELCHIOR, BALTHASAR, CASPER — online.",
       },
       {
@@ -502,6 +585,23 @@ Combine conditions with **and**, **or**, **not**.
 
 ~~~python
 in_range = level >= 0 and level <= 100
+~~~
+
+## Chained comparisons
+Python lets you write a range check the way maths does — **a <= x <= b** is a single expression:
+
+~~~python
+audible = 20 <= freq <= 20000   # True when freq is in [20, 20000]
+~~~
+
+## Number helpers
+- **abs(x)** — drop the sign, so abs(-9) is 9
+- **round(x, n)** — round to n decimal places, so round(3.14159, 2) is 3.14
+- there's no sqrt operator — raise to the **0.5** power instead
+
+~~~python
+dist = (3 ** 2 + 4 ** 2) ** 0.5   # 5.0
+clean = round(abs(-3.14159), 2)   # 3.14
 ~~~
 
 > INTEL — \`=\` assigns, \`==\` compares. Mixing them up is a classic ghost in the machine.
@@ -638,6 +738,26 @@ Use **and**, **or**, **not**, and comparison chaining:
 ~~~python
 if 0 <= score <= 100:
     print("valid reading")
+~~~
+
+## One-line choice: the ternary
+When you only need to pick between **two** values, use a conditional expression: **VALUE_IF_TRUE if CONDITION else VALUE_IF_FALSE**. The whole thing is one expression, so you can return it directly.
+
+~~~python
+status = "CLIPPING" if db > 0 else "SAFE"
+~~~
+
+## match / case
+For dispatching one value against many fixed options, **match/case** reads cleanly. Combine options with **|**, and use **case _:** as the catch-all (it must come last).
+
+~~~python
+match cmd:
+    case "warp":
+        return "ENGAGED"
+    case "halt" | "stop":
+        return "ALL STOP"
+    case _:
+        return "UNKNOWN"
 ~~~
 
 > INTEL — Returning from inside each branch (\`return "ROOT"\`) is clean and common. Once a function hits \`return\`, it exits immediately.
@@ -798,12 +918,35 @@ for i in range(5, 0, -1):
 ~~~
 
 ## The accumulator pattern
-Start with an empty total / list, then build it up each pass. This is the backbone of data work.
+Start with an empty total / list, then build it up each pass. This is the backbone of data work. The same shape works for a **running product** — but start at **1** and use **\\*=**:
 
 ~~~python
 total = 0
 for c in [10, 20, 12]:
     total += c       # 42
+
+product = 1
+for c in [2, 3, 4]:
+    product *= c     # 24  (start at 1, not 0)
+~~~
+
+## Looping by index
+Sometimes you need the position, not just the value. **range(len(seq))** gives the indices 0 up to len minus 1; index back into the sequence with **seq[i]**. Returning mid-loop is the clean way to "find the first match and stop":
+
+~~~python
+for i in range(len(readings)):
+    if readings[i] < 0:
+        return i     # first negative index
+return -1            # ran out — none found
+~~~
+
+## Nested loops
+A loop inside a loop. For each outer pass, the **inner** loop runs in full — perfect for building grids and rows.
+
+~~~python
+for i in range(1, 4):
+    row = "*" * i        # "*", then "**", then "***"
+    print(row)
 ~~~
 
 ## while loops
@@ -957,11 +1100,12 @@ s[-1]   # "N"
 ~~~
 
 ## Slicing
-\`s[start:stop:step]\` carves out a substring. Omit parts for defaults. A step of **-1** reverses.
+\`s[start:stop:step]\` carves out a substring. Omit parts for defaults. The **step** controls stride: **2** keeps every other character, **-1** walks backwards (a reverse).
 
 ~~~python
 s[1:3]    # "AI"
-s[::-1]   # "NIAL"  (reversed)
+s[::2]    # "LI"   (every other char, from index 0)
+s[::-1]   # "NIAL" (reversed)
 ~~~
 
 ## Essential methods
@@ -969,6 +1113,7 @@ Strings are immutable — methods return **new** strings:
 - \`.upper()\` \`.lower()\` \`.title()\`
 - \`.strip()\` — trim whitespace
 - \`.replace(a, b)\`
+- \`.count(sub)\` — how many times \`sub\` appears
 - \`.split(sep)\` → list, and \`sep.join(list)\` → string
 - \`x in s\` — membership test
 
@@ -976,7 +1121,10 @@ Strings are immutable — methods return **new** strings:
 "daft punk".upper()          # "DAFT PUNK"
 "discovery".title()          # "Discovery"
 "a,b,c".split(",")           # ["a","b","c"]
+"banana".count("a")          # 3
 ~~~
+
+Chain methods left to right — each acts on the previous result: \`raw.strip().replace("-", "_")\`.
 
 > INTEL — \`ch.lower() in "aeiou"\` is a tidy way to test whether a character is a vowel regardless of case.
 `,
@@ -1079,7 +1227,7 @@ format_track("daft punk", "discovery") -> "DAFT PUNK - Discovery"
           { name: "title-cases multi-word tracks", code: `assert format_track("daft punk","harder better faster stronger")=="DAFT PUNK - Harder Better Faster Stronger"` },
           { name: "another artist", code: `assert format_track("aphex twin","windowlicker")=="APHEX TWIN - Windowlicker"` },
         ],
-        hint: `f"{artist.upper()} - {title.title()}"`,
+        hint: `In one f-string, apply .upper() to the artist and .title() to the track, with a literal " - " between the two slots.`,
         lore: "One more time. We're gonna celebrate.",
       },
     ],
@@ -1117,13 +1265,41 @@ lo, hi = (3, 99)       # unpacking
 ~~~
 
 ## List comprehensions
-Build a new list in one expressive line — \`[expr for item in seq if condition]\`.
+Build a new list in one expressive line — \`[expr for item in seq if condition]\`. The \`expr\` **transforms**, the \`if\` **filters**:
 
 ~~~python
-names = [name for (name, bpm) in tracks if bpm >= 120]
+loud = [name for (name, bpm) in tracks if bpm >= 120]
+doubled = [n * 2 for n in levels if n > 0]
 ~~~
 
 This is the Pythonic workhorse for filtering and transforming data. Master it.
+
+A **nested** comprehension flattens a list of lists — read the \`for\` clauses left to right, outer first:
+
+~~~python
+flat = [item for row in grid for item in row]   # [[1,2],[3]] -> [1,2,3]
+~~~
+
+## zip — walk two lists together
+**zip(a, b)** pairs items by position; wrap in **list()** to get the (x, y) tuples. It stops at the shorter list.
+
+~~~python
+list(zip(["A", "B"], [1, 2]))   # [("A", 1), ("B", 2)]
+~~~
+
+## Dedupe, keeping order
+A **set** removes duplicates but **scrambles order**. To keep the **first** appearance of each item, track what you've **seen**:
+
+~~~python
+seen = set()
+out = []
+for x in items:
+    if x not in seen:
+        seen.add(x)
+        out.append(x)
+~~~
+
+(If order doesn't matter, **sorted(set(items))** gives the distinct values, sorted — more on sets in the next sector.)
 
 > INTEL — Unpack tuples right in a for-loop header: \`for (name, bpm) in tracks:\`.
 `,
@@ -1250,12 +1426,40 @@ for ch in text:
     freq[ch] = freq.get(ch, 0) + 1
 ~~~
 
+## Building & walking dicts
+- **dict(zip(keys, values))** builds a dict from two parallel lists.
+- **d.items()** yields each (key, value) pair to loop over.
+- A **dict comprehension** transforms in one line — e.g. swap keys and values:
+
+~~~python
+dict(zip(["a", "b"], [1, 2]))        # {"a": 1, "b": 2}
+{v: k for k, v in d.items()}         # invert: keys <-> values
+for k, v in d.items():
+    ...                              # walk every pair
+~~~
+
+## Picking by value
+**max(d, key=d.get)** returns the **key** with the largest value — exactly "which entry counts highest" in a frequency table.
+
+~~~python
+max(freq, key=freq.get)   # the most common element
+~~~
+
 ## Sets
 A **set** holds **unique** items, unordered. Perfect for dedupe and membership.
 
 ~~~python
 set([3, 1, 2, 3, 1])     # {1, 2, 3}
 sorted(set(data))        # unique, then ordered
+~~~
+
+Sets combine with operators: **&** intersection (in both), **|** union (in either), **-** difference (in the first, not the second).
+
+~~~python
+a, b = {1, 2, 3}, {2, 3, 4}
+a & b    # {2, 3}
+a | b    # {1, 2, 3, 4}
+a - b    # {1}
 ~~~
 
 > INTEL — \`sorted(set(x))\` is a one-liner for "distinct values, in order" — you'll reach for it constantly.
@@ -1388,6 +1592,34 @@ def set_fuel(level):
     if level < 0 or level > 100:
         raise ValueError("out of range")
     return level
+~~~
+
+## Catching several types at once
+List multiple exception types as a **tuple** to handle them with one block:
+
+~~~python
+try:
+    return int(a) / int(b)
+except (ValueError, ZeroDivisionError):
+    return None        # bad text OR zero divisor
+~~~
+
+## else and finally
+A full **try / except / else / finally** gives you four slots:
+- **try** — the risky operation
+- **except** — runs only if it failed
+- **else** — runs only if it **succeeded** (no exception)
+- **finally** — runs **no matter what** (cleanup, always)
+
+~~~python
+try:
+    q = a // b
+except ZeroDivisionError:
+    status = "ERR"
+else:
+    status = "OK:" + str(q)   # only on success
+finally:
+    status += ":DONE"         # always
 ~~~
 
 ## The validation loop
@@ -1544,7 +1776,30 @@ m = re.search(r"v=([\\w-]{11})", url)
 vid = m.group(1) if m else None
 ~~~
 
-> INTEL — To validate, prefer \`fullmatch\`. To extract, use \`search\` with a group. Always handle the \`None\` (no-match) case.
+## findall — every match at once
+**re.findall(pat, s)** returns a **list** of all matches (no None to handle — an empty list means none).
+
+~~~python
+re.findall(r"\\d+", "a7 b42")   # ["7", "42"]  -> len() counts them
+~~~
+
+If the pattern has **groups**, findall returns a list of the **groups** (a tuple per match when there are two or more):
+
+~~~python
+re.findall(r"(\\w+)=(\\w+)", "hp=400 ap=120")
+# [("hp", "400"), ("ap", "120")]
+~~~
+
+## sub and split
+- **re.sub(pat, repl, s)** — replace every match with the **repl** string.
+- **re.split(pat, s)** — split on a pattern (a character class like **[,;/]** matches any one separator).
+
+~~~python
+re.sub(r"\\d", "#", "CASE 0451")        # "CASE ####"
+re.split(r"\\s*[,;/]\\s*", "a, b;c")     # ["a", "b", "c"]
+~~~
+
+> INTEL — To validate, prefer \`fullmatch\`. To extract one, use \`search\` with a group; to extract many, use \`findall\`. Always handle the \`None\` (no-match) case for search/fullmatch.
 `,
     exercises: [
       {
@@ -1692,6 +1947,30 @@ class Target:
         return f"{self.name}: {self.reward} woolongs"
 ~~~
 
+## __eq__
+By default two distinct objects are **never** equal. Define **__eq__(self, other)** to compare by **value** — Python calls it for the **==** operator. It must **return** a bool.
+
+~~~python
+class Coord:
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
+Coord(3, 4) == Coord(3, 4)   # True
+~~~
+
+## Class variables
+An attribute set on **self** belongs to **one instance**. An attribute defined **at class level** is **shared by all** instances — handy for a counter across every object.
+
+~~~python
+class Drone:
+    count = 0                  # shared by all Drones
+    def __init__(self, tag):
+        self.tag = tag
+        Drone.count += 1       # bump the shared tally
+~~~
+
 ## Inheritance
 A subclass **inherits** attributes and methods from a base class and can **override** them.
 
@@ -1699,6 +1978,23 @@ A subclass **inherits** attributes and methods from a base class and can **overr
 class Replicant(Android):
     def greet(self):
         return "More human than human."
+~~~
+
+## super()
+To **extend** a parent's method instead of replacing it, call **super()**. A common case: a subclass **__init__** runs the parent's setup, then adds its own.
+
+~~~python
+class Mecha(Robot):
+    def __init__(self, name, pilot):
+        super().__init__(name)   # run Robot's __init__
+        self.pilot = pilot
+~~~
+
+## Polymorphism
+Different classes can define the **same method name**. Call it on each object and Python dispatches to the right override automatically — no type checks needed.
+
+~~~python
+[s.tone() for s in synths]   # each synth answers in its own voice
 ~~~
 
 > INTEL — If a subclass doesn't define \`__init__\`, it uses the parent's automatically. \`isinstance(obj, Cls)\` and \`issubclass(Sub, Base)\` test the family tree.

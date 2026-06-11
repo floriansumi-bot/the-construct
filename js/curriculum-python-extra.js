@@ -51,7 +51,28 @@ for row in csv.DictReader(io.StringIO(text)):
     row["name"], row["bpm"]   # "Lain", "90"  (values are strings!)
 ~~~
 
-> INTEL - CSV fields come back as **strings**. Cast with \`int(...)\` / \`float(...)\` before doing math. The header row is data too - skip it when you only want records.
+Materialize the reader into a real list when you need its length or want to slice the header off: **rows = list(csv.reader(...))** then **rows[1:]** is just the data rows.
+
+## Cleaning a line
+Two **str** methods earn their keep when sifting text:
+- **.strip()** removes whitespace from both ends - so **ln.strip() == ""** is the test for a blank/whitespace-only line.
+- **.lstrip()** strips only the **left** side, and **.startswith(prefix)** tests how a string begins. Together they spot a comment even when it is indented.
+
+~~~python
+"   # note".strip()                 # "# note"
+"   # note".lstrip().startswith("#")  # True  (leading spaces ignored)
+"JACK_IN=1".lstrip().startswith("#")  # False
+~~~
+
+## Averaging a column
+A mean is just **sum / count**. Cast each string field with **int(...)**, sum them, divide by how many rows there were. The **/** operator always yields a **float** (so **4 / 2** is **2.0**).
+
+~~~python
+rows = list(csv.DictReader(io.StringIO(text)))
+mean = sum(int(r["bpm"]) for r in rows) / len(rows)   # a float
+~~~
+
+> INTEL - CSV fields come back as **strings**. Cast with \`int(...)\` / \`float(...)\` before doing math. The header row is data too - skip it (slice **rows[1:]**) when you only want records.
 `,
     exercises: [
       {
@@ -219,6 +240,27 @@ def squares(n):
 list(squares(4))   # [0, 1, 4, 9]
 ~~~
 
+A generator can also be driven by a **while** loop - yield, mutate, repeat - which is handy for countdowns or anything that runs until a condition flips:
+
+~~~python
+def countup(n):
+    i = 1
+    while i <= n:
+        yield i
+        i += 1
+~~~
+
+## Folding with sum / any / all
+Drop the brackets and you have a **generator expression** - the same comprehension syntax, but streamed straight into a function instead of building a list first. Hand one to a reducer to fold a sequence down to a single value:
+
+~~~python
+sum(x * x for x in nums)            # sum of squares (a fold; empty -> 0)
+any(x < 0 for x in nums)            # True if ANY reading is negative
+all(len(name) >= 4 for name in crew)  # True only if EVERY name is long enough
+~~~
+
+**sum** seeds the total at **0**, so an empty sequence folds to **0** with no special case. **any** / **all** short-circuit and return a **bool**.
+
 > INTEL - \`sorted\` is **stable**: items comparing equal keep their original order. Lean on that for tie-breaks.
 `,
     exercises: [
@@ -351,6 +393,30 @@ Bugs hide at the boundaries. Before writing the function, ask:
 
 ## Write a contract, then satisfy it
 Good practice: write the asserts first (red), then the code that passes them (green). Below you'll implement functions whose hidden tests hammer exactly these edges - so handle them deliberately, not by accident.
+
+## Properties worth testing
+Beyond single input/output pairs, strong contracts pin down **properties**:
+- **Idempotence** - applying the operation twice equals applying it once: **clean(clean(s)) == clean(s)**. Cleaners and normalizers should hold this.
+- **Round-trip (inverse)** - if one function undoes another, **decode(encode(s)) == s** for every input. A lossless codec must survive the trip.
+- **Real booleans** - when the contract says return a bool, return one. A comparison already is a bool: **return n % 4 == 0** yields **True** / **False**, not **1** / **0**. Tests may check with **is True** / **is False**, which only pass for actual bools.
+
+## A contract can require an error
+Sometimes the correct behaviour is to **refuse** - e.g. popping an empty stack should **raise**, not return junk. Signal that with **raise**:
+
+~~~python
+raise IndexError("pop from empty stack")
+~~~
+
+To test that a call raises, wrap it and flip a flag - if no error fires, the test fails:
+
+~~~python
+raised = False
+try:
+    s.pop()
+except IndexError:
+    raised = True
+assert raised, "pop() on an empty stack must raise IndexError."
+~~~
 
 > INTEL - \`assert x == y, msg\` shows \`msg\` on failure. Always include the offending value, e.g. \`repr(got)\`, so a red test tells you *what* broke.
 `,
@@ -514,8 +580,54 @@ while lo <= hi:
     else: hi = mid - 1
 ~~~
 
+## Insertion point - the half-open variant
+A close cousin of binary search finds **where a value belongs** rather than whether it is present. Use a **half-open** window **lo, hi = 0, len(arr)** (hi is *one past* the end), loop while **lo < hi**, and on a match keep going **left**. The result is the **leftmost** slot that keeps the list sorted - exactly **bisect_left**. Use a strict **less-than** so equal values land before, not after.
+
+~~~python
+lo, hi = 0, len(arr)
+while lo < hi:
+    mid = (lo + hi) // 2
+    if arr[mid] < target:
+        lo = mid + 1     # target belongs to the right half
+    else:
+        hi = mid         # mid might be the slot - keep it in range
+return lo                # 0..len(arr); larger-than-all -> len(arr)
+~~~
+
 ## Selection sort - O(n^2)
 Repeatedly find the smallest remaining element and place it next. Simple, not fast - but it teaches the nested-loop cost.
+
+## Bubble sort - O(n^2)
+The other classic quadratic. Walk the list comparing **adjacent** pairs; whenever the left is bigger, **swap** them, so big values bubble toward the end. One full pass with no swaps means it is sorted. Swap two slots in one line with tuple assignment:
+
+~~~python
+a[j], a[j + 1] = a[j + 1], a[j]   # swap neighbours, no temp variable
+~~~
+
+## Two-pointer merge
+To fuse **two already-sorted** lists into one sorted list, walk both with an index each and repeatedly take the smaller front element. This is the merge step at the heart of merge sort - O(n), far better than concatenating and re-sorting. Compare with **<=** to keep equal elements stable, then tack on whatever tail is left:
+
+~~~python
+i = j = 0
+out = []
+while i < len(a) and j < len(b):
+    if a[i] <= b[j]:
+        out.append(a[i]); i += 1
+    else:
+        out.append(b[j]); j += 1
+out.extend(a[i:]); out.extend(b[j:])   # one list is now empty
+~~~
+
+## Trade space for time - the seen dict
+A dictionary lookup is O(1), so remembering what you have already seen can collapse an O(n^2) double loop into a single O(n) pass. The classic is **two-sum**: as you scan, for each value check whether its **complement** (**target - value**) was seen earlier; if so you have your pair. **enumerate** hands you the index alongside the value.
+
+~~~python
+seen = {}                       # value -> index
+for i, x in enumerate(nums):
+    if target - x in seen:
+        ... seen[target - x], i # the matching pair of indices
+    seen[x] = i
+~~~
 
 ## Recursion
 A function that calls **itself** on a smaller input, with a **base case** that stops the descent.
@@ -526,6 +638,8 @@ def factorial(n):
         return 1
     return n * factorial(n - 1)
 ~~~
+
+Shrinking the input can mean peeling a digit, too: **n % 10** is the last digit and **n // 10** is the rest, so a number's digits fall away one recursive call at a time (base case: a single digit, **n < 10**).
 
 > INTEL - Binary search is unbeatable, but only on **sorted** data. No base case (or one you never reach) means infinite recursion and a crash.
 `,

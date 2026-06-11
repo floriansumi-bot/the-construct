@@ -83,6 +83,15 @@ def _fmt_exc():
         keep = keep[:1] + ["  ...(trimmed)..."] + keep[-14:]
     return "\n".join(keep)
 
+def check_syntax(src):
+    try:
+        compile(src, "<chk>", "exec")
+        return ""
+    except SyntaxError as e:
+        return "SyntaxError: " + (e.msg or "invalid syntax")
+    except Exception:
+        return ""
+
 def run_display(user_src, stdin):
     out, err, _g = _exec_capture(user_src, stdin)
     return {"stdout": out, "error": err}
@@ -181,6 +190,17 @@ def grade(user_src, tests, preexec):
       );
       cleanup(py);
       return JSON.parse(out);
+    },
+
+    /** Lightweight syntax check (compile only, no run) for the code buddy. */
+    async checkSyntax(code) {
+      if (!this.ready) return { ok: true };
+      try {
+        this.pyodide.globals.set("__chk", code);
+        const res = await this.pyodide.runPythonAsync("check_syntax(__chk)");
+        try { this.pyodide.globals.delete("__chk"); } catch (e) {}
+        return { ok: res === "", error: res };
+      } catch (e) { return { ok: true }; }
     },
   };
 
