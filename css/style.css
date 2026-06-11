@@ -649,6 +649,17 @@ body.companion-open #main{ padding-bottom:248px; }
 .set-row input[type=checkbox]{ accent-color:var(--green); width:15px; height:15px; vertical-align:-2px; }
 .theme-opt{ display:inline-flex; align-items:center; }
 .theme-sw{ display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:7px; border:1px solid rgba(255,255,255,.35); }
+/* ── in-content ad slot (free version) ── */
+.ad-slot{ display:flex; align-items:center; gap:10px; margin:0 0 16px; padding:8px 12px; border:1px dashed var(--line); border-radius:8px; background:rgba(var(--accent-rgb),.035); font-size:13px; }
+.ad-tag{ flex:0 0 auto; font-family:var(--display); font-size:12px; letter-spacing:1px; color:var(--text-dim); border:1px solid var(--line); border-radius:4px; padding:1px 7px; }
+.ad-body{ flex:1 1 auto; min-width:0; color:var(--text); text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ad-body b{ color:var(--cyan); }
+.ad-body:hover b{ text-shadow:0 0 8px rgba(var(--cyan-rgb),.5); }
+.ad-sub{ color:var(--text-dim); }
+.ad-net{ flex:1 1 auto; min-width:0; }
+.ad-x{ flex:0 0 auto; background:none; border:1px solid var(--line); color:var(--text-dim); font-family:var(--display); font-size:12px; letter-spacing:.5px; padding:3px 9px; border-radius:5px; cursor:pointer; transition:color .12s, border-color .12s; }
+.ad-x:hover{ color:var(--amber); border-color:var(--amber); }
+@media (max-width:520px){ .ad-sub{ display:none; } }
 /* ── fullscreen toggle ── */
 #btn-fullscreen.active{ color:var(--green); border-color:var(--green); box-shadow:var(--glow-soft); }
 /* ── donation (Ko-fi) ── */

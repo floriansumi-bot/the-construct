@@ -15,6 +15,21 @@
      ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ */
   const DONATE_URL = "https://ko-fi.com/";   // ← put your Ko-fi handle after the slash
 
+  /* ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+     ADS / GO-AD-FREE — the free app shows a tasteful in-content ad slot.
+     • ADFREE_URL  : checkout link for the "remove ads" product (falls back
+                     to your Ko-fi link if left blank).
+     • ADFREE_CODE : the unlock code buyers receive (e.g. set it as Ko-fi's
+                     post-purchase message). Empty = code unlock disabled.
+                     Shared-code MVP — see notes; per-buyer license keys
+                     (Lemon Squeezy) are the upgrade path.
+     • AD_NETWORK  : leave null for in-house ads; later drop in a privacy-
+                     first network (EthicalAds / Carbon) — no cookie banner.
+     ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ */
+  const ADFREE_URL = "";      // ← checkout link for the ad-free unlock (optional)
+  const ADFREE_CODE = "";     // ← unlock code given to buyers (optional)
+  const AD_NETWORK = null;    // ← null = in-house ads (real network added later)
+
   /* ---------- helpers ---------- */
   const $ = (id) => document.getElementById(id);
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -305,7 +320,7 @@
   function route() {
     setDrawer(false);
     const p = parseHash();
-    if (p.length === 0) { renderSidebar(null); renderLangSelect(); updateHud(null); $("main").scrollTop = 0; return; }
+    if (p.length === 0) { renderSidebar(null); renderLangSelect(); updateHud(null); mountAd(); $("main").scrollTop = 0; return; }
     const track = findTrack(p[0]);
     if (!track) { location.hash = "#/"; return; }
     SAVE.lastTrack = track.id; persist();
@@ -317,7 +332,7 @@
       else if (p.length === 2) renderTheory(track, m);
       else { const ex = m.exercises.find((e) => e.id === p[2]); ex ? renderExercise(track, m, ex) : renderTheory(track, m); }
     }
-    updateHud(track); $("main").scrollTop = 0;
+    updateHud(track); mountAd(); $("main").scrollTop = 0;
   }
 
   /* ---------- sidebar ---------- */
@@ -629,6 +644,70 @@
     b.title = t(on ? "tt_unfullscreen" : "tt_fullscreen");
   }
 
+  /* ---------- ads + go-ad-free ---------- */
+  function isAdFree() { return !!(SAVE.settings && SAVE.settings.adFree); }
+  function setAdFree(on) { SAVE.settings.adFree = !!on; persist(); mountAd(); }
+  function adFreeUrl() { var u = (SAVE.settings && SAVE.settings.adFreeUrl) || ADFREE_URL || donateUrl(); return String(u || "").trim(); }
+  function adFreeReady() { return /^https?:\/\/[^\/]+\/.+/.test(adFreeUrl()); }
+  let _adIx = 0;
+  function houseAds() {
+    return [
+      { title: t("ad_house1_t"), sub: t("ad_house1_s"), url: donateReady() ? donateUrl() : "#adfree" },
+      { title: t("ad_house2_t"), sub: t("ad_house2_s"), url: "#adfree" },
+    ];
+  }
+  function mountAd() {
+    var main = $("main"); if (!main) return;
+    var old = main.querySelector(".ad-slot"); if (old) old.remove();
+    if (isAdFree()) return;
+    var bar = el("div", "ad-slot");
+    if (AD_NETWORK) {
+      // Drop a privacy-first network unit here later (EthicalAds / Carbon).
+      bar.innerHTML = '<span class="ad-tag">AD</span><div class="ad-net" id="ad-net"></div>' +
+        '<button class="ad-x" type="button">' + t("ad_remove") + " ✕</button>";
+    } else {
+      var ads = houseAds(); var ad = ads[_adIx % ads.length]; _adIx++;
+      bar.innerHTML = '<span class="ad-tag">AD</span>' +
+        '<a class="ad-body" href="' + escapeHtml(ad.url) + '" target="_blank" rel="noopener"><b>' + escapeHtml(ad.title) + "</b> <span class=\"ad-sub\">" + escapeHtml(ad.sub) + "</span></a>" +
+        '<button class="ad-x" type="button">' + t("ad_remove") + " ✕</button>";
+    }
+    main.insertBefore(bar, main.firstChild);
+    var x = bar.querySelector(".ad-x"); if (x) x.onclick = openAdFree;
+    var body = bar.querySelector(".ad-body");
+    if (body) body.onclick = function (e) {
+      var href = body.getAttribute("href");
+      if (href === "#adfree") { e.preventDefault(); openAdFree(); }
+    };
+  }
+  function openAdFree() {
+    var url = adFreeUrl(), ready = adFreeReady(), active = isAdFree();
+    $("modal-body").innerHTML =
+      "<h2>▌ " + t("adfree_title") + "</h2>" +
+      "<p>" + t("adfree_body") + "</p>" +
+      (active
+        ? '<div class="callout"><span class="tag">✓</span> ' + t("adfree_active") + "</div>"
+        : '<div class="donate-wrap">' +
+            (ready
+              ? '<a class="donate-cta" id="adfree-go" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">✦ ' + t("adfree_cta") + "</a>"
+              : '<div class="callout warn"><span class="tag">⚠</span> ' + t("adfree_soon") + "</div>") +
+          "</div>" +
+          '<div class="sync-sec"><h3>' + t("adfree_have_code") + "</h3>" +
+          '<div class="codebox"><input type="text" id="adfree-code" placeholder="' + t("adfree_code_ph") + '" style="flex:1 1 150px;width:auto"><button class="btn alt sm" id="adfree-apply">' + t("adfree_unlock") + "</button></div>" +
+          '<div class="sync-status" id="adfree-status"></div></div>') +
+      '<p class="dim">' + t("adfree_note") + "</p>";
+    $("modal").hidden = false;
+    var ap = $("adfree-apply");
+    if (ap) ap.onclick = function () {
+      var v = (($("adfree-code") || {}).value || "").trim();
+      var st = $("adfree-status");
+      if (ADFREE_CODE && v && v.toUpperCase() === String(ADFREE_CODE).toUpperCase()) {
+        setAdFree(true); if (st) { st.textContent = t("adfree_ok"); st.className = "sync-status ok"; }
+        if (window.Snd) Snd.sfx("victory");
+        setTimeout(function () { if (!$("modal").hidden) closeHelp(); }, 1100);
+      } else { if (st) { st.textContent = t("adfree_bad"); st.className = "sync-status bad"; } }
+    };
+  }
+
   function openSettings() {
     var s = SAVE.settings;
     var pct = function (v) { return Math.round((v || 0) * 100); };
@@ -641,6 +720,9 @@
       '<button class="btn ' + (s.theme !== "synthwave" && s.theme !== "amber" ? "" : "subtle ") + 'sm theme-opt" data-theme="matrix"><span class="theme-sw" style="background:#00ff9c"></span>MATRIX</button>' +
       '<button class="btn ' + (s.theme === "synthwave" ? "" : "subtle ") + 'sm theme-opt" data-theme="synthwave"><span class="theme-sw" style="background:#ff4dd2"></span>SYNTHWAVE</button>' +
       '<button class="btn ' + (s.theme === "amber" ? "" : "subtle ") + 'sm theme-opt" data-theme="amber"><span class="theme-sw" style="background:#ffb000"></span>AMBER</button></div></div>' +
+      '<div class="sync-sec"><h3>' + t("s_ads") + '</h3><div class="codebox">' +
+      '<span class="dim" style="flex:1 1 auto">' + (isAdFree() ? "✓ " + t("adfree_active") : t("ads_on")) + "</span>" +
+      '<button class="btn alt sm" id="set-adfree">' + (isAdFree() ? t("adfree_manage") : t("adfree_cta")) + "</button></div></div>" +
       '<div class="sync-sec"><h3>' + t("s_audio") + "</h3>" +
       '<div class="set-row"><label><input type="checkbox" id="set-mute"' + (s.mute ? " checked" : "") + "> " + t("s_mute") + "</label></div>" +
       '<div class="set-row"><label><input type="checkbox" id="set-musicon"' + (s.musicOn ? " checked" : "") + "> " + t("s_music") + "</label></div>" +
@@ -654,6 +736,7 @@
     document.querySelectorAll(".theme-opt").forEach(function (b) { b.onclick = function () { applyTheme(b.getAttribute("data-theme")); openSettings(); }; });
     $("lang-en").onclick = function () { setLang("en"); openSettings(); };
     $("lang-fr").onclick = function () { setLang("fr"); openSettings(); };
+    if ($("set-adfree")) $("set-adfree").onclick = function () { openAdFree(); };
     $("set-mute").onchange = function () { s.mute = this.checked; persistRaw(); if (window.Snd) Snd.setMuted(s.mute); };
     $("set-musicon").onchange = function () { s.musicOn = this.checked; persistRaw(); if (window.Snd) Snd.setMusicOn(s.musicOn); };
     $("set-musicvol").oninput = function () { var v = +this.value; $("mv-val").textContent = v; s.musicVol = v / 100; persistRaw(); if (window.Snd) Snd.setMusicVol(s.musicVol); };
