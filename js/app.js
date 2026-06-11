@@ -6,6 +6,15 @@
 (function () {
   "use strict";
 
+  /* ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+     DONATIONS — the ☕ support button sends visitors to this Ko-fi page.
+     Set it to YOUR Ko-fi handle, e.g. "https://ko-fi.com/florian".
+     This single value is served to every visitor, so it is the link
+     everyone donates to. (An optional per-device override lives in
+     Settings, but THIS constant is what ships to the public.)
+     ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ */
+  const DONATE_URL = "https://ko-fi.com/";   // ← put your Ko-fi handle after the slash
+
   /* ---------- helpers ---------- */
   const $ = (id) => document.getElementById(id);
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -579,6 +588,25 @@
   }
   function closeHelp() { $("modal").hidden = true; }
 
+  /* ---------- donations (Ko-fi) ---------- */
+  function donateUrl() { var u = (SAVE.settings && SAVE.settings.donateUrl) || DONATE_URL; return String(u || "").trim(); }
+  function donateReady() { return /^https?:\/\/[^\/]+\/.+/.test(donateUrl()); } // has a real handle/path
+  function openDonate() {
+    var ready = donateReady(), url = donateUrl();
+    $("modal-body").innerHTML =
+      "<h2>▌ " + t("donate_title") + "</h2>" +
+      "<p>" + t("donate_body") + "</p>" +
+      '<div class="donate-wrap">' +
+        (ready
+          ? '<a class="donate-cta" id="donate-go" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">☕ ' + t("donate_cta") + "</a>"
+          : '<div class="callout warn"><span class="tag">⚠</span> ' + t("donate_soon") + "</div>") +
+      "</div>" +
+      '<p class="dim">' + t("donate_note") + "</p>";
+    $("modal").hidden = false;
+    var g = $("donate-go");
+    if (g) g.onclick = function () { if (window.Snd) Snd.sfx("open"); };
+  }
+
   function openSettings() {
     var s = SAVE.settings;
     var pct = function (v) { return Math.round((v || 0) * 100); };
@@ -614,7 +642,7 @@
     $("set-motion").onchange = function () { s.motion = this.checked; persistRaw(); document.body.classList.toggle("no-motion", s.motion); };
   }
   function localizeChrome() {
-    var map = { "btn-buddy": "tt_buddy", "btn-sync": "tt_sync", "btn-settings": "tt_settings", "btn-help": "tt_help", "btn-reset": "tt_wipe", "btn-menu": "tt_menu" };
+    var map = { "btn-buddy": "tt_buddy", "btn-sync": "tt_sync", "btn-settings": "tt_settings", "btn-help": "tt_help", "btn-reset": "tt_wipe", "btn-menu": "tt_menu", "btn-donate": "tt_donate" };
     for (var id in map) { var e = $(id); if (e) e.title = t(map[id]); }
   }
   function setLang(l) { SAVE.settings.lang = l; persistRaw(); if (window.I18N) I18N.set(l); localizeChrome(); route(); }
@@ -734,6 +762,7 @@
     $("btn-help").onclick = openHelp;
     $("btn-sync").onclick = openSync;
     $("btn-settings").onclick = openSettings;
+    if ($("btn-donate")) $("btn-donate").onclick = openDonate;
     $("btn-buddy").onclick = () => { if (window.Companion) Companion.toggle(); };
     if ($("boot-en")) $("boot-en").onclick = () => setBootLang("en");
     if ($("boot-fr")) $("boot-fr").onclick = () => setBootLang("fr");
@@ -745,7 +774,7 @@
       Snd.resume();
       var id = b.id || "";
       if (id === "jack-in") return;
-      if (id === "btn-settings" || id === "btn-sync" || id === "btn-help") Snd.sfx("open");
+      if (id === "btn-settings" || id === "btn-sync" || id === "btn-help" || id === "btn-donate") Snd.sfx("open");
       else if (id === "modal-close" || b.classList.contains("companion-x")) Snd.sfx("close");
       else if (id === "btn-run") Snd.sfx("execute");
       else if (id === "btn-reset") Snd.sfx("wipe");

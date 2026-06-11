@@ -9,3 +9,6 @@ sync-worker/node_modules/
 .DS_Store
 Thumbs.db
 *.log
+_verify/fr-jobs/
+_verify/fr-out/
+_verify/fr-titles/

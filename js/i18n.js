@@ -57,6 +57,14 @@ window.I18N = {
       s_clear_files: "use generative", s_loaded: "{n} track(s) loaded",
       english: "English", french: "Français",
 
+      // donations
+      tt_donate: "support THE CONSTRUCT — donate",
+      donate_title: "SUPPORT THE CONSTRUCT",
+      donate_body: "THE CONSTRUCT is free, ad-free and open to everyone. If it's helping you learn to code, a small tip keeps the servers humming and new sectors coming. Thank you, operator. ♥",
+      donate_cta: "DONATE ON KO-FI",
+      donate_soon: "The donation link isn't live yet — check back soon.",
+      donate_note: "Secure checkout is handled by Ko-fi — no account needed to give. THE CONSTRUCT stays 100% free either way.",
+
       // boot + onboarding
       boot_lang: "LANGUAGE / LANGUE", jack_in: "[ PRESS ENTER TO JACK IN ]",
       boot_tag: "POLYGLOT CODE TRAINER · NEURAL SIMULATION · v1.0",
@@ -115,6 +123,14 @@ window.I18N = {
       s_your_files: "Vos fichiers", s_load_files: "↑ Charger des fichiers audio",
       s_clear_files: "revenir au génératif", s_loaded: "{n} piste(s) chargée(s)",
       english: "English", french: "Français",
+
+      // dons
+      tt_donate: "soutenir THE CONSTRUCT — faire un don",
+      donate_title: "SOUTENIR THE CONSTRUCT",
+      donate_body: "THE CONSTRUCT est gratuit, sans publicité et ouvert à tous. S'il vous aide à apprendre à coder, un petit pourboire garde les serveurs en marche et fait arriver de nouveaux secteurs. Merci, opérateur·rice. ♥",
+      donate_cta: "FAIRE UN DON SUR KO-FI",
+      donate_soon: "Le lien de don n'est pas encore actif — revenez bientôt.",
+      donate_note: "Le paiement sécurisé est géré par Ko-fi — aucun compte requis pour donner. THE CONSTRUCT reste 100 % gratuit dans tous les cas.",
 
       boot_lang: "LANGUE / LANGUAGE", jack_in: "[ APPUYEZ SUR ENTRÉE POUR ENTRER ]",
       boot_tag: "ENTRAÎNEMENT POLYGLOTTE AU CODE · SIMULATION NEURONALE · v1.0",
