@@ -197,14 +197,26 @@
       statusEl = el.querySelector(".companion-status");
       el.querySelector(".companion-x").addEventListener("click", function () { Companion.setOpen(false); });
       makeDraggable(el.querySelector(".companion-bar"));
+      window.addEventListener("resize", function () { if (Companion.open) Companion.clamp(); });
       this.mounted = true;
       this.setOpen(!!opts.initialOpen);
     },
     setOpen: function (v) {
       if (!this.mounted) return;
       this.open = !!v; el.hidden = !this.open;
+      document.body.classList.toggle("companion-open", this.open);
+      if (this.open) this.clamp();
       if (this._onToggle) this._onToggle(this.open);
       if (this.open) ensureLoop();
+    },
+    /* keep the window fully on-screen (after a drag or a viewport resize) */
+    clamp: function () {
+      if (!el || el.hidden) return;
+      if (el.style.left && el.style.left !== "auto") {
+        var maxL = Math.max(0, window.innerWidth - el.offsetWidth), maxT = Math.max(0, window.innerHeight - el.offsetHeight);
+        el.style.left = Math.max(0, Math.min(parseFloat(el.style.left) || 0, maxL)) + "px";
+        el.style.top = Math.max(0, Math.min(parseFloat(el.style.top) || 0, maxT)) + "px";
+      }
     },
     toggle: function () { this.setOpen(!this.open); },
     isOpen: function () { return this.open; },

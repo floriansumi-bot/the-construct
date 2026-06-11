@@ -31,7 +31,7 @@
 /* the [hidden] attribute must always win over author display rules
    (e.g. #modal{display:flex}, #app{display:flex}) */
 [hidden]{ display:none !important; }
-html,body{ height:100%; }
+html,body{ height:100%; overflow-x:hidden; }
 body{
   margin:0;
   background:
@@ -556,8 +556,11 @@ textarea.sync-import{ width:100%; height:70px; background:#04140e; border:1px so
   .brief-body h1{ font-size:24px; }
 }
 @media (max-width: 420px){
-  .brand{ font-size:15px; }
-  #btn-sync, #btn-help, #btn-reset{ padding:6px 8px; }
+  .brand{ font-size:14px; letter-spacing:1px; }
+  #topbar{ gap:6px; padding:8px 8px; }
+  .hud{ gap:4px; }
+  #btn-menu{ padding:6px 8px; }
+  #btn-buddy, #btn-sync, #btn-help, #btn-reset{ padding:6px 6px; }
 }
 
 /* ============================================================
@@ -593,7 +596,23 @@ textarea.sync-import{ width:100%; height:70px; background:#04140e; border:1px so
 .companion-status.fight{ color:var(--amber); }
 .companion-status.win{ color:var(--green); text-shadow:var(--glow); }
 @keyframes flick{ 0%,100%{opacity:1;} 50%{opacity:.45;} }
+.companion-title, .companion-status{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.companion{ max-width:calc(100vw - 16px); max-height:calc(100vh - 80px); }
+
+/* reserve space so PROTO.EXE never hides the bottom of a page */
+body.companion-open #main{ padding-bottom:248px; }
+
+/* keep the top bar tidy now that there's an extra button */
+.brand{ min-width:0; overflow:hidden; text-overflow:ellipsis; }
+.hud > .ghost-btn{ flex:0 0 auto; }
+
 @media (max-width:760px){
-  .companion{ right:8px; bottom:8px; width:170px; }
-  .companion-canvas{ width:170px; height:148px; }
+  .companion{ right:8px; bottom:8px; width:168px; }
+  .companion-canvas{ width:168px; height:146px; }
+  body.companion-open #main{ padding-bottom:204px; }
+  body.nav-open .companion{ display:none !important; }   /* don't fight the nav drawer */
+  #btn-buddy{ font-size:10px; padding:7px 7px; letter-spacing:0; }
+}
+@media (max-width:560px){
+  .hud-block{ display:none; }                            /* drop XP text so buttons fit */
 }
