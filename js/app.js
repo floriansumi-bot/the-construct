@@ -647,6 +647,29 @@
   /* ---------- ads + go-ad-free ---------- */
   function isAdFree() { return !!(SAVE.settings && SAVE.settings.adFree); }
   function setAdFree(on) { SAVE.settings.adFree = !!on; persist(); mountAd(); }
+  // Validate a Lemon Squeezy license key (works against any LS store key; no
+  // store secret needed). activate() also enforces the per-product device limit.
+  function activateLicense(key) {
+    var inst = (SAVE.profile && SAVE.profile.code) || "construct";
+    return fetch("https://api.lemonsqueezy.com/v1/licenses/activate", {
+      method: "POST",
+      headers: { "Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded" },
+      body: "license_key=" + encodeURIComponent(key) + "&instance_name=" + encodeURIComponent(inst),
+    }).then(function (r) { return r.json(); });
+  }
+  function unlockAdFree(code) {
+    code = String(code || "").trim();
+    if (!code) return Promise.resolve({ ok: false });
+    // optional manual comp code (press / giveaways)
+    if (ADFREE_CODE && code.toUpperCase() === String(ADFREE_CODE).toUpperCase()) return Promise.resolve({ ok: true });
+    // otherwise treat it as a Lemon Squeezy license key
+    return activateLicense(code).then(function (data) {
+      if (data && (data.activated === true || data.valid === true)) return { ok: true, key: code };
+      var msg = (data && data.error) ? String(data.error) : "";
+      if (/activ/i.test(msg) && /(limit|reach|maxim)/i.test(msg)) return { ok: false, msg: t("adfree_maxdevices") };
+      return { ok: false, msg: t("adfree_bad") };
+    }).catch(function () { return { ok: false, msg: t("adfree_neterr") }; });
+  }
   function adFreeUrl() { var u = (SAVE.settings && SAVE.settings.adFreeUrl) || ADFREE_URL || donateUrl(); return String(u || "").trim(); }
   function adFreeReady() { return /^https?:\/\/[^\/]+\/.+/.test(adFreeUrl()); }
   let _adIx = 0;
@@ -700,11 +723,21 @@
     if (ap) ap.onclick = function () {
       var v = (($("adfree-code") || {}).value || "").trim();
       var st = $("adfree-status");
-      if (ADFREE_CODE && v && v.toUpperCase() === String(ADFREE_CODE).toUpperCase()) {
-        setAdFree(true); if (st) { st.textContent = t("adfree_ok"); st.className = "sync-status ok"; }
-        if (window.Snd) Snd.sfx("victory");
-        setTimeout(function () { if (!$("modal").hidden) closeHelp(); }, 1100);
-      } else { if (st) { st.textContent = t("adfree_bad"); st.className = "sync-status bad"; } }
+      if (!v) return;
+      if (st) { st.textContent = t("adfree_checking"); st.className = "sync-status"; }
+      ap.disabled = true;
+      unlockAdFree(v).then(function (r) {
+        ap.disabled = false;
+        if (r && r.ok) {
+          if (r.key && SAVE.profile) SAVE.profile.license = r.key;
+          setAdFree(true);
+          if (st) { st.textContent = t("adfree_ok"); st.className = "sync-status ok"; }
+          if (window.Snd) Snd.sfx("victory");
+          setTimeout(function () { if (!$("modal").hidden) closeHelp(); }, 1200);
+        } else {
+          if (st) { st.textContent = (r && r.msg) ? r.msg : t("adfree_bad"); st.className = "sync-status bad"; }
+        }
+      });
     };
   }
 
