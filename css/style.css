@@ -649,6 +649,8 @@ body.companion-open #main{ padding-bottom:248px; }
 .set-row input[type=checkbox]{ accent-color:var(--green); width:15px; height:15px; vertical-align:-2px; }
 .theme-opt{ display:inline-flex; align-items:center; }
 .theme-sw{ display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:7px; border:1px solid rgba(255,255,255,.35); }
+/* ── fullscreen toggle ── */
+#btn-fullscreen.active{ color:var(--green); border-color:var(--green); box-shadow:var(--glow-soft); }
 /* ── donation (Ko-fi) ── */
 .donate-btn{ color:var(--amber); }
 .donate-btn:hover{ color:var(--amber); text-shadow:0 0 8px rgba(255,179,0,.6); }

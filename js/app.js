@@ -607,6 +607,28 @@
     if (g) g.onclick = function () { if (window.Snd) Snd.sfx("open"); };
   }
 
+  /* ---------- fullscreen ---------- */
+  function fsEl() { return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || null; }
+  function fsSupported() { var el = document.documentElement; return !!(el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen); }
+  function toggleFullscreen() {
+    try {
+      if (!fsEl()) {
+        var el = document.documentElement;
+        var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+        if (req) { var p = req.call(el); if (p && p.catch) p.catch(function () {}); }
+      } else {
+        var exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        if (exit) { var q = exit.call(document); if (q && q.catch) q.catch(function () {}); }
+      }
+    } catch (e) {}
+  }
+  function updateFsBtn() {
+    var b = $("btn-fullscreen"); if (!b) return;
+    var on = !!fsEl();
+    b.classList.toggle("active", on);
+    b.title = t(on ? "tt_unfullscreen" : "tt_fullscreen");
+  }
+
   function openSettings() {
     var s = SAVE.settings;
     var pct = function (v) { return Math.round((v || 0) * 100); };
@@ -644,6 +666,7 @@
   function localizeChrome() {
     var map = { "btn-buddy": "tt_buddy", "btn-sync": "tt_sync", "btn-settings": "tt_settings", "btn-help": "tt_help", "btn-reset": "tt_wipe", "btn-menu": "tt_menu", "btn-donate": "tt_donate" };
     for (var id in map) { var e = $(id); if (e) e.title = t(map[id]); }
+    updateFsBtn();
   }
   function setLang(l) { SAVE.settings.lang = l; persistRaw(); if (window.I18N) I18N.set(l); localizeChrome(); route(); }
   function localizeBoot() {
@@ -763,6 +786,16 @@
     $("btn-sync").onclick = openSync;
     $("btn-settings").onclick = openSettings;
     if ($("btn-donate")) $("btn-donate").onclick = openDonate;
+    var fsb = $("btn-fullscreen");
+    if (fsb) {
+      if (!fsSupported()) { fsb.style.display = "none"; }
+      else {
+        fsb.onclick = toggleFullscreen;
+        document.addEventListener("fullscreenchange", updateFsBtn);
+        document.addEventListener("webkitfullscreenchange", updateFsBtn);
+        updateFsBtn();
+      }
+    }
     $("btn-buddy").onclick = () => { if (window.Companion) Companion.toggle(); };
     if ($("boot-en")) $("boot-en").onclick = () => setBootLang("en");
     if ($("boot-fr")) $("boot-fr").onclick = () => setBootLang("fr");

@@ -57,6 +57,7 @@ window.I18N = {
       s_clear_files: "use generative", s_loaded: "{n} track(s) loaded",
       english: "English", french: "Français",
 
+      tt_fullscreen: "fullscreen", tt_unfullscreen: "exit fullscreen",
       // donations
       tt_donate: "support THE CONSTRUCT — donate",
       donate_title: "SUPPORT THE CONSTRUCT",
@@ -124,6 +125,7 @@ window.I18N = {
       s_clear_files: "revenir au génératif", s_loaded: "{n} piste(s) chargée(s)",
       english: "English", french: "Français",
 
+      tt_fullscreen: "plein écran", tt_unfullscreen: "quitter le plein écran",
       // dons
       tt_donate: "soutenir THE CONSTRUCT — faire un don",
       donate_title: "SOUTENIR THE CONSTRUCT",
