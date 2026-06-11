@@ -3,7 +3,7 @@
    and stale-while-revalidate for same-origin assets. CDN engines (Pyodide,
    sql.js, wasmoon, ruby.wasm, CodeMirror...) are cross-origin -> straight to
    network (they need internet on first use anyway). */
-const CACHE = "construct-shell-v2";
+const CACHE = "construct-shell-v3";
 const SHELL = [
   "./", "./index.html", "./css/style.css", "./manifest.json",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/maskable-512.png",
