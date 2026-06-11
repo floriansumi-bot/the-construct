@@ -346,6 +346,7 @@
       const pr = trackProgress(tk);
       cards += '<div class="track-card lang" data-id="' + tk.id + '" style="--acc:' + (tk.accent || "#00ff9c") + '">' +
         '<div class="lang-bar"></div>' +
+        (tk.id === "python" ? '<div class="start-here">' + t("start_here") + "</div>" : "") +
         '<div class="ix">' + escapeHtml(runtimeTag(tk)) + "</div>" +
         "<h3>" + escapeHtml(tk.name) + "</h3>" +
         "<p>" + escapeHtml(tk.blurb || "") + "</p>" +
@@ -355,6 +356,7 @@
     m.innerHTML =
       '<div class="dash-hero"><h1>' + t("select_language") + "</h1>" +
       "<p>" + t("lang_blurb") + "</p>" +
+      '<p class="ls-hint">▸ ' + t("ls_new_hint") + "</p>" +
       '<div class="stats">' +
         '<div class="stat"><div class="v">' + globalDone() + '</div><div class="k">' + t("nodes_cleared") + "</div></div>" +
         '<div class="stat"><div class="v">' + TRACKS().length + '</div><div class="k">' + t("languages") + "</div></div>" +
@@ -475,7 +477,7 @@
     }
 
     // boot the runtime for this track
-    cClear(); cAdd("> booting " + track.name + " kernel…", "sys");
+    cClear(); cAdd(t("loading_lang", { name: track.name }), "sys");
     ensureRuntime(track, (msg, c) => cAdd("> " + msg, c === "ok" ? "" : "sys")).then(() => {
       cClear(); cAdd(t("kernel_ready"), "muted");
       runBtn.disabled = false; runBtn.textContent = t("execute");
@@ -585,6 +587,15 @@
     for (var id in map) { var e = $(id); if (e) e.title = t(map[id]); }
   }
   function setLang(l) { SAVE.settings.lang = l; persistRaw(); if (window.I18N) I18N.set(l); localizeChrome(); route(); }
+  function localizeBoot() {
+    var jin = $("jack-in"); if (jin) jin.textContent = t("jack_in");
+    var tag = $("boot-tag"); if (tag) tag.textContent = t("boot_tag");
+    var lbl = $("boot-lang-label"); if (lbl) lbl.textContent = t("boot_lang");
+    var en = $("boot-en"), fr = $("boot-fr");
+    if (en) en.classList.toggle("active", (window.I18N ? I18N.lang : "en") === "en");
+    if (fr) fr.classList.toggle("active", (window.I18N ? I18N.lang : "en") === "fr");
+  }
+  function setBootLang(l) { SAVE.settings.lang = l; persistRaw(); if (window.I18N) I18N.set(l); localizeBoot(); localizeChrome(); }
 
   function openSync() {
     var code = SAVE.profile.code;
@@ -685,6 +696,8 @@
     $("btn-sync").onclick = openSync;
     $("btn-settings").onclick = openSettings;
     $("btn-buddy").onclick = () => { if (window.Companion) Companion.toggle(); };
+    if ($("boot-en")) $("boot-en").onclick = () => setBootLang("en");
+    if ($("boot-fr")) $("boot-fr").onclick = () => setBootLang("fr");
     // one delegated listener gives every control its futuristic blip
     document.addEventListener("pointerdown", function (e) {
       if (!window.Snd) return;
@@ -715,7 +728,7 @@
     if (!window.TRACKS || !window.TRACKS.length) { $("boot-log").innerHTML = '<div class="crit">FATAL: no language tracks registered.</div>'; return; }
     // order each section as a difficulty ladder (stable: keeps authored order within a tier)
     window.TRACKS.forEach(function (t) { t.modules.forEach(function (m) { m.exercises.sort(function (a, b) { return (a.difficulty || 1) - (b.difficulty || 1); }); }); });
-    wireChrome(); boot();
+    wireChrome(); localizeBoot(); boot();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();

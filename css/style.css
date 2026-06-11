@@ -631,3 +631,27 @@ body.companion-open #main{ padding-bottom:248px; }
 .no-motion *{ animation:none !important; transition:none !important; }
 .no-motion #flicker{ display:none !important; }
 .no-motion .glitch::before, .no-motion .glitch::after{ display:none !important; }
+
+/* ============================================================
+   BOOT language toggle + onboarding cues
+   ============================================================ */
+#boot-lang{
+  position:absolute; top:16px; right:18px; z-index:3;
+  display:flex; align-items:center; gap:6px; font-size:11px; letter-spacing:1px;
+}
+#boot-lang-label{ color:var(--green-dim); }
+.boot-lang-btn{
+  background:transparent; border:1px solid var(--line); color:var(--green);
+  font-family:var(--mono); font-size:12px; padding:4px 10px; cursor:pointer; letter-spacing:1px;
+}
+.boot-lang-btn:hover{ border-color:var(--green); box-shadow:var(--glow-soft); }
+.boot-lang-btn.active{ background:var(--green); color:#021; border-color:var(--green); box-shadow:var(--glow); }
+@media (max-width:480px){ #boot-lang{ top:10px; right:10px; } #boot-lang-label{ display:none; } }
+
+.ls-hint{ color:var(--cyan); font-size:13.5px; margin:8px 0 0; text-shadow:0 0 8px rgba(37,225,255,.3); }
+.ls-hint b{ color:var(--green); }
+.track-card.lang .start-here{
+  position:absolute; top:8px; right:8px; z-index:2; background:var(--green); color:#021;
+  font-size:10px; letter-spacing:1px; padding:2px 7px; font-family:var(--mono);
+  box-shadow:var(--glow-soft); animation:pulse 1.4s ease-in-out infinite;
+}

@@ -57,6 +57,12 @@ window.I18N = {
       s_clear_files: "use generative", s_loaded: "{n} track(s) loaded",
       english: "English", french: "Français",
 
+      // boot + onboarding
+      boot_lang: "LANGUAGE / LANGUE", jack_in: "[ PRESS ENTER TO JACK IN ]",
+      boot_tag: "POLYGLOT CODE TRAINER · NEURAL SIMULATION · v1.0",
+      ls_new_hint: "New to coding? Start with <b>Python</b> below — it's the friendliest first language.",
+      start_here: "START HERE",
+      loading_lang: "Loading the {name} engine — first time only, a few seconds…",
       // sync (kept mostly as-is; a few labels)
       sync_title: "PROFILE SYNC",
     },
@@ -110,6 +116,11 @@ window.I18N = {
       s_clear_files: "revenir au génératif", s_loaded: "{n} piste(s) chargée(s)",
       english: "English", french: "Français",
 
+      boot_lang: "LANGUE / LANGUAGE", jack_in: "[ APPUYEZ SUR ENTRÉE POUR ENTRER ]",
+      boot_tag: "ENTRAÎNEMENT POLYGLOTTE AU CODE · SIMULATION NEURONALE · v1.0",
+      ls_new_hint: "Débutant·e en code ? Commencez par <b>Python</b> ci-dessous — le langage idéal pour débuter.",
+      start_here: "COMMENCEZ ICI",
+      loading_lang: "Chargement du moteur {name} — uniquement la 1re fois, quelques secondes…",
       sync_title: "SYNCHRO DU PROFIL",
     },
   },
