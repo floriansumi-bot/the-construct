@@ -49,7 +49,7 @@ window.I18N = {
       kernel_fail_hint: "This language needs internet on first use to fetch its engine. Check your connection and re-open this node.",
 
       // settings
-      settings_title: "SETTINGS", s_language: "LANGUAGE", s_audio: "AUDIO",
+      settings_title: "SETTINGS", s_language: "LANGUAGE", s_style: "VISUAL STYLE", s_audio: "AUDIO",
       s_music: "Music", s_music_vol: "Music volume", s_sfx_vol: "Effects volume",
       s_mute: "Mute everything", s_motion: "Reduce motion",
       s_music_src: "Music source", s_generative: "Generative jungle ☕",
@@ -108,7 +108,7 @@ window.I18N = {
       kernel_fail: "ÉCHEC DE CHARGEMENT DU NOYAU :: {err}",
       kernel_fail_hint: "Ce langage a besoin d'internet à la première utilisation pour charger son moteur. Vérifiez votre connexion et réouvrez ce nœud.",
 
-      settings_title: "PARAMÈTRES", s_language: "LANGUE", s_audio: "AUDIO",
+      settings_title: "PARAMÈTRES", s_language: "LANGUE", s_style: "STYLE VISUEL", s_audio: "AUDIO",
       s_music: "Musique", s_music_vol: "Volume musique", s_sfx_vol: "Volume effets",
       s_mute: "Tout couper", s_motion: "Réduire les animations",
       s_music_src: "Source musicale", s_generative: "Jungle générative ☕",

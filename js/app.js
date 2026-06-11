@@ -93,6 +93,7 @@
   if (SAVE.settings.sfxVol === undefined) SAVE.settings.sfxVol = 0.6;
   if (SAVE.settings.musicVol === undefined) SAVE.settings.musicVol = 0.4;
   if (SAVE.settings.musicOn === undefined) SAVE.settings.musicOn = true;
+  if (SAVE.settings.theme === undefined) SAVE.settings.theme = "matrix";
   if (window.I18N) I18N.set(SAVE.settings.lang);
   if (window.Snd) Snd.init({ sfxVol: SAVE.settings.sfxVol, musicVol: SAVE.settings.musicVol, muted: !!SAVE.settings.mute, musicOn: SAVE.settings.musicOn });
   document.body.classList.toggle("no-motion", !!SAVE.settings.motion);
@@ -561,6 +562,10 @@
       '<div class="sync-sec"><h3>' + t("s_language") + '</h3><div class="codebox">' +
       '<button class="btn ' + (s.lang !== "fr" ? "" : "subtle ") + 'sm" id="lang-en">' + t("english") + "</button>" +
       '<button class="btn ' + (s.lang === "fr" ? "" : "subtle ") + 'sm" id="lang-fr">' + t("french") + "</button></div></div>" +
+      '<div class="sync-sec"><h3>' + t("s_style") + '</h3><div class="codebox">' +
+      '<button class="btn ' + (s.theme !== "synthwave" && s.theme !== "amber" ? "" : "subtle ") + 'sm theme-opt" data-theme="matrix"><span class="theme-sw" style="background:#00ff9c"></span>MATRIX</button>' +
+      '<button class="btn ' + (s.theme === "synthwave" ? "" : "subtle ") + 'sm theme-opt" data-theme="synthwave"><span class="theme-sw" style="background:#ff4dd2"></span>SYNTHWAVE</button>' +
+      '<button class="btn ' + (s.theme === "amber" ? "" : "subtle ") + 'sm theme-opt" data-theme="amber"><span class="theme-sw" style="background:#ffb000"></span>AMBER</button></div></div>' +
       '<div class="sync-sec"><h3>' + t("s_audio") + "</h3>" +
       '<div class="set-row"><label><input type="checkbox" id="set-mute"' + (s.mute ? " checked" : "") + "> " + t("s_mute") + "</label></div>" +
       '<div class="set-row"><label><input type="checkbox" id="set-musicon"' + (s.musicOn ? " checked" : "") + "> " + t("s_music") + "</label></div>" +
@@ -571,6 +576,7 @@
       '<div class="sync-status" id="set-filestatus"></div>' +
       '<div class="set-row"><label><input type="checkbox" id="set-motion"' + (s.motion ? " checked" : "") + "> " + t("s_motion") + "</label></div></div>";
     $("modal").hidden = false;
+    document.querySelectorAll(".theme-opt").forEach(function (b) { b.onclick = function () { applyTheme(b.getAttribute("data-theme")); openSettings(); }; });
     $("lang-en").onclick = function () { setLang("en"); openSettings(); };
     $("lang-fr").onclick = function () { setLang("fr"); openSettings(); };
     $("set-mute").onchange = function () { s.mute = this.checked; persistRaw(); if (window.Snd) Snd.setMuted(s.mute); };
@@ -596,6 +602,12 @@
     if (fr) fr.classList.toggle("active", (window.I18N ? I18N.lang : "en") === "fr");
   }
   function setBootLang(l) { SAVE.settings.lang = l; persistRaw(); if (window.I18N) I18N.set(l); localizeBoot(); localizeChrome(); }
+  function applyTheme(theme) {
+    theme = (theme === "synthwave" || theme === "amber") ? theme : "matrix";
+    SAVE.settings.theme = theme; persistRaw();
+    document.body.classList.remove("theme-synthwave", "theme-amber");
+    if (theme !== "matrix") document.body.classList.add("theme-" + theme);
+  }
 
   function openSync() {
     var code = SAVE.profile.code;
@@ -646,7 +658,8 @@
     let w, h, cols, drops, raf;
     function resize() { w = canvas.width = canvas.offsetWidth; h = canvas.height = canvas.offsetHeight; cols = Math.floor(w / 14); drops = new Array(cols).fill(0).map(() => Math.random() * -40); }
     resize(); const onR = () => resize(); window.addEventListener("resize", onR);
-    function draw() { ctx.fillStyle = "rgba(3,8,6,0.09)"; ctx.fillRect(0, 0, w, h); ctx.font = "14px monospace"; for (let i = 0; i < cols; i++) { const t = chars[Math.floor(Math.random() * chars.length)]; ctx.fillStyle = Math.random() > 0.975 ? "#eafff5" : "#00ff9c"; ctx.fillText(t, i * 14, drops[i] * 16); if (drops[i] * 16 > h && Math.random() > 0.975) drops[i] = 0; else drops[i]++; } raf = requestAnimationFrame(draw); }
+    const primary = (getComputedStyle(document.body).getPropertyValue("--green") || "").trim() || "#00ff9c";
+    function draw() { ctx.fillStyle = "rgba(2,2,4,0.11)"; ctx.fillRect(0, 0, w, h); ctx.font = "14px monospace"; for (let i = 0; i < cols; i++) { const t = chars[Math.floor(Math.random() * chars.length)]; ctx.fillStyle = Math.random() > 0.975 ? "#eafff5" : primary; ctx.fillText(t, i * 14, drops[i] * 16); if (drops[i] * 16 > h && Math.random() > 0.975) drops[i] = 0; else drops[i]++; } raf = requestAnimationFrame(draw); }
     if (!reducedMotion()) draw();
     return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", onR); };
   }
@@ -654,6 +667,7 @@
   /* ---------- boot (framework only) ---------- */
   async function boot() {
     const logEl = $("boot-log"), fill = $("boot-bar-fill");
+    applyTheme(SAVE.settings.theme);
     const stopMatrix = startMatrix($("matrix"));
     function line(text, cls) { const d = el("div", cls); d.textContent = text; logEl.appendChild(d); logEl.scrollTop = logEl.scrollHeight; }
     const scripted = [
@@ -728,6 +742,7 @@
     if (!window.TRACKS || !window.TRACKS.length) { $("boot-log").innerHTML = '<div class="crit">FATAL: no language tracks registered.</div>'; return; }
     // order each section as a difficulty ladder (stable: keeps authored order within a tier)
     window.TRACKS.forEach(function (t) { t.modules.forEach(function (m) { m.exercises.sort(function (a, b) { return (a.difficulty || 1) - (b.difficulty || 1); }); }); });
+    applyTheme(SAVE.settings.theme);
     wireChrome(); localizeBoot(); boot();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();

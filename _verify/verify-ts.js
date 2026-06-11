@@ -8,6 +8,12 @@ global.window = { ts: require("typescript") };
 function load(f) { (0, eval)(fs.readFileSync(path.join(base, "js", f), "utf8")); }
 load("tracks.js");
 load("curriculum-ts.js");
+load("curriculum-ts-pack-1.js");
+load("curriculum-ts-pack-2.js");
+load("curriculum-ts-pack-3.js");
+load("curriculum-ts-pack-4.js");
+load("curriculum-ts-pack-5.js");
+load("curriculum-ts-pack-6.js");
 load("runtime-js.js");
 
 (async function () {
