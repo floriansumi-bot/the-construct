@@ -14,6 +14,31 @@
   function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
   function escapeHtml(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
+  /* ---------- localized lesson content (FR overlay, EN fallback) ----------
+     French lesson text lives in window.CONTENT_FR (js/content-fr.js), keyed by
+     track id -> { track:{...}, modules:{id:{...}}, exercises:{id:{...}} } and
+     merged onto each object as `_fr` at start(). Lx(obj,field) returns the FR
+     string when French is active AND present, otherwise the English original —
+     so partial translation is always safe. */
+  function frActive() { return !!(window.I18N && window.I18N.lang === "fr"); }
+  function Lx(obj, field) {
+    if (frActive() && obj && obj._fr && obj._fr[field] != null && obj._fr[field] !== "") return obj._fr[field];
+    return obj ? obj[field] : "";
+  }
+  function applyContentOverlay() {
+    const C = window.CONTENT_FR; if (!C || !window.TRACKS) return;
+    window.TRACKS.forEach(function (tr) {
+      const ov = C[tr.id]; if (!ov) return;
+      if (ov.track) tr._fr = ov.track;
+      (tr.modules || []).forEach(function (m) {
+        if (ov.modules && ov.modules[m.id]) m._fr = ov.modules[m.id];
+        (m.exercises || []).forEach(function (ex) {
+          if (ov.exercises && ov.exercises[ex.id]) ex._fr = ov.exercises[ex.id];
+        });
+      });
+    });
+  }
+
   /* ---------- markdown-lite ---------- */
   function inlineMd(s) {
     const codes = [];
@@ -328,7 +353,7 @@
         m.exercises.forEach((ex, ei) => {
           const done = !!ts(track.id).done[ex.id];
           const li = el("div", "lesson" + (done ? " done" : "") + (curMod === m.id && curEx === ex.id ? " active" : ""));
-          li.innerHTML = '<span class="mark">' + (done ? "✔" : ei + 1) + '</span><span class="lt">' + escapeHtml(ex.title) + '</span><span class="xp">+' + (ex.xp || 100) + "</span>";
+          li.innerHTML = '<span class="mark">' + (done ? "✔" : ei + 1) + '</span><span class="lt">' + escapeHtml(Lx(ex, "title")) + '</span><span class="xp">+' + (ex.xp || 100) + "</span>";
           li.onclick = () => go(track.id + "/" + m.id + "/" + ex.id);
           ls.appendChild(li);
         });
@@ -377,8 +402,8 @@
     track.modules.forEach((mod) => {
       const mp = moduleProgress(track, mod);
       cards += '<div class="track-card" data-go="' + track.id + "/" + mod.id + '">' +
-        '<div class="ix">' + t("sector") + " " + mod.code + "</div><h3>" + escapeHtml(mod.title) + "</h3>" +
-        "<p>" + escapeHtml(mod.subtitle || "") + "</p>" +
+        '<div class="ix">' + t("sector") + " " + mod.code + "</div><h3>" + escapeHtml(Lx(mod, "title")) + "</h3>" +
+        "<p>" + escapeHtml(Lx(mod, "subtitle") || "") + "</p>" +
         '<div class="meter"><i style="width:' + mp.pct + "%;background:" + (track.accent || "#00ff9c") + '"></i></div>' +
         '<div class="foot"><span>' + t("nodes_count", { d: mp.d, t: mp.t }) + "</span><span>" + (mp.done ? "✔ " + t("cleared") : mp.pct + "%") + "</span></div></div>";
     });
@@ -386,7 +411,7 @@
       '<div class="crumbs">// <b>' + escapeHtml(track.name) + "</b> · " + escapeHtml(runtimeTag(track)) + "</div>" +
       '<div class="dash-hero" style="border-color:' + (track.accent || "#00ff9c") + '44">' +
       "<h1>" + t("uplink", { name: escapeHtml(track.name) }) + "</h1>" +
-      "<p>" + escapeHtml(track.intro || track.blurb || "") + "</p>" +
+      "<p>" + escapeHtml(Lx(track, "intro") || Lx(track, "blurb") || "") + "</p>" +
       '<div class="stats">' +
         '<div class="stat"><div class="v">' + pr.dEx + '</div><div class="k">' + t("nodes_cleared") + "</div></div>" +
         '<div class="stat"><div class="v">' + pr.tEx + '</div><div class="k">' + t("total_nodes") + "</div></div>" +
@@ -408,8 +433,8 @@
     main.innerHTML =
       '<div class="crumbs">// <b>' + escapeHtml(track.name) + "</b> / " + t("sector") + " <b>" + m.code + "</b> · " + escapeHtml(m.title) + "</div>" +
       '<div class="page-title">' + escapeHtml(m.title) + "</div>" +
-      '<div class="page-sub">' + escapeHtml(m.subtitle || "") + "</div>" +
-      '<article class="theory">' + mdToHtml(m.theory) + "</article>" +
+      '<div class="page-sub">' + escapeHtml(Lx(m, "subtitle") || "") + "</div>" +
+      '<article class="theory">' + mdToHtml(Lx(m, "theory")) + "</article>" +
       '<div class="theory-actions">' + (first ? '<button class="btn" id="begin">▸ ' + t("begin_first", { title: escapeHtml(first.title) }) + "</button>" : "") + "</div>";
     highlightIn(main);
     if (first) $("begin").onclick = () => go(track.id + "/" + m.id + "/" + first.id);
@@ -425,9 +450,9 @@
     main.innerHTML =
       '<div class="crumbs">// <b>' + escapeHtml(track.name) + "</b> / " + escapeHtml(m.title) + " / " + t("node_of", { i: idx + 1, t: m.exercises.length }) + "</div>" +
       '<div class="ex-wrap"><section class="brief-card"><div class="brief-head"><span>▌ ' + t("mission_brief") + '</span><span class="diff">' + t("threat") + " " + "◆".repeat(diff) + "◇".repeat(Math.max(0, 3 - diff)) + "</span></div>" +
-      '<div class="brief-body"><h1>' + escapeHtml(ex.title) + "</h1>" +
-      '<div class="mission">' + escapeHtml(ex.brief || "") + "</div>" + mdToHtml(ex.prompt) +
-      (ex.lore ? '<div class="lore">' + escapeHtml(ex.lore) + "</div>" : "") + "</div></section>" +
+      '<div class="brief-body"><h1>' + escapeHtml(Lx(ex, "title")) + "</h1>" +
+      '<div class="mission">' + escapeHtml(Lx(ex, "brief") || "") + "</div>" + mdToHtml(Lx(ex, "prompt")) +
+      (ex.lore ? '<div class="lore">' + escapeHtml(Lx(ex, "lore")) + "</div>" : "") + "</div></section>" +
       '<section class="lab"><div class="editor-shell"><div class="editor-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>' +
       '<span class="fname">~/construct/' + track.id + "/" + ex.id + "." + (track.ext || "txt") + '</span><span class="spacer"></span><span class="kbdhint">Ctrl+↵ run</span></div>' +
       '<textarea id="cm-area"></textarea></div>' +
@@ -512,7 +537,7 @@
     $("btn-reset-ex").onclick = () => { editor.set(ex.starter); delete ts(track.id).code[ex.id]; persist(); editor.focus(); };
     $("btn-hint").onclick = () => {
       if (hintSlot.dataset.open === "1") { hintSlot.innerHTML = ""; hintSlot.dataset.open = "0"; return; }
-      hintSlot.innerHTML = '<div class="hintbox"><span class="tag">▸ ' + t("decrypted_hint") + "</span>" + mdToHtml(ex.hint || "No hint encoded. Trust your training.") + "</div>";
+      hintSlot.innerHTML = '<div class="hintbox"><span class="tag">▸ ' + t("decrypted_hint") + "</span>" + mdToHtml(Lx(ex, "hint") || "No hint encoded. Trust your training.") + "</div>";
       highlightIn(hintSlot); hintSlot.dataset.open = "1";
     };
     $("btn-sol").onclick = () => {
@@ -742,6 +767,7 @@
     if (!window.TRACKS || !window.TRACKS.length) { $("boot-log").innerHTML = '<div class="crit">FATAL: no language tracks registered.</div>'; return; }
     // order each section as a difficulty ladder (stable: keeps authored order within a tier)
     window.TRACKS.forEach(function (t) { t.modules.forEach(function (m) { m.exercises.sort(function (a, b) { return (a.difficulty || 1) - (b.difficulty || 1); }); }); });
+    applyContentOverlay();
     applyTheme(SAVE.settings.theme);
     wireChrome(); localizeBoot(); boot();
   }
