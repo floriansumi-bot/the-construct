@@ -8,6 +8,13 @@ global.window = {};
 function load(f) { (0, eval)(fs.readFileSync(path.join(base, "js", f), "utf8")); }
 load("tracks.js");
 load("curriculum-js.js");
+// expansion packs (verified alongside the base track)
+load("curriculum-js-pack-1.js");
+load("curriculum-js-pack-2.js");
+load("curriculum-js-pack-3.js");
+load("curriculum-js-pack-4.js");
+load("curriculum-js-pack-5.js");
+load("curriculum-js-pack-6.js");
 load("runtime-js.js");
 
 (async function () {

@@ -616,3 +616,18 @@ body.companion-open #main{ padding-bottom:248px; }
 @media (max-width:560px){
   .hud-block{ display:none; }                            /* drop XP text so buttons fit */
 }
+
+/* ============================================================
+   SETTINGS — language + audio
+   ============================================================ */
+.set-row{ display:flex; align-items:center; gap:10px; margin:9px 0; flex-wrap:wrap; }
+.set-row label{ cursor:pointer; color:var(--text); }
+.set-lbl{ flex:0 0 130px; color:var(--text-dim); font-size:13px; }
+.set-row input[type=range]{ flex:1 1 120px; height:4px; accent-color:var(--green); background:#04140e; cursor:pointer; }
+.set-val{ flex:0 0 38px; text-align:right; color:var(--cyan); font-family:var(--display); font-size:18px; }
+.set-row input[type=checkbox]{ accent-color:var(--green); width:15px; height:15px; vertical-align:-2px; }
+
+/* reduce-motion override (settings toggle) */
+.no-motion *{ animation:none !important; transition:none !important; }
+.no-motion #flicker{ display:none !important; }
+.no-motion .glitch::before, .no-motion .glitch::after{ display:none !important; }

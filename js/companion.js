@@ -73,10 +73,10 @@
     src.connect(f); f.connect(g); g.connect(a.destination); src.start();
   }
   var lastGlitchSfx = 0;
-  function sfxGlitch(ts) { if (ts - lastGlitchSfx < 170) return; lastGlitchSfx = ts; tone(120 + Math.random() * 900, 0.05, "square", 0.035); noise(0.04, 0.03, 2600); }
-  function sfxShoot() { tone(900, 0.12, "square", 0.05, 180); }
-  function sfxExplode() { noise(0.22, 0.09, 1200); tone(180, 0.18, "sawtooth", 0.04, 60); }
-  function sfxVictory() { var seq = [523, 659, 784, 1046]; for (var i = 0; i < seq.length; i++) (function (f, k) { setTimeout(function () { tone(f, 0.14, "square", 0.05); }, k * 110); })(seq[i], i); }
+  function sfxGlitch(ts) { if (ts - lastGlitchSfx < 170) return; lastGlitchSfx = ts; if (window.Snd) Snd.sfx("glitch"); }
+  function sfxShoot() { if (window.Snd) Snd.sfx("shoot"); }
+  function sfxExplode() { if (window.Snd) Snd.sfx("explode"); }
+  function sfxVictory() { if (window.Snd) Snd.sfx("victory"); }
 
   /* ---- state ---- */
   var el = null, canvas = null, ctx = null, statusEl = null, raf = null, lastTs = 0;
