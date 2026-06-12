@@ -170,7 +170,7 @@ Two node lists describe overlapping networks. Define **set_triad(a, b)** that **
 set_triad([1, 2, 3], [2, 3, 4]) -> ([2, 3], [1, 2, 3, 4], [1])
 ~~~
 
-Use set operators: **&** (and), **|** (or), **-** (minus). Sort each result.
+Use the set operators **&** (intersection), **|** (union), **-** (difference) — these are symbols, not the words \`and\`/\`or\`. Sort each result.
 `,
       starter: `def set_triad(a, b):
     # TODO: return (intersection, union, difference) as three SORTED lists
@@ -325,7 +325,7 @@ assert raised, "empty callsign must raise ValueError"` },
       brief: "Walk the full try / except / else / finally flow.",
       prompt: `
 Define **reactor_status(a, b)** using **try / except / else / finally** to return a status string from \`a // b\`:
-- on success: \`"OK:" + quotient + ":DONE"\`  (e.g. 10,2 -> "OK:5:DONE")
+- on success: \`"OK:" + str(quotient) + ":DONE"\`  (e.g. 10,2 -> "OK:5:DONE") — wrap the int quotient in \`str(...)\`; you can't \`+\` an int onto text
 - on **ZeroDivisionError**: \`"ERR:DONE"\`
 
 The \`":DONE"\` suffix is appended in **finally**, so it is always present.

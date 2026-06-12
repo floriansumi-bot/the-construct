@@ -509,7 +509,7 @@ two_sum([3, 3], 6)         -> (0, 1)
 two_sum([1, 2, 3], 100)    -> None
 ~~~
 
-Aim for one pass with a dictionary of values seen so far (O(n)). Return the **first** pair that completes as you scan left to right.
+Aim for one pass with a dictionary of values seen so far (O(n)). Among all valid pairs, return the one whose **second** index \`j\` is smallest — the pair that completes first as you scan left to right. (For these tests, any valid pair is accepted.)
 `,
       starter: `def two_sum(nums, target):
     # TODO: return (i, j) with i < j such that nums[i] + nums[j] == target, else None

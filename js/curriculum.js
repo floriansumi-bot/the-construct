@@ -1139,7 +1139,7 @@ Strings are immutable — methods return **new** strings:
 - \`.upper()\` \`.lower()\` \`.title()\`
 - \`.strip()\` — trim whitespace
 - \`.replace(a, b)\`
-- \`.count(sub)\` — how many times \`sub\` appears
+- \`.count(sub)\` — how many **non-overlapping** times \`sub\` appears (case-sensitive)
 - \`.split(sep)\` → list, and \`sep.join(list)\` → string
 - \`x in s\` — membership test
 
@@ -2000,6 +2000,8 @@ class Drone:
         Drone.count += 1       # bump the shared tally
 ~~~
 
+> [!warn] Update the shared tally with the **class name**: \`Drone.count += 1\`. Writing \`self.count += 1\` would instead create a separate per-instance \`count\` and leave the shared tally stuck at 0.
+
 ## Inheritance
 A subclass **inherits** attributes and methods from a base class and can **override** them.
 
@@ -2124,7 +2126,7 @@ assert f"{t}"=="Teddy: 1000000 woolongs"` },
       },
       {
         id: "oop-replicant",
-        title: "REPLICANT < ANDROID",
+        title: "REPLICANT(ANDROID)",
         kind: "function",
         difficulty: 3,
         xp: 200,
