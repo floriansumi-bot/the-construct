@@ -88,6 +88,18 @@ print("""+----------+
 print("=" * 16)              # ================
 ~~~
 
+## Functions
+A **function** is a reusable recipe. Define one with **def**, list its inputs (parameters) in parentheses, and hand a result back with **return**.
+
+~~~python
+def greet(name):
+    return "hi " + name
+
+greet("Spike")   # "hi Spike"
+~~~
+
+**return** hands a value back to whoever *called* the function — different from **print()**, which only shows text on screen. A couple of nodes below ask you to **define** a function and **return** its answer (don't print it). Full coverage comes in SECTOR 0x03.
+
 > INTEL — In this sim a **script** node means: write a normal program. Hit EXECUTE and the kernel runs it for real, then checks what it printed.
 `,
     exercises: [
@@ -224,6 +236,13 @@ Check a type with **type(x)**. Python infers types automatically.
 age = input("Age: ")      # "17"  (a string!)
 ~~~
 
+Each **input()** reads exactly **one** line. To read several values, call it again — each call grabs the next line:
+
+~~~python
+first = input()    # reads line 1
+second = input()   # reads line 2
+~~~
+
 ## Casting
 Convert between types with **int()**, **float()**, **str()**. Use **float()** when the value may have a decimal point — \`float("2.5")\` is \`2.5\`, and dividing keeps the decimal.
 
@@ -326,10 +345,14 @@ print(a + b)
 `,
         sampleStdin: ["7", "35"],
         tests: [
-          { name: "7 + 35 = 42", needs_ns: false, code: `lines=_run(["7","35"]).strip().splitlines()
-assert lines[-1].strip()=="42", "Last line should be 42. Got: "+repr(lines)` },
-          { name: "adds numbers, not strings", needs_ns: false, code: `lines=_run(["10","20"]).strip().splitlines()
-assert lines[-1].strip()=="30", "Got "+repr(lines[-1].strip())+" — cast with int(), or '10'+'20' becomes '1020'."` },
+          { name: "7 + 35 = 42", needs_ns: false, code: `import re as _re
+out=_run(["7","35"])
+nums=_re.findall(r"-?\\d+\\.?\\d*", out)
+assert nums and float(nums[-1])==42, "The last number printed should be 42. Got: "+repr(out)` },
+          { name: "adds numbers, not strings", needs_ns: false, code: `import re as _re
+out=_run(["10","20"])
+nums=_re.findall(r"-?\\d+\\.?\\d*", out)
+assert nums and float(nums[-1])==30, "Should print 30 — cast with int(), or '10'+'20' becomes '1020'. Got: "+repr(out)` },
         ],
         hint: `Wrap each input() in int(): a = int(input()).`,
         lore: "See you in the next world line.",
@@ -1287,6 +1310,9 @@ flat = [item for row in grid for item in row]   # [[1,2],[3]] -> [1,2,3]
 list(zip(["A", "B"], [1, 2]))   # [("A", 1), ("B", 2)]
 ~~~
 
+## Sets — a one-minute primer
+A **set** is an unordered bag of **unique** items. \`set()\` makes an empty one, \`seen.add(x)\` drops an item in, and \`x in seen\` is a fast "is it already here?" check. Sets get full coverage next sector — here you just use one as a quick memory of what you've already seen.
+
 ## Dedupe, keeping order
 A **set** removes duplicates but **scrambles order**. To keep the **first** appearance of each item, track what you've **seen**:
 
@@ -1625,7 +1651,7 @@ finally:
 ## The validation loop
 Professional code never trusts input. Convert + check, recover or reject.
 
-> INTEL — \`int("3.5")\` raises ValueError (it's not a whole number). \`int("3")\` is fine. Catching exceptions lets you turn a crash into a clean fallback value.
+> INTEL — \`int("3.5")\` raises ValueError because the **text** \`"3.5"\` isn't a valid whole-number string — the dot makes it illegal. \`int("3")\` works fine. (That's different from \`int(3.5)\` on an actual number, which simply truncates to \`3\`.) Catching the exception turns a crash into a clean fallback value.
 `,
     exercises: [
       {
@@ -1760,7 +1786,7 @@ re.fullmatch(r"\\d{4}", "2099")   # match: four digits
 ## Building blocks
 - \`\\d\` digit · \`\\w\` word char · \`.\` any char
 - \`[A-Z]\` a character class · \`{n}\` exactly n · \`{1,3}\` 1 to 3
-- \`+\` one-or-more · \`\\*\` zero-or-more · \`?\` optional
+- \`+\` one-or-more · \`*\` zero-or-more · \`?\` optional
 
 ## search vs fullmatch
 - **re.fullmatch(pat, s)** — the **whole** string must match (great for validation)

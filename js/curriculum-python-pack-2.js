@@ -218,7 +218,9 @@ Base case: when \`n\` is 0, return \`[0]\`. Otherwise return \`[n]\` joined with
         { name: "countdown(0) -> [0]", code: `assert countdown(0) == [0], repr(countdown(0))` },
         { name: "countdown(5) length 6", code: `r = countdown(5)
 assert r == [5, 4, 3, 2, 1, 0], repr(r)` },
-        { name: "no loop keywords (recursion)", code: `assert "for " not in _src and "while " not in _src, "Solve it with recursion, not a loop."` },
+        { name: "no loop keywords (recursion)", code: `import re as _re
+_code=_re.sub(r"#.*", "", _src)
+assert "for " not in _code and "while " not in _code, "Solve it with recursion, not a loop."` },
       ],
       hint: `Stop at the base case (n == 0 -> [0]), otherwise return [n] + countdown(n - 1).`,
       lore: "Three… two… one… each call peels off one number before liftoff.",

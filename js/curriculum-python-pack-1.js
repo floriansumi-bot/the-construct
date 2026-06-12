@@ -217,10 +217,14 @@ print((a + b) / 2)
 `,
       sampleStdin: ["10", "20"],
       tests: [
-        { name: "avg(10,20) -> 15.0", needs_ns: false, code: `lines=_run(['10','20']).strip().splitlines()
-assert float(lines[-1])==15.0, 'Got: '+repr(lines[-1])` },
-        { name: "keeps the decimal: avg(2,3) -> 2.5", needs_ns: false, code: `lines=_run(['2','3']).strip().splitlines()
-assert float(lines[-1])==2.5, 'Got '+repr(lines[-1])+' — cast with float(), not int().'` },
+        { name: "avg(10,20) -> 15.0", needs_ns: false, code: `import re as _re
+out=_run(['10','20'])
+nums=_re.findall(r"-?\\d+\\.?\\d*", out)
+assert nums and float(nums[-1])==15.0, 'Got: '+repr(out)` },
+        { name: "keeps the decimal: avg(2,3) -> 2.5", needs_ns: false, code: `import re as _re
+out=_run(['2','3'])
+nums=_re.findall(r"-?\\d+\\.?\\d*", out)
+assert nums and float(nums[-1])==2.5, 'Got '+repr(out)+' — cast with float(), not int().'` },
       ],
       hint: `a = float(input()); b = float(input()); then print((a + b) / 2).`,
       lore: "Two readings, one truth. The Magi concur.",

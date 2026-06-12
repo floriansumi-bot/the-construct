@@ -3,7 +3,7 @@
    NETWORK-FIRST for same-origin assets: when online you always get the latest
    version; the cache is only a fallback for offline. CDN engines (Pyodide,
    sql.js, wasmoon, ruby.wasm, CodeMirror...) are cross-origin -> network. */
-const CACHE = "construct-shell-v17";
+const CACHE = "construct-shell-v18";
 const SHELL = [
   "./", "./index.html", "./css/style.css", "./manifest.json",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/maskable-512.png",
