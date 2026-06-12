@@ -26,7 +26,7 @@
      • AD_NETWORK  : leave null for in-house ads; later drop in a privacy-
                      first network (EthicalAds / Carbon) — no cookie banner.
      ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ */
-  const ADFREE_URL = "";      // ← checkout link for the ad-free unlock (optional)
+  const ADFREE_URL = "https://theconstruct.lemonsqueezy.com/checkout/buy/dd141ed4-4645-435b-9df8-d71598d09ea1";  // Lemon Squeezy ad-free checkout
   const ADFREE_CODE = "";     // ← unlock code given to buyers (optional)
   const AD_NETWORK = null;    // ← null = in-house ads (real network added later)
 
