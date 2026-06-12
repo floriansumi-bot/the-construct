@@ -27,7 +27,7 @@ window.registerTrack({
     subtitle: "print() · strings · comments · your first transmissions",
     theory: `
 ## Jacking in
-Every program is a stack of **instructions** the machine runs top to bottom. Your first tool is **print()** — it pushes text out to the terminal (stdout).
+Every program is a stack of **instructions** the machine runs from top to bottom, one line at a time. Your first instruction is **print()** — it displays text on the screen (the dark panel where your program's output appears, called the *terminal* or *console*). The word before the parentheses, \`print\`, is the command; whatever you put **inside** the parentheses is what gets shown.
 
 ~~~python
 print("Wake up, Neo...")
@@ -54,7 +54,7 @@ print("NAME:\\tSPIKE")   # NAME:  <tab>  SPIKE
 ~~~
 
 ## One print, many pieces
-print() accepts several values and joins them with a separator (default a space). Override it with **sep=**. Mixing **text and numbers** is fine — the comma handles it, no manual conversion needed.
+You can hand print() several things at once by separating them with commas. It prints them in order with a single space between each one. To change that space to something else, add **sep=** (short for *separator*) with your chosen text. Mixing **text and numbers** is fine — the comma handles it, with no manual conversion needed.
 
 ~~~python
 print("SOL", "GATE", "MARS", sep=" :: ")   # SOL :: GATE :: MARS
@@ -228,7 +228,12 @@ clearance = 7
 - **float** — decimals: \`3.14\`
 - **bool** — \`True\` / \`False\`
 
-Check a type with **type(x)**. Python infers types automatically.
+You don't tell Python which type you're using — it figures that out on its own from the value. To ask Python what type something is, use **type(x)**:
+
+~~~python
+type("Lain")   # <class 'str'>
+type(7)        # <class 'int'>
+~~~
 
 ## Reading input
 **input()** pauses and reads one line from the operator. It **always returns a str** — even if they type digits.
@@ -244,6 +249,8 @@ first = input()    # reads line 1
 second = input()   # reads line 2
 ~~~
 
+In this sim the lines are fed to your program from the test, top to bottom: the first **input()** takes the first line, the second takes the next, and so on. The text inside input() (like \`input("Age: ")\`) is just an on-screen label — it doesn't change what gets read.
+
 ## Casting
 Convert between types with **int()**, **float()**, **str()**. Use **float()** when the value may have a decimal point — \`float("2.5")\` is \`2.5\`, and dividing keeps the decimal.
 
@@ -255,7 +262,7 @@ reading = float(input("Hz: "))  # keeps decimals
 > WARNING — Forgetting to cast is the #1 rookie bug. \`"10" + "20"\` is \`"1020"\`, but \`10 + 20\` is \`30\`.
 
 ## f-strings
-Drop variables straight into text with an **f""** string and \`{curly braces}\`.
+Put an **f** right before the opening quote to make an *f-string*. Inside it, anything you wrap in \`{curly braces}\` is swapped for that variable's value. Without the \`f\`, the braces just print literally — so the \`f\` is essential.
 
 ~~~python
 name, lvl = "Faye", 3
@@ -403,7 +410,7 @@ assert "Jet :: clearance L9 :: status NOMINAL" in out, "Got: "+repr(out)` },
     subtitle: "def · parameters · return · scope",
     theory: `
 ## Subroutines
-A **function** is a reusable block of logic. Define it with **def**, feed it **parameters**, and hand back a result with **return**.
+A **function** is a reusable block of logic you can run again and again. You build it once with **def** (short for *define*), give it labelled inputs called **parameters**, and send an answer back out with **return**. The line where you *run* the function — writing its name with \`()\` — is called the **caller**, and the value you \`return\` lands right there, ready to store or use.
 
 ~~~python
 def amplify(signal):
@@ -412,12 +419,14 @@ def amplify(signal):
 x = amplify(21)   # 42
 ~~~
 
+Here \`amplify(21)\` runs the function with \`signal\` set to \`21\`; \`return signal * 2\` sends back \`42\`, so the variable \`x\` now holds \`42\`.
+
 ## return vs print
 This trips up everyone:
 - **print()** shows something on screen, then the function hands back **None**.
 - **return** gives a value back to the caller to use in more code.
 
-A grader checks **return** values. If you print instead of returning, the function's result is \`None\`.
+In this course the auto-checker (the **kernel**) runs your function and inspects what you **return** — it never reads what you print. (**None** is Python's word for "nothing here" — what a function gives back when it has no \`return\`.) So if you print instead of returning, the check fails even when the right answer is on screen.
 
 ~~~python
 def good(n):
@@ -442,7 +451,7 @@ burn(100, 25)   # 75
 Variables created **inside** a function live only there. The outside world can't see them — clean and contained, like a sealed deck on the Bebop.
 
 ## Any number of arguments: *args
-Prefix a parameter with **\\*** to collect **all** extra positional arguments into a tuple. **sum()** then folds them up.
+Sometimes you don't know how many values a caller will pass. Prefix one parameter with a star (**\\*cells**) and Python bundles *every* value it receives into a single **tuple** (a fixed, ordered group of values). **sum()** then adds them all up.
 
 ~~~python
 def stack(*cells):
@@ -453,7 +462,7 @@ stack()          # 0
 ~~~
 
 ## Functions are values
-A function can be **passed to another function** and called inside it. A **lambda** is a tiny one-expression function written inline.
+A function can be **passed to another function** and called inside it. A **lambda** is a tiny, one-line function with no name — read \`lambda n: n * 2\` as "take \`n\`, give back \`n * 2\`" (same idea as \`def\`, just squeezed inline).
 
 ~~~python
 def apply_twice(fn, x):
@@ -473,6 +482,8 @@ def countdown(n):
 
 countdown(3)   # [3, 2, 1, 0]
 ~~~
+
+Read it as: \`countdown(3)\` returns \`[3] + countdown(2)\`, which becomes \`[3] + [2] + countdown(1)\`, and so on until \`countdown(0)\` hits the **base case** and returns \`[0]\`. Each call handles one number, then asks a smaller copy of itself to handle the rest. With no base case, the calls never stop.
 
 > INTEL — From here on, most nodes are **function** nodes: you write the \`def\`, the kernel calls it with secret inputs and checks the \`return\`.
 `,
@@ -581,11 +592,11 @@ burn(100, 25)   ->  75
     subtitle: "arithmetic · // % ** · comparison · booleans",
     theory: `
 ## Arithmetic
-\`+  -  *  /\` do what you expect — but note **/** always gives a **float** (\`6 / 2 == 3.0\`).
+\`+  -  *  /\` do what you expect — but note **/** always gives a **float** (a number with a decimal point, like \`3.0\`), even for an exact division: \`6 / 2 == 3.0\`, not \`3\`.
 
 Three more you must know:
-- **//** floor division — divide and drop the remainder: \`43 // 5 == 8\`
-- **%** modulo — the remainder: \`43 % 5 == 3\`
+- **//** floor division — how many whole times one number fits into another, ignoring anything left over: \`43 // 5 == 8\` (5 fits into 43 eight whole times)
+- **%** modulo — what's *left over* after that division: \`43 % 5 == 3\` (8 × 5 = 40, and 43 − 40 = 3)
 - **\\*\\*** power: \`2 ** 10 == 1024\`
 
 ~~~python
@@ -597,8 +608,8 @@ left = total % crew    # 3
 ## Modulo is everywhere
 \`n % 2 == 0\` tests **even**. \`n % k == 0\` tests "divisible by k". You'll use it constantly.
 
-## Comparisons return booleans
-\`==  !=  <  <=  >  >=\` evaluate to **True** / **False**.
+## Comparisons return True or False
+\`==  !=  <  <=  >  >=\` compare two values and give back a **boolean** — Python's name for a value that is either **True** or **False**. (\`!=\` means "not equal"; \`<=\` and \`>=\` are "less than or equal" and "greater than or equal".)
 
 ~~~python
 9001 > 9000   # True
@@ -621,7 +632,7 @@ audible = 20 <= freq <= 20000   # True when freq is in [20, 20000]
 ## Number helpers
 - **abs(x)** — drop the sign, so abs(-9) is 9
 - **round(x, n)** — round to n decimal places, so round(3.14159, 2) is 3.14
-- there's no sqrt operator — raise to the **0.5** power instead
+- there's no square-root operator in plain Python — but raising a number to the **0.5** power gives its square root (\`9 ** 0.5\` is \`3.0\`), so use that
 
 ~~~python
 dist = (3 ** 2 + 4 ** 2) ** 0.5   # 5.0
