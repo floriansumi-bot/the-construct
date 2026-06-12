@@ -22,10 +22,10 @@
     subtitle: "text I/O · CSV parsing · rows · the csv & io modules",
     theory: `
 ## Streams, not just files
-On real hardware you read a file into a **string**, then parse it. In this sim the data arrives as text already - a captured stream from the Wired - so you work on the string directly. Everything you learn here transfers 1:1 to \`open(path)\`.
+A **string** is just text — letters, digits and symbols stored as one value. When a program reads a file or receives data, it usually arrives as one big string that you then pull apart. On real hardware you read a file into such a string, then parse it. In this sim the data arrives as text already - a captured stream from the Wired - so you work on the string directly. Everything you learn here transfers 1:1 to opening a real file with \`open(path)\`.
 
 ## Lines
-Split a multi-line blob into rows with **.splitlines()** (no trailing empties), and stitch rows back with **"\\n".join(...)**.
+Inside text, \`\\n\` is the **newline** character — the invisible marker for pressing Enter that separates one line from the next, so \`"BOOT\\nSYNC"\` is really two lines. Split a multi-line **blob** (one big chunk of text holding many lines) into rows with **.splitlines()** (which also drops any empty line at the very end), and stitch rows back with **"\\n".join(...)** — note that puts a newline *between* rows but not after the last one.
 
 ~~~python
 log = "BOOT\\nSYNC\\nJACK-IN"
@@ -51,7 +51,7 @@ for row in csv.DictReader(io.StringIO(text)):
     row["name"], row["bpm"]   # "Lain", "90"  (values are strings!)
 ~~~
 
-Materialize the reader into a real list when you need its length or want to slice the header off: **rows = list(csv.reader(...))** then **rows[1:]** is just the data rows.
+A \`csv.reader\` hands you rows one at a time and is "used up" once you loop over it — it isn't a list yet. Turn it into a real, reusable list with **list(...)** when you need its length or want to slice the header off: **rows = list(csv.reader(...))**, and then **rows[1:]** is just the data rows (everything after the header).
 
 ## Cleaning a line
 Two **str** methods earn their keep when sifting text:
@@ -203,7 +203,7 @@ assert fast_tracks(text)=="track,bpm\\nEdge,120", repr(fast_tracks(text))` },
     subtitle: "comprehensions · map/filter · lambda · sorted(key) · generators",
     theory: `
 ## Comprehensions
-The Pythonic way to transform and filter in one line. The shape is \`[expr for item in seq if condition]\`. Swap the brackets to build other collections:
+A **comprehension** is a compact way to build a new list by looping over an existing sequence — doing a calculation on each item ("transform") and optionally keeping only some ("filter"), all in one line. Read \`[n * n for n in range(5)]\` as "for each \`n\` in \`range(5)\`, collect \`n * n\`". The general shape is \`[expr for item in seq if condition]\` — the \`expr\` is what you keep, the optional \`if condition\` decides which items survive. Swap the outer brackets to build other collections:
 
 ~~~python
 [n * n for n in range(5)]              # list  -> [0, 1, 4, 9, 16]
@@ -211,8 +211,10 @@ The Pythonic way to transform and filter in one line. The shape is \`[expr for i
 {k: len(k) for k in ["lain", "navi"]}  # dict  -> {"lain": 4, "navi": 4}
 ~~~
 
+Looping over a string visits one character at a time, and a **set** automatically throws away duplicates — that's why the repeated \`i\` and \`s\` in "mississippi" each appear only once.
+
 ## lambda - tiny inline functions
-A **lambda** is an anonymous one-expression function: \`lambda x: x * 2\`. You'll mostly hand it to other functions.
+A **lambda** is a tiny, throwaway function written on one line, with no name. \`lambda x: x * 2\` means "take an input \`x\`, give back \`x * 2\`" — the same job as a full \`def\`, just short enough to write right where you need it. You almost always pass a lambda *into* another function that asks "how should I handle each item?", like \`sorted\` below.
 
 ## sorted(key=...)
 Sort by a computed value with **key**. Add \`reverse=True\` to flip it.
@@ -227,10 +229,10 @@ sorted(crew, key=lambda p: p[1], reverse=True)  # oldest first
 - **map(fn, seq)** applies \`fn\` to every item.
 - **filter(fn, seq)** keeps items where \`fn(item)\` is truthy.
 
-Both are lazy - wrap them in \`list(...)\` to materialize. A comprehension often reads cleaner, but know these too.
+Both are **lazy**: they don't do the work up front but hand you results one at a time as you ask, so you wrap them in \`list(...)\` when you want every result collected into an actual list. A comprehension often reads cleaner, but know these too.
 
 ## Generators
-A function that **yields** values produces them lazily, one at a time - ideal for big or infinite streams.
+Normally \`return\` ends a function and hands back one value. **\`yield\`** is different: a function containing \`yield\` becomes a **generator** — calling it doesn't run the body right away, it hands you an object that produces values one at a time, pausing at each \`yield\` and resuming on the next request. Wrapping it in \`list(...)\` runs it to the end and gathers every yielded value. Generators are ideal for big or infinite streams.
 
 ~~~python
 def squares(n):
@@ -251,7 +253,7 @@ def countup(n):
 ~~~
 
 ## Folding with sum / any / all
-Drop the brackets and you have a **generator expression** - the same comprehension syntax, but streamed straight into a function instead of building a list first. Hand one to a reducer to fold a sequence down to a single value:
+Drop the square brackets from a comprehension and you get a **generator expression** — the same syntax, but instead of building a whole list first it streams items one at a time straight into a function. Feed one to a function that **folds** (also called "reduces") — that is, crunches a whole sequence down into a single value:
 
 ~~~python
 sum(x * x for x in nums)            # sum of squares (a fold; empty -> 0)
@@ -376,11 +378,14 @@ assert next(g)==0 and next(g)==1` },
     subtitle: "assert · edge cases · contracts · the pytest mindset",
     theory: `
 ## Trust nothing - prove it
-A **unit test** pins down what a function must do, then checks it automatically. The core tool is the humble **assert**: it does nothing if the condition is true, and raises \`AssertionError\` (with your message) if it's false.
+A **unit test** pins down what a function must do, then checks it automatically. The core tool is the humble **assert** — a keyword that does **nothing** when the condition after it is \`True\`, and **stops the program with an \`AssertionError\`** when it's \`False\`. The optional message after the comma is what prints on failure.
 
 ~~~python
-assert clamp(150) == 100, "values above 100 must clamp"
+assert 2 + 2 == 4, "math is broken"   # True  -> nothing happens (silence)
+assert 2 + 2 == 5, "math is broken"   # False -> raises AssertionError: math is broken
 ~~~
+
+So a passing test is **silent**. No news is good news.
 
 Frameworks like **pytest** just collect functions named \`test_*\` and run their asserts for you - same idea, more automation. The discipline is what matters.
 
@@ -389,10 +394,10 @@ Bugs hide at the boundaries. Before writing the function, ask:
 - **Empty** input - \`""\`, \`[]\`, \`0\`?
 - **Boundaries** - exactly at the limit (\`==100\`), just over, just under?
 - **Negatives**, duplicates, a single element?
-- The **happy path** is the easy 20%. The edges are where you earn your keep.
+- The **happy path** — normal, well-behaved input — is the easy 20%. The edges are where you earn your keep.
 
 ## Write a contract, then satisfy it
-Good practice: write the asserts first (red), then the code that passes them (green). Below you'll implement functions whose hidden tests hammer exactly these edges - so handle them deliberately, not by accident.
+Good practice: write the asserts first — they **fail** while the function is still empty (testers call this the **red** stage) — then write the code that makes them **pass** (the **green** stage). Red, then green. Below you'll implement functions whose hidden tests hammer exactly these edges - so handle them deliberately, not by accident.
 
 ## Properties worth testing
 Beyond single input/output pairs, strong contracts pin down **properties**:
@@ -560,11 +565,11 @@ Push opening brackets on a stack; on a closing bracket, the top of the stack mus
     subtitle: "binary search · sorting · recursion · Big-O intuition",
     theory: `
 ## Big-O - how cost scales
-**Big-O** describes how an algorithm's work grows as the input \`n\` grows - ignoring constants. The intuition:
-- **O(1)** - constant. A dict lookup. Instant, regardless of size.
-- **O(log n)** - halve the problem each step. Binary search.
-- **O(n)** - touch every item once. A single loop.
-- **O(n^2)** - a loop inside a loop. Selection/bubble sort.
+Imagine a list gets 1000x bigger. Does your code take 1000x longer? 20x? Or barely notice? **Big-O** is shorthand for answering that — it describes how the *number of steps* grows as the input (we call its size \`n\`) grows. We care about the *shape* of that growth, not exact timings, so we drop constant factors.
+- **O(1)** - "constant": the work never changes, no matter how big \`n\` is. A dict lookup.
+- **O(log n)** - each step throws away **half** of what's left, so doubling \`n\` adds just one step. Binary search. (\`log n\` grows painfully slowly — that's the good news.)
+- **O(n)** - touch every item once. A single loop over the list.
+- **O(n^2)** - "n squared": a loop **inside** a loop, so 10x the data is 100x the work. Bubble/selection sort.
 
 At \`n = 1,000,000\`: O(log n) is ~20 steps; O(n) is a million; O(n^2) is a trillion. Choosing the right complexity is the difference between instant and never.
 
@@ -581,7 +586,7 @@ while lo <= hi:
 ~~~
 
 ## Insertion point - the half-open variant
-A close cousin of binary search finds **where a value belongs** rather than whether it is present. Use a **half-open** window **lo, hi = 0, len(arr)** (hi is *one past* the end), loop while **lo < hi**, and on a match keep going **left**. The result is the **leftmost** slot that keeps the list sorted - exactly **bisect_left**. Use a strict **less-than** so equal values land before, not after.
+Plain binary search asks *is it here?*. This variant asks *where would it go?* — useful for slotting a value into a sorted list without re-sorting. Use a **half-open** window **lo, hi = 0, len(arr)** where \`hi\` starts **one past the last real item** (the slot that means "belongs at the very end"), loop while **lo < hi**, and on a match keep going **left**. The result is the **leftmost** slot that keeps the list sorted - which is exactly what Python's built-in **bisect_left** does. Use a strict **less-than** so equal values land before, not after.
 
 ~~~python
 lo, hi = 0, len(arr)
@@ -619,7 +624,7 @@ out.extend(a[i:]); out.extend(b[j:])   # one list is now empty
 ~~~
 
 ## Trade space for time - the seen dict
-A dictionary lookup is O(1), so remembering what you have already seen can collapse an O(n^2) double loop into a single O(n) pass. The classic is **two-sum**: as you scan, for each value check whether its **complement** (**target - value**) was seen earlier; if so you have your pair. **enumerate** hands you the index alongside the value.
+A dictionary lookup is O(1), so remembering what you have already seen can collapse an O(n^2) double loop into a single O(n) pass. The classic is **two-sum**: as you scan, for each value work out its **complement** — the *other* number you'd need to hit the target, which is simply \`target - value\` — and check whether you've already seen it; if so, you have your pair. **enumerate** hands you the index alongside the value.
 
 ~~~python
 seen = {}                       # value -> index
@@ -630,7 +635,7 @@ for i, x in enumerate(nums):
 ~~~
 
 ## Recursion
-A function that calls **itself** on a smaller input, with a **base case** that stops the descent.
+A function that calls **itself** on a smaller input. The **base case** is the smallest, simplest input the function can answer **without** calling itself — the floor that stops the chain of calls going forever. Without one, the function calls itself endlessly and crashes.
 
 ~~~python
 def factorial(n):
