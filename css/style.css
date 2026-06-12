@@ -226,6 +226,8 @@ b{ color:var(--green); font-weight:normal; }
   background:
     linear-gradient(180deg, rgba(var(--accent-rgb),.03), transparent 200px),
     repeating-linear-gradient(0deg, transparent 0 27px, var(--line-soft) 27px 28px);
+  /* glow stays pinned to the top; the ruled lines scroll WITH the list */
+  background-attachment: scroll, local;
   padding:10px 0 60px;
 }
 #main{ flex:1 1 auto; overflow-y:auto; padding:26px 34px 80px; min-width:0; position:relative; }
