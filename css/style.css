@@ -656,7 +656,9 @@ body.companion-open #main{ padding-bottom:248px; }
 .ad-body b{ color:var(--cyan); }
 .ad-body:hover b{ text-shadow:0 0 8px rgba(var(--cyan-rgb),.5); }
 .ad-sub{ color:var(--text-dim); }
-.ad-net{ flex:1 1 auto; min-width:0; }
+.ad-ea{ padding:7px 12px; }
+.ad-ea .ea-slot{ flex:1 1 auto; min-width:0; }
+.ad-ea .ea-slot a{ color:var(--cyan); }
 .ad-x{ flex:0 0 auto; background:none; border:1px solid var(--line); color:var(--text-dim); font-family:var(--display); font-size:12px; letter-spacing:.5px; padding:3px 9px; border-radius:5px; cursor:pointer; transition:color .12s, border-color .12s; }
 .ad-x:hover{ color:var(--amber); border-color:var(--amber); }
 @media (max-width:520px){ .ad-sub{ display:none; } }

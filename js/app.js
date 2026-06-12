@@ -28,7 +28,7 @@
      ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ */
   const ADFREE_URL = "https://theconstruct.lemonsqueezy.com/checkout/buy/dd141ed4-4645-435b-9df8-d71598d09ea1";  // Lemon Squeezy ad-free checkout
   const ADFREE_CODE = "";     // ← unlock code given to buyers (optional)
-  const AD_NETWORK = null;    // ← null = in-house ads (real network added later)
+  const EA_PUBLISHER = "";    // ← EthicalAds publisher id (set after approval → real, privacy-first ads). Empty = in-house ads.
 
   /* ---------- helpers ---------- */
   const $ = (id) => document.getElementById(id);
@@ -679,28 +679,52 @@
       { title: t("ad_house2_t"), sub: t("ad_house2_s"), url: "#adfree" },
     ];
   }
+  function houseAdHtml() {
+    var ads = houseAds(); var ad = ads[_adIx % ads.length]; _adIx++;
+    return '<span class="ad-tag">AD</span>' +
+      '<a class="ad-body" href="' + escapeHtml(ad.url) + '" target="_blank" rel="noopener"><b>' + escapeHtml(ad.title) + '</b> <span class="ad-sub">' + escapeHtml(ad.sub) + "</span></a>";
+  }
+  function removeBtnHtml() { return '<button class="ad-x" type="button">' + t("ad_remove") + " ✕</button>"; }
+  function wireAdSlot(bar) {
+    var x = bar.querySelector(".ad-x"); if (x) x.onclick = openAdFree;
+    var body = bar.querySelector(".ad-body");
+    if (body) body.onclick = function (e) { if (body.getAttribute("href") === "#adfree") { e.preventDefault(); openAdFree(); } };
+  }
+  function injectEAScript() {
+    if (document.getElementById("ea-script")) return;
+    var s = document.createElement("script"); s.id = "ea-script"; s.async = true;
+    s.src = "https://media.ethicalads.io/media/client/ethicalads.min.js";
+    document.head.appendChild(s);
+  }
+  function loadEA(tries) {
+    if (window.ethicalads && typeof window.ethicalads.load === "function") { try { window.ethicalads.load(); } catch (e) {} return; }
+    if (tries > 0) setTimeout(function () { loadEA(tries - 1); }, 400);
+  }
   function mountAd() {
     var main = $("main"); if (!main) return;
     var old = main.querySelector(".ad-slot"); if (old) old.remove();
     if (isAdFree()) return;
     var bar = el("div", "ad-slot");
-    if (AD_NETWORK) {
-      // Drop a privacy-first network unit here later (EthicalAds / Carbon).
-      bar.innerHTML = '<span class="ad-tag">AD</span><div class="ad-net" id="ad-net"></div>' +
-        '<button class="ad-x" type="button">' + t("ad_remove") + " ✕</button>";
+    if (EA_PUBLISHER) {
+      bar.classList.add("ad-ea");
+      bar.innerHTML = '<div class="ea-slot dark" data-ea-publisher="' + escapeHtml(EA_PUBLISHER) + '" data-ea-type="text"></div>' + removeBtnHtml();
+      main.insertBefore(bar, main.firstChild);
+      wireAdSlot(bar);
+      injectEAScript(); loadEA(10);
+      // If EthicalAds doesn't fill the slot (no inventory / not yet approved), show a house ad instead.
+      setTimeout(function () {
+        var slot = bar.querySelector(".ea-slot");
+        if (bar.parentNode && slot && !slot.children.length && !(slot.textContent || "").trim()) {
+          bar.classList.remove("ad-ea");
+          bar.innerHTML = houseAdHtml() + removeBtnHtml();
+          wireAdSlot(bar);
+        }
+      }, 3000);
     } else {
-      var ads = houseAds(); var ad = ads[_adIx % ads.length]; _adIx++;
-      bar.innerHTML = '<span class="ad-tag">AD</span>' +
-        '<a class="ad-body" href="' + escapeHtml(ad.url) + '" target="_blank" rel="noopener"><b>' + escapeHtml(ad.title) + "</b> <span class=\"ad-sub\">" + escapeHtml(ad.sub) + "</span></a>" +
-        '<button class="ad-x" type="button">' + t("ad_remove") + " ✕</button>";
+      bar.innerHTML = houseAdHtml() + removeBtnHtml();
+      main.insertBefore(bar, main.firstChild);
+      wireAdSlot(bar);
     }
-    main.insertBefore(bar, main.firstChild);
-    var x = bar.querySelector(".ad-x"); if (x) x.onclick = openAdFree;
-    var body = bar.querySelector(".ad-body");
-    if (body) body.onclick = function (e) {
-      var href = body.getAttribute("href");
-      if (href === "#adfree") { e.preventDefault(); openAdFree(); }
-    };
   }
   function openAdFree() {
     var url = adFreeUrl(), ready = adFreeReady(), active = isAdFree();
