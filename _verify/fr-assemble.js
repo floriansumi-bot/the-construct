@@ -110,19 +110,9 @@ for (const tid of ["python", "javascript", "typescript", "sql", "lua", "ruby"]) 
 }
 if (titleMerged) console.log("title pass merged:", titleMerged, "French titles");
 
-// ---- override Python m01-boot with the hand-reviewed seed in js/content-fr.js ----
-try {
-  const seedSrc = fs.readFileSync(path.join(ROOT, "js", "content-fr.js"), "utf8");
-  const sb = { window: {} }; vm.createContext(sb); vm.runInContext(seedSrc, sb);
-  const seed = sb.window.CONTENT_FR && sb.window.CONTENT_FR.python;
-  if (seed) {
-    ensureTrack("python");
-    if (seed.modules && seed.modules["m01-boot"]) CONTENT.python.modules["m01-boot"] = seed.modules["m01-boot"];
-    const seedIds = ["boot-wake", "boot-callsign", "boot-coords", "boot-banner", "boot-oneline", "boot-splice", "boot-rule", "boot-countdown"];
-    for (const id of seedIds) if (seed.exercises && seed.exercises[id]) CONTENT.python.exercises[id] = seed.exercises[id];
-    console.log("seed override: Python m01-boot restored from hand-reviewed version");
-  }
-} catch (e) { console.error("seed override skipped:", e.message); }
+// ---- Python m01-boot seed override DISABLED ----
+// Sector 1 was re-translated fresh (it now includes the new Functions primer),
+// so we use that translation rather than the original hand-written seed.
 
 // ensure every track has its FR meta even if no module landed
 for (const tid of Object.keys(TRACK_FR)) { ensureTrack(tid).track = TRACK_FR[tid]; }
