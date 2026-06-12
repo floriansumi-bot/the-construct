@@ -199,6 +199,7 @@ assert out.strip()=="SOL :: GATE :: MARS", "Expected 'SOL :: GATE :: MARS', got:
           { name: "emitted on a single line", needs_ns: false, code: `out=_run([])
 nonblank=[l for l in out.strip().splitlines() if l.strip()]
 assert len(nonblank)==1, "Keep it to ONE line — use sep=, not three prints."` },
+          { name: "uses the sep= argument", needs_ns: false, code: `assert "sep=" in _src, "Join the three values with the sep= argument — not one hard-coded string."` },
         ],
         hint: `print(a, b, c, sep=" :: ") joins the three values with " :: " between them.`,
         lore: "3, 2, 1, let's jam.",

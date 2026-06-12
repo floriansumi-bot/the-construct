@@ -82,6 +82,7 @@ assert out.strip()=='LOADING...', 'Expected single line LOADING... got: '+repr(o
         { name: "everything on one line", needs_ns: false, code: `out=_run([])
 nonblank=[l for l in out.strip().splitlines() if l.strip()]
 assert len(nonblank)==1, 'Keep it to ONE line — use end="" so prints do not break.'` },
+        { name: "built with end= (not one hard-coded line)", needs_ns: false, code: `assert "end=" in _src, 'Build it from print() calls using end="" — not a single hard-coded print.'` },
       ],
       hint: `print("LOADING", end="") leaves the cursor on the same line; the last print(".") supplies the newline.`,
       lore: "Booting the Wired... carrier detected.",
