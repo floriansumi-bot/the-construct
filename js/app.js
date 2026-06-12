@@ -154,7 +154,12 @@
   function mergeSaves(a, b) {
     a = a || {}; b = b || {};
     var au = a.updatedAt || 0, bu = b.updatedAt || 0;
-    var out = { tracks: {}, lastTrack: (au >= bu ? a.lastTrack : b.lastTrack) || a.lastTrack || b.lastTrack || null, updatedAt: Math.max(au, bu) };
+    var out = {
+      tracks: {}, lastTrack: (au >= bu ? a.lastTrack : b.lastTrack) || a.lastTrack || b.lastTrack || null,
+      updatedAt: Math.max(au, bu),
+      adFree: !!(a.adFree || b.adFree),                     // entitlement is sticky once earned
+      license: a.license || b.license || null,
+    };
     var ids = {};
     Object.keys(a.tracks || {}).forEach(function (k) { ids[k] = 1; });
     Object.keys(b.tracks || {}).forEach(function (k) { ids[k] = 1; });
@@ -162,9 +167,12 @@
       var ta = (a.tracks && a.tracks[id]) || { done: {}, code: {}, open: {}, last: null };
       var tb = (b.tracks && b.tracks[id]) || { done: {}, code: {}, open: {}, last: null };
       var newer = au >= bu ? ta : tb, older = au >= bu ? tb : ta;
+      // code: newer side wins per-key, but a blank value must never erase saved code
+      var code = Object.assign({}, older.code), ncode = newer.code || {};
+      Object.keys(ncode).forEach(function (k) { var nv = ncode[k]; if ((nv == null || (typeof nv === "string" && nv.trim() === "")) && code[k]) return; code[k] = nv; });
       out.tracks[id] = {
         done: Object.assign({}, ta.done, tb.done),          // union of cleared nodes
-        code: Object.assign({}, older.code, newer.code),    // newer side's code wins
+        code: code,
         open: Object.assign({}, ta.open, tb.open),
         last: newer.last || older.last || null,
       };
@@ -175,9 +183,13 @@
     SAVE.tracks = merged.tracks || {};
     SAVE.lastTrack = merged.lastTrack || SAVE.lastTrack;
     SAVE.updatedAt = Math.max(SAVE.updatedAt || 0, merged.updatedAt || 0);
+    // ad-free entitlement + license follow the profile across devices/backups
+    if (merged.adFree) SAVE.settings.adFree = true;
+    if (merged.license && SAVE.profile && !SAVE.profile.license) SAVE.profile.license = merged.license;
     persistRaw();
+    if (merged.adFree) mountAd();
   }
-  function localSnapshot() { return { tracks: SAVE.tracks, lastTrack: SAVE.lastTrack, updatedAt: SAVE.updatedAt }; }
+  function localSnapshot() { return { tracks: SAVE.tracks, lastTrack: SAVE.lastTrack, updatedAt: SAVE.updatedAt, adFree: !!(SAVE.settings && SAVE.settings.adFree), license: (SAVE.profile && SAVE.profile.license) || null }; }
   function syncConfigured() { return !!(SAVE.settings.syncUrl && SAVE.profile && SAVE.profile.code); }
   function syncUrlFor() { var u = (SAVE.settings.syncUrl || "").trim(); return u + (u.indexOf("?") >= 0 ? "&" : "?") + "code=" + encodeURIComponent(SAVE.profile.code); }
 
@@ -186,7 +198,7 @@
     var res = await fetch(syncUrlFor(), { method: "GET" });
     if (res.status === 404) return null;
     if (!res.ok) throw new Error("pull failed (" + res.status + ")");
-    var data = await res.json();
+    var data; try { data = await res.json(); } catch (e) { return null; } // tolerate a non-JSON / HTML error page
     return data && data.save ? data.save : null;
   }
   async function cloudPush() {
@@ -288,11 +300,11 @@
       cm.setValue(initial);
       if (onChange) cm.on("change", () => onChange());
       setTimeout(() => cm.refresh(), 30);
-      return { get: () => cm.getValue(), set: (v) => cm.setValue(v), focus: () => cm.focus() };
+      return { get: () => cm.getValue(), set: (v) => cm.setValue(v), focus: () => cm.focus(), destroy: () => { try { cm.toTextArea(); } catch (e) {} } };
     }
     textarea.value = initial; textarea.classList.add("fallback-editor");
     if (onChange) textarea.addEventListener("input", () => onChange());
-    return { get: () => textarea.value, set: (v) => { textarea.value = v; }, focus: () => textarea.focus() };
+    return { get: () => textarea.value, set: (v) => { textarea.value = v; }, focus: () => textarea.focus(), destroy: () => {} };
   }
 
   /* ---------- runtime lazy init ---------- */
@@ -309,6 +321,8 @@
   function runtimeTag(track) { const rt = (window.Runtimes || {})[track.runtime]; return (rt && rt.tag) || ""; }
 
   /* ---------- router ---------- */
+  let _activeEditor = null;   // current CodeMirror wrapper, torn down on navigation
+  let _exGen = 0;             // render token: stale async callbacks bail when it changes
   const parseHash = () => location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
   const go = (path) => { location.hash = "#/" + path; };
   function setDrawer(open) {
@@ -318,6 +332,7 @@
     document.body.classList.toggle("nav-open", open);
   }
   function route() {
+    if (_activeEditor) { try { _activeEditor.destroy(); } catch (e) {} _activeEditor = null; }
     setDrawer(false);
     const p = parseHash();
     if (p.length === 0) { renderSidebar(null); renderLangSelect(); updateHud(null); mountAd(); $("main").scrollTop = 0; return; }
@@ -349,7 +364,7 @@
       TRACKS().forEach((t) => {
         const pr = trackProgress(t);
         const it = el("div", "lesson");
-        it.innerHTML = '<span class="mark" style="color:' + (t.accent || "#00ff9c") + '">◆</span><span class="lt">' + escapeHtml(t.name) + '</span><span class="xp">' + pr.dEx + "/" + pr.tEx + "</span>";
+        it.innerHTML = '<span class="mark" style="color:' + (t.accent || "var(--green)") + '">◆</span><span class="lt">' + escapeHtml(t.name) + '</span><span class="xp">' + pr.dEx + "/" + pr.tEx + "</span>";
         it.onclick = () => go(t.id);
         sb.appendChild(it);
       });
@@ -357,7 +372,7 @@
     }
 
     const banner = el("div", "sidebar-track");
-    banner.innerHTML = '<span style="color:' + (track.accent || "#00ff9c") + '">●</span> ' + escapeHtml(track.name) + ' <span class="dim">· ' + escapeHtml(runtimeTag(track)) + "</span>";
+    banner.innerHTML = '<span style="color:' + (track.accent || "var(--green)") + '">●</span> ' + escapeHtml(track.name) + ' <span class="dim">· ' + escapeHtml(runtimeTag(track)) + "</span>";
     sb.appendChild(banner);
     const curMod = p[1], curEx = p[2];
     track.modules.forEach((m) => {
@@ -394,13 +409,13 @@
     let cards = "";
     TRACKS().forEach((tk) => {
       const pr = trackProgress(tk);
-      cards += '<div class="track-card lang" data-id="' + tk.id + '" style="--acc:' + (tk.accent || "#00ff9c") + '">' +
+      cards += '<div class="track-card lang" data-id="' + tk.id + '" style="--acc:' + (tk.accent || "var(--green)") + '">' +
         '<div class="lang-bar"></div>' +
         (tk.id === "python" ? '<div class="start-here">' + t("start_here") + "</div>" : "") +
         '<div class="ix">' + escapeHtml(runtimeTag(tk)) + "</div>" +
         "<h3>" + escapeHtml(tk.name) + "</h3>" +
         "<p>" + escapeHtml(tk.blurb || "") + "</p>" +
-        '<div class="meter"><i style="width:' + pr.pct + "%;background:" + (tk.accent || "#00ff9c") + '"></i></div>' +
+        '<div class="meter"><i style="width:' + pr.pct + "%;background:" + (tk.accent || "var(--green)") + '"></i></div>' +
         '<div class="foot"><span>' + t("nodes_count", { d: pr.dEx, t: pr.tEx }) + "</span><span>" + (pr.pct === 100 ? "✔ " + t("mastered") : pr.pct + "%") + "</span></div></div>";
     });
     m.innerHTML =
@@ -428,7 +443,7 @@
       cards += '<div class="track-card" data-go="' + track.id + "/" + mod.id + '">' +
         '<div class="ix">' + t("sector") + " " + mod.code + "</div><h3>" + escapeHtml(Lx(mod, "title")) + "</h3>" +
         "<p>" + escapeHtml(Lx(mod, "subtitle") || "") + "</p>" +
-        '<div class="meter"><i style="width:' + mp.pct + "%;background:" + (track.accent || "#00ff9c") + '"></i></div>' +
+        '<div class="meter"><i style="width:' + mp.pct + "%;background:" + (track.accent || "var(--green)") + '"></i></div>' +
         '<div class="foot"><span>' + t("nodes_count", { d: mp.d, t: mp.t }) + "</span><span>" + (mp.done ? "✔ " + t("cleared") : mp.pct + "%") + "</span></div></div>";
     });
     m.innerHTML =
@@ -455,24 +470,25 @@
     const first = m.exercises[0];
     const main = $("main");
     main.innerHTML =
-      '<div class="crumbs">// <b>' + escapeHtml(track.name) + "</b> / " + t("sector") + " <b>" + m.code + "</b> · " + escapeHtml(m.title) + "</div>" +
-      '<div class="page-title">' + escapeHtml(m.title) + "</div>" +
+      '<div class="crumbs">// <b>' + escapeHtml(track.name) + "</b> / " + t("sector") + " <b>" + m.code + "</b> · " + escapeHtml(Lx(m, "title")) + "</div>" +
+      '<div class="page-title">' + escapeHtml(Lx(m, "title")) + "</div>" +
       '<div class="page-sub">' + escapeHtml(Lx(m, "subtitle") || "") + "</div>" +
       '<article class="theory">' + mdToHtml(Lx(m, "theory")) + "</article>" +
-      '<div class="theory-actions">' + (first ? '<button class="btn" id="begin">▸ ' + t("begin_first", { title: escapeHtml(first.title) }) + "</button>" : "") + "</div>";
+      '<div class="theory-actions">' + (first ? '<button class="btn" id="begin">▸ ' + t("begin_first", { title: escapeHtml(Lx(first, "title")) }) + "</button>" : "") + "</div>";
     highlightIn(main);
     if (first) $("begin").onclick = () => go(track.id + "/" + m.id + "/" + first.id);
   }
 
   /* ---------- exercise workspace ---------- */
   function renderExercise(track, m, ex) {
+    const myGen = ++_exGen;   // any async work from a previous node is now stale
     ts(track.id).last = track.id + "/" + m.id + "/" + ex.id; persist();
     const idx = m.exercises.indexOf(ex);
     const saved = ts(track.id).code[ex.id] != null ? ts(track.id).code[ex.id] : ex.starter;
     const diff = ex.difficulty || 1;
     const main = $("main");
     main.innerHTML =
-      '<div class="crumbs">// <b>' + escapeHtml(track.name) + "</b> / " + escapeHtml(m.title) + " / " + t("node_of", { i: idx + 1, t: m.exercises.length }) + "</div>" +
+      '<div class="crumbs">// <b>' + escapeHtml(track.name) + "</b> / " + escapeHtml(Lx(m, "title")) + " / " + t("node_of", { i: idx + 1, t: m.exercises.length }) + "</div>" +
       '<div class="ex-wrap"><section class="brief-card"><div class="brief-head"><span>▌ ' + t("mission_brief") + '</span><span class="diff">' + t("threat") + " " + "◆".repeat(diff) + "◇".repeat(Math.max(0, 3 - diff)) + "</span></div>" +
       '<div class="brief-body"><h1>' + escapeHtml(Lx(ex, "title")) + "</h1>" +
       '<div class="mission">' + escapeHtml(Lx(ex, "brief") || "") + "</div>" + mdToHtml(Lx(ex, "prompt")) +
@@ -493,7 +509,8 @@
     let editor;
     let _synTimer = null;
     function _onEdit() {
-      if (!window.Companion || !Companion.isOpen()) return;
+      if (myGen !== _exGen) return;
+      if (!window.Companion || !Companion.isOpen() || Companion.isBusy()) return;
       clearTimeout(_synTimer);
       _synTimer = setTimeout(async () => {
         try {
@@ -507,6 +524,7 @@
       }, 450);
     }
     editor = makeEditor($("cm-area"), saved, editorModeFor(track), _onEdit);
+    _activeEditor = editor;
     const consoleEl = $("console"), resultsEl = $("results"), resCount = $("res-count");
     const clearedSlot = $("cleared-slot"), runBtn = $("btn-run"), hintSlot = $("hint-slot");
 
@@ -528,46 +546,54 @@
 
     // boot the runtime for this track
     cClear(); cAdd(t("loading_lang", { name: track.name }), "sys");
-    ensureRuntime(track, (msg, c) => cAdd("> " + msg, c === "ok" ? "" : "sys")).then(() => {
+    ensureRuntime(track, (msg, c) => { if (myGen === _exGen) cAdd("> " + msg, c === "ok" ? "" : "sys"); }).then(() => {
+      if (myGen !== _exGen) return;
       cClear(); cAdd(t("kernel_ready"), "muted");
       runBtn.disabled = false; runBtn.textContent = t("execute");
     }).catch((e) => {
+      if (myGen !== _exGen) return;
       cClear(); cAdd(t("kernel_fail", { err: (e && e.message ? e.message : e) }), "err");
       cAdd(t("kernel_fail_hint"), "muted");
     });
 
     async function doRun() {
       const rt = (window.Runtimes || {})[track.runtime];
-      if (!rt || !rt.ready) { cAdd("kernel not ready yet…", "muted"); return; }
+      if (!rt || !rt.ready) { cAdd(t("kernel_wait"), "muted"); return; }
       const code = editor.get();
       ts(track.id).code[ex.id] = code; persist();
-      runBtn.disabled = true; runBtn.classList.add("running-dots"); runBtn.textContent = t("running");
-      cClear(); cAdd("> executing payload…", "sys");
+      runBtn.disabled = true; runBtn.classList.add("running-dots"); runBtn.textContent = t("running") + " ";
+      cClear(); cAdd("> " + t("exec_payload"), "sys");
       try {
         const disp = await rt.runDisplay(code, ex);
+        if (myGen !== _exGen) return;
         cClear();
         if (disp.stdout) cRaw(disp.stdout);
         if (disp.error) cAdd(disp.error, "err");
         if (!disp.stdout && !disp.error) cAdd(t("no_output"), "muted");
         const g = await rt.grade(code, ex);
+        if (myGen !== _exGen) return;
         renderResults(g);
         if (g.all_ok) onSolved(track, m, ex, clearedSlot);
         else { clearedSlot.innerHTML = ""; if (window.Snd) Snd.sfx("error"); }
-      } catch (e) { cClear(); cAdd("KERNEL FAULT :: " + (e && e.message ? e.message : e), "err"); }
+      } catch (e) { if (myGen !== _exGen) return; cClear(); cAdd(t("kernel_fault") + " :: " + (e && e.message ? e.message : e), "err"); }
       finally { runBtn.disabled = false; runBtn.classList.remove("running-dots"); runBtn.textContent = t("execute"); }
     }
     runBtn.onclick = doRun;
 
-    $("btn-reset-ex").onclick = () => { editor.set(ex.starter); delete ts(track.id).code[ex.id]; persist(); editor.focus(); };
+    $("btn-reset-ex").onclick = () => {
+      editor.set(ex.starter); delete ts(track.id).code[ex.id]; persist(); editor.focus();
+      resultsEl.innerHTML = '<div class="empty">' + t("awaiting") + "</div>"; resCount.textContent = "";
+      clearedSlot.innerHTML = ""; hintSlot.innerHTML = ""; hintSlot.dataset.open = "0"; hintSlot.dataset.kind = "";
+    };
     $("btn-hint").onclick = () => {
-      if (hintSlot.dataset.open === "1") { hintSlot.innerHTML = ""; hintSlot.dataset.open = "0"; return; }
-      hintSlot.innerHTML = '<div class="hintbox"><span class="tag">▸ ' + t("decrypted_hint") + "</span>" + mdToHtml(Lx(ex, "hint") || "No hint encoded. Trust your training.") + "</div>";
-      highlightIn(hintSlot); hintSlot.dataset.open = "1";
+      if (hintSlot.dataset.open === "1" && hintSlot.dataset.kind === "hint") { hintSlot.innerHTML = ""; hintSlot.dataset.open = "0"; hintSlot.dataset.kind = ""; return; }
+      hintSlot.innerHTML = '<div class="hintbox"><span class="tag">▸ ' + t("decrypted_hint") + "</span>" + mdToHtml(Lx(ex, "hint") || t("no_hint")) + "</div>";
+      highlightIn(hintSlot); hintSlot.dataset.open = "1"; hintSlot.dataset.kind = "hint";
     };
     $("btn-sol").onclick = () => {
       if (!confirm(t("confirm_solution"))) return;
       hintSlot.innerHTML = '<div class="hintbox solbox"><span class="tag">▸ ' + t("reference_solution") + '</span><pre class="codeblock language-' + (track.prism || "plaintext") + '"><code class="language-' + (track.prism || "plaintext") + '">' + escapeHtml(ex.solution || "# (none)") + '</code></pre><button class="btn subtle sm" id="load-sol">' + t("load_solution") + "</button></div>";
-      highlightIn(hintSlot); hintSlot.dataset.open = "1";
+      highlightIn(hintSlot); hintSlot.dataset.open = "1"; hintSlot.dataset.kind = "sol";
       const ls = $("load-sol"); if (ls) ls.onclick = () => { editor.set(ex.solution || ""); editor.focus(); };
     };
     const nb = $("btn-next"); if (nb) nb.onclick = () => go(track.id + "/" + m.id + "/" + m.exercises[idx + 1].id);
@@ -593,13 +619,13 @@
   /* ---------- modal / help ---------- */
   function openHelp() {
     $("modal-body").innerHTML =
-      "<h2>▌ FIELD MANUAL</h2><p>THE CONSTRUCT is a polyglot trainer. Every language runs a <b>real engine</b> locally in your browser — your code never leaves this machine.</p>" +
-      "<h3>ENGINES</h3><ul><li><b>Python</b> — CPython 3.12 (Pyodide/WASM)</li><li><b>JavaScript / TypeScript</b> — native V8 in a sandboxed Worker; TS via the real tsc compiler</li><li><b>SQL</b> — SQLite (sql.js/WASM)</li><li><b>Lua</b> — Lua 5.4 (wasmoon/WASM)</li><li><b>Ruby</b> — CRuby (ruby.wasm)</li></ul>" +
-      "<h3>HOW TO TRAIN</h3><ul><li>Pick a <b>LANGUAGE</b>, open a <b>SECTOR</b>, read the <b>THEORY BRIEF</b>.</li><li>Breach each <b>NODE</b>: write code, hit <kbd>▸ EXECUTE</kbd> (<kbd>Ctrl/Cmd</kbd>+<kbd>Enter</kbd>).</li><li>Clear the hidden <b>test vectors</b> to bank XP and raise your ACCESS LEVEL (global across all languages).</li><li><kbd>HINT</kbd> decrypts a tip; <kbd>SOLUTION</kbd> reveals a reference exploit.</li></ul>" +
-      "<h3>NOTES</h3><ul><li>Each engine loads on first use (needs internet once); progress + code autosave per language.</li><li>Infinite loops are force-halted instead of freezing the tab.</li></ul>" +
-      '<h3>CONFIG</h3><p><label><input type="checkbox" id="mute-box"' + (SAVE.settings.mute ? " checked" : "") + "> mute UI blips</label></p><p class='dim'>Curriculum inspired by CS50P &amp; Dataquest. See you, space cowboy.</p>";
+      "<h2>▌ " + t("help_title") + "</h2><p>" + t("help_intro") + "</p>" +
+      "<h3>" + t("help_engines_h") + "</h3><ul><li>" + t("help_engine_py") + "</li><li>" + t("help_engine_js") + "</li><li>" + t("help_engine_sql") + "</li><li>" + t("help_engine_lua") + "</li><li>" + t("help_engine_ruby") + "</li></ul>" +
+      "<h3>" + t("help_train_h") + "</h3><ul><li>" + t("help_train_1") + "</li><li>" + t("help_train_2") + "</li><li>" + t("help_train_3") + "</li><li>" + t("help_train_4") + "</li></ul>" +
+      "<h3>" + t("help_notes_h") + "</h3><ul><li>" + t("help_notes_1") + "</li><li>" + t("help_notes_2") + "</li></ul>" +
+      '<h3>' + t("help_config_h") + '</h3><p><label><input type="checkbox" id="mute-box"' + (SAVE.settings.mute ? " checked" : "") + "> " + t("help_mute") + "</label></p><p class='dim'>" + t("help_credits") + "</p>";
     $("modal").hidden = false;
-    const mb = $("mute-box"); if (mb) mb.onchange = () => { SAVE.settings.mute = mb.checked; persist(); };
+    const mb = $("mute-box"); if (mb) mb.onchange = () => { SAVE.settings.mute = mb.checked; persist(); if (window.Snd) Snd.setMuted(SAVE.settings.mute); };
   }
   function closeHelp() { $("modal").hidden = true; }
 
@@ -757,7 +783,7 @@
           setAdFree(true);
           if (st) { st.textContent = t("adfree_ok"); st.className = "sync-status ok"; }
           if (window.Snd) Snd.sfx("victory");
-          setTimeout(function () { if (!$("modal").hidden) closeHelp(); }, 1200);
+          setTimeout(function () { if (!$("modal").hidden && $("adfree-status")) closeHelp(); }, 1200);
         } else {
           if (st) { st.textContent = (r && r.msg) ? r.msg : t("adfree_bad"); st.className = "sync-status bad"; }
         }
@@ -806,6 +832,7 @@
   function localizeChrome() {
     var map = { "btn-buddy": "tt_buddy", "btn-sync": "tt_sync", "btn-settings": "tt_settings", "btn-help": "tt_help", "btn-reset": "tt_wipe", "btn-menu": "tt_menu", "btn-donate": "tt_donate" };
     for (var id in map) { var e = $(id); if (e) e.title = t(map[id]); }
+    var bs = $("btn-sync"); if (bs) bs.textContent = t("btn_sync");
     updateFsBtn();
   }
   function setLang(l) { SAVE.settings.lang = l; persistRaw(); if (window.I18N) I18N.set(l); localizeChrome(); route(); }
@@ -823,48 +850,49 @@
     SAVE.settings.theme = theme; persistRaw();
     document.body.classList.remove("theme-synthwave", "theme-amber");
     if (theme !== "matrix") document.body.classList.add("theme-" + theme);
+    if (window.Companion && Companion.refreshTheme) Companion.refreshTheme();
   }
 
   function openSync() {
     var code = SAVE.profile.code;
     function st(id, msg, cls) { var e = $(id); if (e) { e.textContent = msg; e.className = "sync-status" + (cls ? " " + cls : ""); } }
     $("modal-body").innerHTML =
-      "<h2>▌ PROFILE SYNC</h2>" +
-      "<p>Cloud auto-sync is <b>ON</b> — your progress saves to the cloud automatically under your <b>profile code</b>. To see it on another device, put the <b>same code</b> on that device (paste it in ① → LINK). Merges are a safe <b>union</b>, so nothing is ever lost.</p>" +
-      '<div class="sync-sec"><h3>① PROFILE CODE</h3><p class="dim">Your identity for cloud sync — use the SAME code on every device to link them.</p>' +
+      "<h2>▌ " + t("sync_title") + "</h2>" +
+      "<p>" + t("sync_intro") + "</p>" +
+      '<div class="sync-sec"><h3>' + t("sync_s1_h") + '</h3><p class="dim">' + t("sync_s1_p") + "</p>" +
       '<div class="codebox"><span class="code" id="pcode">' + escapeHtml(code) + "</span>" +
-      '<button class="btn subtle sm" id="copy-code">COPY</button><button class="btn subtle sm" id="regen-code">NEW</button></div>' +
-      '<div class="codebox"><input type="text" id="link-code" placeholder="paste a code from another device…" style="flex:1 1 150px;width:auto"><button class="btn alt sm" id="link-btn">LINK</button></div></div>' +
-      '<div class="sync-sec"><h3>② CLOUD AUTO-SYNC <span class="dim">— already set up ✓</span></h3>' +
-      '<p class="dim">Your progress saves to the cloud automatically by profile code. (Advanced: you can change the sync server URL below or turn auto-sync off.)</p>' +
+      '<button class="btn subtle sm" id="copy-code">' + t("sync_copy") + '</button><button class="btn subtle sm" id="regen-code">' + t("sync_new") + "</button></div>" +
+      '<div class="codebox"><input type="text" id="link-code" placeholder="' + t("sync_link_ph") + '" style="flex:1 1 150px;width:auto"><button class="btn alt sm" id="link-btn">' + t("sync_link") + "</button></div></div>" +
+      '<div class="sync-sec"><h3>' + t("sync_s2_h") + ' <span class="dim">— ' + t("sync_s2_ready") + '</span></h3>' +
+      '<p class="dim">' + t("sync_s2_p") + "</p>" +
       '<input type="text" id="sync-url" placeholder="https://your-worker.workers.dev" value="' + escapeHtml(SAVE.settings.syncUrl || "") + '">' +
-      '<div class="codebox"><label><input type="checkbox" id="auto-sync"' + (SAVE.settings.autoSync ? " checked" : "") + "> auto-sync on changes</label>" +
-      '<button class="btn alt sm" id="sync-now">⇆ SYNC NOW</button></div><div class="sync-status" id="sync-status"></div></div>' +
-      '<div class="sync-sec"><h3>③ MANUAL — no setup, works offline</h3><p class="dim">Carry your progress as a code or a file.</p>' +
-      '<div class="codebox"><button class="btn subtle sm" id="exp-copy">⧉ COPY EXPORT CODE</button><button class="btn subtle sm" id="exp-file">⇩ DOWNLOAD FILE</button></div>' +
-      '<textarea class="sync-import" id="imp-text" placeholder="Paste an export code here…"></textarea>' +
-      '<div class="codebox"><button class="btn subtle sm" id="imp-apply">⇧ IMPORT CODE</button>' +
-      '<label class="btn subtle sm" for="imp-file" style="cursor:pointer">⇧ IMPORT FILE</label>' +
+      '<div class="codebox"><label><input type="checkbox" id="auto-sync"' + (SAVE.settings.autoSync ? " checked" : "") + "> " + t("sync_auto") + "</label>" +
+      '<button class="btn alt sm" id="sync-now">' + t("sync_now_btn") + '</button></div><div class="sync-status" id="sync-status"></div></div>' +
+      '<div class="sync-sec"><h3>' + t("sync_s3_h") + '</h3><p class="dim">' + t("sync_s3_p") + "</p>" +
+      '<div class="codebox"><button class="btn subtle sm" id="exp-copy">' + t("sync_exp_copy") + '</button><button class="btn subtle sm" id="exp-file">' + t("sync_exp_file") + "</button></div>" +
+      '<textarea class="sync-import" id="imp-text" placeholder="' + t("sync_imp_ph") + '"></textarea>' +
+      '<div class="codebox"><button class="btn subtle sm" id="imp-apply">' + t("sync_imp_apply") + "</button>" +
+      '<label class="btn subtle sm" for="imp-file" style="cursor:pointer">' + t("sync_imp_file") + "</label>" +
       '<input id="imp-file" type="file" accept=".construct,.json,.txt" style="display:none"></div>' +
       '<div class="sync-status" id="imp-status"></div></div>';
     $("modal").hidden = false;
-    $("copy-code").onclick = function () { copyText((($("pcode") || {}).textContent) || code); st("sync-status", "profile code copied.", "ok"); };
+    $("copy-code").onclick = function () { copyText((($("pcode") || {}).textContent) || code); st("sync-status", t("sync_msg_copied"), "ok"); };
     $("link-btn").onclick = function () {
       var v = $("link-code").value.trim();
-      if (v.length < 6) { st("sync-status", "that doesn't look like a profile code", "bad"); return; }
+      if (v.length < 6) { st("sync-status", t("sync_msg_badcode"), "bad"); return; }
       SAVE.profile.code = v; persistRaw();
       var pc = $("pcode"); if (pc) pc.textContent = v;
-      st("sync-status", "linked — pulling that profile…", "");
-      cloudSync().then(function () { st("sync-status", "linked ✓ — this device now shares that profile.", "ok"); updateHud(currentTrackObj()); renderSidebar(currentTrackObj()); }).catch(function (e) { st("sync-status", "sync failed: " + (e && e.message ? e.message : e), "bad"); });
+      st("sync-status", t("sync_msg_linking"), "");
+      cloudSync().then(function () { st("sync-status", t("sync_msg_linked"), "ok"); updateHud(currentTrackObj()); renderSidebar(currentTrackObj()); }).catch(function (e) { st("sync-status", t("sync_msg_fail", { err: (e && e.message ? e.message : e) }), "bad"); });
     };
-    $("regen-code").onclick = function () { if (!confirm("Generate a NEW profile code? This device starts a fresh cloud identity (old cloud data stays under the old code).")) return; SAVE.profile.code = genCode(); persistRaw(); openSync(); };
+    $("regen-code").onclick = function () { if (!confirm(t("sync_confirm_regen"))) return; SAVE.profile.code = genCode(); persistRaw(); openSync(); };
     $("sync-url").onchange = function () { SAVE.settings.syncUrl = this.value.trim(); persistRaw(); };
     $("auto-sync").onchange = function () { SAVE.settings.autoSync = this.checked; persistRaw(); };
-    $("sync-now").onclick = function () { SAVE.settings.syncUrl = $("sync-url").value.trim(); persistRaw(); st("sync-status", "syncing…", ""); cloudSync().then(function () { st("sync-status", "synced ✓ — progress is on the cloud under your code.", "ok"); }).catch(function (e) { st("sync-status", "sync failed: " + (e && e.message ? e.message : e), "bad"); }); };
-    $("exp-copy").onclick = function () { copyText(exportCode()); st("imp-status", "export code copied to clipboard.", "ok"); };
-    $("exp-file").onclick = function () { downloadText("construct-profile.construct", exportCode()); st("imp-status", "downloaded construct-profile.construct", "ok"); };
-    $("imp-apply").onclick = function () { try { importCode($("imp-text").value); st("imp-status", "imported & merged ✓", "ok"); } catch (e) { st("imp-status", "import failed — bad code", "bad"); } };
-    $("imp-file").onchange = function () { var f = this.files && this.files[0]; if (!f) return; var r = new FileReader(); r.onload = function () { try { importCode(String(r.result)); st("imp-status", "imported & merged ✓", "ok"); } catch (e) { st("imp-status", "import failed — bad file", "bad"); } }; r.readAsText(f); };
+    $("sync-now").onclick = function () { SAVE.settings.syncUrl = $("sync-url").value.trim(); persistRaw(); st("sync-status", t("sync_msg_syncing"), ""); cloudSync().then(function () { st("sync-status", t("sync_msg_synced"), "ok"); }).catch(function (e) { st("sync-status", t("sync_msg_fail", { err: (e && e.message ? e.message : e) }), "bad"); }); };
+    $("exp-copy").onclick = function () { copyText(exportCode()); st("imp-status", t("sync_msg_exp_copied"), "ok"); };
+    $("exp-file").onclick = function () { downloadText("construct-profile.construct", exportCode()); st("imp-status", t("sync_msg_exp_dl"), "ok"); };
+    $("imp-apply").onclick = function () { try { importCode($("imp-text").value); st("imp-status", t("sync_msg_imp_ok"), "ok"); } catch (e) { st("imp-status", t("sync_msg_imp_bad"), "bad"); } };
+    $("imp-file").onchange = function () { var f = this.files && this.files[0]; if (!f) return; var r = new FileReader(); r.onload = function () { try { importCode(String(r.result)); st("imp-status", t("sync_msg_imp_ok"), "ok"); } catch (e) { st("imp-status", t("sync_msg_imp_badfile"), "bad"); } }; r.readAsText(f); };
   }
 
   /* ---------- matrix ---------- */
@@ -899,9 +927,10 @@
     for (const [t, c] of scripted) { line(t, c); p++; fill.style.width = Math.min(100, (p / scripted.length) * 100) + "%"; await sleep(reducedMotion() ? 30 : randInt(110, 260)); }
     line("> ALL SYSTEMS NOMINAL", "ok"); line("> neural link stabilized.", "ok");
     const jin = $("jack-in"); jin.hidden = false; jin.focus();
-    const enter = () => { document.removeEventListener("keydown", onKey); jin.removeEventListener("click", enter); jackIn(stopMatrix); };
-    const onKey = (e) => { if (e.key === "Enter") enter(); };
-    jin.addEventListener("click", enter); document.addEventListener("keydown", onKey);
+    // a focused <button> already activates on Enter/Space — no global key handler,
+    // so jacking-in can't double-fire and Enter on the EN/FR toggle won't trigger it
+    const enter = () => { jin.removeEventListener("click", enter); jackIn(stopMatrix); };
+    jin.addEventListener("click", enter);
   }
   function jackIn(stopMatrix) {
     if (window.Snd) { Snd.resume(); Snd.sfx("jackin"); if (SAVE.settings.musicOn) setTimeout(function () { Snd.startMusic(); }, 400); }
@@ -933,6 +962,7 @@
         fsb.onclick = toggleFullscreen;
         document.addEventListener("fullscreenchange", updateFsBtn);
         document.addEventListener("webkitfullscreenchange", updateFsBtn);
+        document.addEventListener("MSFullscreenChange", updateFsBtn);
         updateFsBtn();
       }
     }
@@ -966,11 +996,20 @@
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("modal").hidden) closeHelp(); });
   }
   function start() {
-    if (!window.TRACKS || !window.TRACKS.length) { $("boot-log").innerHTML = '<div class="crit">FATAL: no language tracks registered.</div>'; return; }
+    applyTheme(SAVE.settings.theme);
+    if (!window.TRACKS || !window.TRACKS.length) {
+      // recoverable, localized fatal state — keep the boot-language toggle live + offer reload
+      if ($("boot-en")) $("boot-en").onclick = function () { setBootLang("en"); };
+      if ($("boot-fr")) $("boot-fr").onclick = function () { setBootLang("fr"); };
+      localizeBoot();
+      var be = $("boot-error");
+      if (be) { be.hidden = false; be.innerHTML = "<div>" + escapeHtml(t("fatal_no_tracks")) + '</div><button type="button" id="boot-reload">' + t("retry") + "</button>"; var rl = $("boot-reload"); if (rl) rl.onclick = function () { location.reload(); }; }
+      else { $("boot-log").innerHTML = '<div class="crit">' + escapeHtml(t("fatal_no_tracks")) + "</div>"; }
+      return;
+    }
     // order each section as a difficulty ladder (stable: keeps authored order within a tier)
     window.TRACKS.forEach(function (t) { t.modules.forEach(function (m) { m.exercises.sort(function (a, b) { return (a.difficulty || 1) - (b.difficulty || 1); }); }); });
     applyContentOverlay();
-    applyTheme(SAVE.settings.theme);
     wireChrome(); localizeBoot(); boot();
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();

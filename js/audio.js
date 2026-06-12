@@ -26,7 +26,9 @@ window.Snd = (function () {
   function applyVols() {
     if (!ctx) return;
     var t = ctx.currentTime;
-    master.gain.setTargetAtTime(cfg.muted ? 0 : 1, t, 0.01);
+    // hard mute reaches true zero (setTargetAtTime only approaches it asymptotically)
+    if (cfg.muted) { master.gain.cancelScheduledValues(t); master.gain.setValueAtTime(0, t); }
+    else { master.gain.cancelScheduledValues(t); master.gain.setTargetAtTime(1, t, 0.01); }
     sfxBus.gain.setTargetAtTime(cfg.sfxVol, t, 0.01);
     musicBus.gain.setTargetAtTime(cfg.musicVol, t, 0.02);
   }
@@ -64,7 +66,7 @@ window.Snd = (function () {
     toggle: function () { blip(sfxBus, 540, 0.05, "square", 0.4, 720); },
     nav: function () { blip(sfxBus, 680, 0.05, "triangle", 0.4, 1020); },
     execute: function () { blip(sfxBus, 420, 0.09, "square", 0.45, 880); blip(sfxBus, 840, 0.12, "sawtooth", 0.25, 1400); },
-    success: function () { [659, 988, 1318].forEach(function (f, i) { setTimeout(function () { if (ctx) blip(sfxBus, f, 0.12, "square", 0.4); }, i * 80); }); },
+    success: function () { [659, 988, 1318].forEach(function (f, i) { setTimeout(function () { if (ctx && !cfg.muted && cfg.sfxVol > 0) blip(sfxBus, f, 0.12, "square", 0.4); }, i * 80); }); },
     error: function () { blip(sfxBus, 170, 0.2, "sawtooth", 0.5, 80); noiseHit(sfxBus, 0.12, 0.18, 1400, 200); },
     jackin: function () { blip(sfxBus, 180, 0.5, "sawtooth", 0.5, 1600); noiseHit(sfxBus, 0.4, 0.1, 6000, 400); },
     wipe: function () { blip(sfxBus, 900, 0.4, "sawtooth", 0.4, 90); },
@@ -72,7 +74,7 @@ window.Snd = (function () {
     glitch: function () { blip(sfxBus, 120 + Math.random() * 900, 0.05, "square", 0.3); noiseHit(sfxBus, 0.04, 0.22, 2600); },
     shoot: function () { blip(sfxBus, 900, 0.12, "square", 0.4, 180); },
     explode: function () { noiseHit(sfxBus, 0.22, 0.5, 1200); blip(sfxBus, 180, 0.18, "sawtooth", 0.3, 60); },
-    victory: function () { [523, 659, 784, 1046].forEach(function (f, i) { setTimeout(function () { if (ctx) blip(sfxBus, f, 0.14, "square", 0.4); }, i * 100); }); },
+    victory: function () { [523, 659, 784, 1046].forEach(function (f, i) { setTimeout(function () { if (ctx && !cfg.muted && cfg.sfxVol > 0) blip(sfxBus, f, 0.14, "square", 0.4); }, i * 100); }); },
   };
   var _lastSfx = {};
   function sfx(name) {
@@ -181,17 +183,22 @@ window.Snd = (function () {
       get playing() { return playing; },
       start: function () {
         if (playing || userTracks.length) return; // user tracks take over if loaded
-        if (!ensure()) return; resume();
+        if (!ensure()) return; resume(); applyVols(); // restore music-bus gain (stop() cuts it)
         playing = true; step = 0; bar = 0; nextTime = ctx.currentTime + 0.08;
         timer = setInterval(tick, INT);
       },
-      stop: function () { playing = false; if (timer) clearInterval(timer); timer = null; },
+      stop: function () {
+        playing = false; if (timer) clearInterval(timer); timer = null;
+        // silence notes already scheduled in the look-ahead window so music
+        // doesn't keep playing for ~120ms+ after the user toggles it off
+        if (ctx && musicBus) { var t = ctx.currentTime; musicBus.gain.cancelScheduledValues(t); musicBus.gain.setValueAtTime(0.0001, t); }
+      },
     };
   })();
 
   /* ---------------- optional user-supplied music files ---------------- */
   function playUserTrack() {
-    if (!userTracks.length || !ensure()) return; resume();
+    if (!userTracks.length || !ensure()) return; resume(); applyVols();
     if (userSrc) { try { userSrc.onended = null; userSrc.stop(); } catch (e) {} }
     var src = ctx.createBufferSource(); src.buffer = userTracks[userIdx % userTracks.length];
     src.connect(musicBus); src.onended = function () { userIdx++; if (cfg.musicOn) playUserTrack(); };

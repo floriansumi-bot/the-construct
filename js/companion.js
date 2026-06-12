@@ -29,6 +29,18 @@
     "   DDD    DDD   ",
   ];
   var HPAL = { D: "#063b2c", H: "#00ff9c", V: "#25e1ff", C: "#eafff5" };
+  /* theme-aware accent colours — refreshed from the active CSS theme so PROTO.EXE
+     matches Matrix / Synthwave / Amber instead of staying green forever. */
+  var C_GREEN = "#00ff9c", C_CYAN = "#25e1ff", C_ACC = "0,255,156";
+  function refreshTheme() {
+    try {
+      var cs = getComputedStyle(document.body);
+      C_GREEN = (cs.getPropertyValue("--green") || "").trim() || C_GREEN;
+      C_CYAN = (cs.getPropertyValue("--cyan") || "").trim() || C_CYAN;
+      C_ACC = (cs.getPropertyValue("--accent-rgb") || "").trim() || C_ACC;
+      HPAL.H = C_GREEN; HPAL.V = C_CYAN;
+    } catch (e) {}
+  }
   /* Original alien designs (NOT the Taito Space Invaders sprites) — a flying
      saucer, an eye-drone and a spiky orb. All hand-drawn here, no copyright. */
   var INVADERS = [
@@ -151,7 +163,7 @@
     ctx.fillStyle = "#04100b"; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     for (var y = 0; y < H; y += 3) ctx.fillRect(0, y, W, 1);
-    ctx.strokeStyle = "rgba(0,255,156,0.15)"; ctx.strokeRect(0.5, 0.5, W - 1, H - 1);
+    ctx.strokeStyle = "rgba(" + C_ACC + ",0.15)"; ctx.strokeRect(0.5, 0.5, W - 1, H - 1);
   }
   /* ---- idle animation engine (~20 cycling moves) ---- */
   var TAU = Math.PI * 2;
@@ -174,28 +186,28 @@
   function drawEyes(mode) {
     if (!mode || mode === "open") return;
     var ex = 4 * HS, ey = 4 * HS, ew = 6 * HS, eh = 2 * HS;
-    if (mode === "closed") { ctx.fillStyle = "#063b2c"; ctx.fillRect(ex, ey, ew, eh); ctx.fillStyle = "#25e1ff"; ctx.fillRect(ex, ey + eh - HS, ew, HS); return; }
-    if (mode === "wink") { ctx.fillStyle = "#063b2c"; ctx.fillRect(ex, ey, 3 * HS, eh); ctx.fillStyle = "#25e1ff"; ctx.fillRect(ex, ey + eh - HS, 3 * HS, HS); return; }
+    if (mode === "closed") { ctx.fillStyle = "#063b2c"; ctx.fillRect(ex, ey, ew, eh); ctx.fillStyle = C_CYAN; ctx.fillRect(ex, ey + eh - HS, ew, HS); return; }
+    if (mode === "wink") { ctx.fillStyle = "#063b2c"; ctx.fillRect(ex, ey, 3 * HS, eh); ctx.fillStyle = C_CYAN; ctx.fillRect(ex, ey + eh - HS, 3 * HS, HS); return; }
     ctx.fillStyle = "#0a2e22"; ctx.fillRect(ex, ey, ew, eh);
     var px = mode === "left" ? ex : mode === "right" ? ex + ew - 2 * HS : ex + 2 * HS;
-    ctx.fillStyle = "#7af0ff"; ctx.fillRect(px, ey, 2 * HS, eh);
+    ctx.fillStyle = C_CYAN; ctx.fillRect(px, ey, 2 * HS, eh);
   }
   /* screen-space overlays used by some animations */
   function waveArm(p) {
     var sw = Math.sin(p * Math.PI * 6), ax = heroX + 13 * HS, ay = heroY + 5 * HS - Math.abs(Math.sin(Math.min(1, p * 1.5) * Math.PI)) * 7;
-    ctx.fillStyle = "#00ff9c"; ctx.fillRect(ax + sw * 2, ay, HS, 4 * HS); ctx.fillRect(ax + sw * 3, ay - HS, 2 * HS, HS);
+    ctx.fillStyle = C_GREEN; ctx.fillRect(ax + sw * 2, ay, HS, 4 * HS); ctx.fillRect(ax + sw * 3, ay - HS, 2 * HS, HS);
   }
   function sleepZ(p) {
-    ctx.fillStyle = "#25e1ff"; ctx.font = "bold 11px monospace";
+    ctx.fillStyle = C_CYAN; ctx.font = "bold 11px monospace";
     for (var i = 0; i < 3; i++) { var t = (p + i / 3) % 1; ctx.globalAlpha = 1 - t; ctx.fillText("z", heroX + 12 * HS + i * 5, heroY + 3 * HS - t * 24); }
     ctx.globalAlpha = 1;
   }
-  function scanLine(p) { var y = heroY + p * 16 * HS; ctx.fillStyle = "rgba(0,255,156,0.45)"; ctx.fillRect(heroX - HS, y, 18 * HS, 2); ctx.fillStyle = "rgba(234,255,245,0.85)"; ctx.fillRect(heroX - HS, y, 18 * HS, 1); }
+  function scanLine(p) { var y = heroY + p * 16 * HS; ctx.fillStyle = "rgba(" + C_ACC + ",0.45)"; ctx.fillRect(heroX - HS, y, 18 * HS, 2); ctx.fillStyle = "rgba(234,255,245,0.85)"; ctx.fillRect(heroX - HS, y, 18 * HS, 1); }
   function chargeArm(p) {
     ctx.globalAlpha = 0.4 + 0.6 * Math.abs(Math.sin(p * Math.PI * 4)); ctx.fillStyle = "#ffb300"; ctx.fillRect(heroX + HS, heroY + 13 * HS, 3 * HS, 3 * HS); ctx.globalAlpha = 1;
     for (var i = 0; i < 4; i++) if (Math.random() > 0.5) { ctx.fillStyle = "#ffe27a"; ctx.fillRect(heroX + ((Math.random() * 5) | 0) * HS, heroY + 13 * HS - ((Math.random() * 8) | 0), 2, 2); }
   }
-  function happyPulse(p) { ctx.globalAlpha = Math.max(0, 1 - p); ctx.strokeStyle = "#00ff9c"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(heroX + 8 * HS, heroY + 8 * HS, p * 30, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
+  function happyPulse(p) { ctx.globalAlpha = Math.max(0, 1 - p); ctx.strokeStyle = C_GREEN; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(heroX + 8 * HS, heroY + 8 * HS, p * 30, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
   function sparkleEyes(p) { if (Math.random() > 0.6) { ctx.fillStyle = "#eafff5"; ctx.fillRect(heroX + (4 + ((Math.random() * 6) | 0)) * HS, heroY + (4 + ((Math.random() * 2) | 0)) * HS, 2, 2); } }
 
   var IDLE_ANIMS = [
@@ -232,7 +244,7 @@
     if (state === "victory") {
       for (var k = 0; k < invaders.length; k++) { var iv = invaders[k]; if (iv.alive) { var sp = INVADERS[(iv.s || 0) % INVADERS.length]; drawSprite(ctx, sp.map, sp.pal, Math.round(iv.x), Math.round(iv.y || 14), IS); } }
       for (var b = 0; b < booms.length; b++) { var bb = booms[b], rad = 2 + bb.age / 18; ctx.fillStyle = (bb.age % 60 < 30) ? "#ffb300" : "#eafff5"; for (var p = 0; p < 8; p++) { var ang = p / 8 * Math.PI * 2; ctx.fillRect(Math.round(bb.x + Math.cos(ang) * rad), Math.round(bb.y + Math.sin(ang) * rad), 2, 2); } }
-      if (proj) { ctx.fillStyle = "#eafff5"; ctx.fillRect(Math.round(proj.x), Math.round(proj.y), 2, 5); ctx.fillStyle = "#25e1ff"; ctx.fillRect(Math.round(proj.x) - 1, Math.round(proj.y) + 2, 4, 3); if (proj.age < 90) { ctx.fillStyle = "#ffb300"; ctx.fillRect(heroX + 2, heroY + 2, 7, 7); } }
+      if (proj) { ctx.fillStyle = "#eafff5"; ctx.fillRect(Math.round(proj.x), Math.round(proj.y), 2, 5); ctx.fillStyle = C_CYAN; ctx.fillRect(Math.round(proj.x) - 1, Math.round(proj.y) + 2, 4, 3); if (proj.age < 90) { ctx.fillStyle = "#ffb300"; ctx.fillRect(heroX + 2, heroY + 2, 7, 7); } }
       drawSprite(ctx, HERO, HPAL, heroX, heroY, HS);
       return;
     }
@@ -240,7 +252,7 @@
       // RGB-split + tears
       var jx = (Math.random() * 4 - 2) | 0, jy = (Math.random() * 2 - 1) | 0;
       drawTint(ctx, HERO, heroX - 3 + jx, heroY + jy, HS, "#ff2e88", 0.6);
-      drawTint(ctx, HERO, heroX + 3 + jx, heroY + jy, HS, "#25e1ff", 0.6);
+      drawTint(ctx, HERO, heroX + 3 + jx, heroY + jy, HS, C_CYAN, 0.6);
       drawSprite(ctx, HERO, HPAL, heroX + jx, heroY + jy, HS);
       for (var t = 0; t < 3; t++) { var ty = (Math.random() * H) | 0, th = 2 + (Math.random() * 6 | 0), tx = (Math.random() * 20 - 10) | 0; ctx.fillStyle = Math.random() > 0.5 ? "rgba(255,46,136,0.5)" : "rgba(37,225,255,0.5)"; ctx.fillRect(tx, ty, W, th); }
       for (var n = 0; n < 6; n++) ctx.fillRect((Math.random() * W) | 0, (Math.random() * H) | 0, 3, 3);
@@ -260,16 +272,19 @@
 
   /* ---- dragging ---- */
   function makeDraggable(handle) {
-    var sx, sy, ox, oy, dragging = false;
+    var sx, sy, ox, oy, dragging = false, touchId = null;
     function down(cx, cy) { var r = el.getBoundingClientRect(); ox = r.left; oy = r.top; sx = cx; sy = cy; dragging = true; el.style.right = "auto"; el.style.bottom = "auto"; el.style.left = ox + "px"; el.style.top = oy + "px"; }
     function move(cx, cy) { if (!dragging) return; var nx = Math.max(0, Math.min(window.innerWidth - el.offsetWidth, ox + cx - sx)), ny = Math.max(0, Math.min(window.innerHeight - el.offsetHeight, oy + cy - sy)); el.style.left = nx + "px"; el.style.top = ny + "px"; }
-    function up() { dragging = false; }
+    function up() { dragging = false; touchId = null; }
+    function findTouch(list) { for (var i = 0; i < list.length; i++) if (list[i].identifier === touchId) return list[i]; return null; }
     handle.addEventListener("mousedown", function (e) { down(e.clientX, e.clientY); e.preventDefault(); });
     document.addEventListener("mousemove", function (e) { move(e.clientX, e.clientY); });
     document.addEventListener("mouseup", up);
-    handle.addEventListener("touchstart", function (e) { var t = e.touches[0]; down(t.clientX, t.clientY); }, { passive: true });
-    document.addEventListener("touchmove", function (e) { if (dragging) { var t = e.touches[0]; move(t.clientX, t.clientY); e.preventDefault(); } }, { passive: false });
-    document.addEventListener("touchend", up);
+    // track ONE specific finger so a second finger / multi-touch can't hijack the drag
+    handle.addEventListener("touchstart", function (e) { var t = e.changedTouches[0]; touchId = t.identifier; down(t.clientX, t.clientY); e.preventDefault(); }, { passive: false });
+    document.addEventListener("touchmove", function (e) { if (!dragging) return; var t = findTouch(e.changedTouches); if (!t) return; move(t.clientX, t.clientY); e.preventDefault(); }, { passive: false });
+    document.addEventListener("touchend", function (e) { if (findTouch(e.changedTouches)) up(); });
+    document.addEventListener("touchcancel", function () { up(); });
   }
 
   var Companion = {
@@ -288,6 +303,7 @@
         '<canvas class="companion-canvas" width="' + W + '" height="' + H + '"></canvas>' +
         '<div class="companion-status">STATUS: ONLINE</div>';
       document.body.appendChild(el);
+      refreshTheme();
       canvas = el.querySelector(".companion-canvas"); ctx = canvas.getContext("2d"); ctx.imageSmoothingEnabled = false;
       statusEl = el.querySelector(".companion-status");
       el.querySelector(".companion-x").addEventListener("click", function () { Companion.setOpen(false); });
@@ -315,6 +331,8 @@
     },
     toggle: function () { this.setOpen(!this.open); },
     isOpen: function () { return this.open; },
+    isBusy: function () { return state === "victory"; }, // a scene is playing — don't latch a glitch
+    refreshTheme: refreshTheme,
     glitch: function (on) {
       glitchOn = !!on;
       if (state === "victory") return; // don't interrupt the show
@@ -335,6 +353,7 @@
         if (ch === '"' || ch === "'" || ch === "`") { inStr = true; q = ch; prev = ch; continue; }
         if (ch === "#") { while (i < code.length && code[i] !== "\n") i++; continue; }
         if (ch === "/" && code[i + 1] === "/") { while (i < code.length && code[i] !== "\n") i++; continue; }
+        if (ch === "-" && code[i + 1] === "-") { while (i < code.length && code[i] !== "\n") i++; continue; } // SQL / Lua line comment
         if (ch === "(" || ch === "[" || ch === "{") stack.push(ch);
         else if (pairs[ch]) { if (stack.pop() !== pairs[ch]) return false; }
         prev = ch;

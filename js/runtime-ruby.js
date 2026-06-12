@@ -56,23 +56,25 @@
 
   var RubyRuntime = {
     key: "ruby", label: "Ruby", editorMode: "ruby", tag: "CRuby 3.3 · WASM", ready: false,
-    _vm: null,
     note: "Real CRuby (ruby.wasm). The engine downloads once (large) on first use.",
     async init(onLog) { await ensureRuby(onLog); this.ready = true; if (onLog) onLog("ruby engine ready", "ok"); },
     async runDisplay(src, ex) {
-      var vm = await freshVM(); this._vm = vm; // hand this fresh VM to the grade() that follows
+      var vm = await freshVM(); // fresh VM, used only for this display pass
       var r = evalRuby(vm, src, null);
       return { stdout: r.out, error: r.err };
     },
     async grade(src, ex) {
       var tests = (ex && ex.tests) || [];
-      var vm = this._vm || (await freshVM()); this._vm = null;
-      var disp = evalRuby(vm, src, null);
+      // pre-exec pass in its OWN fresh VM: does the learner's code even load?
+      var disp = evalRuby(await freshVM(), src, null);
       var results = [];
       for (var i = 0; i < tests.length; i++) {
         var t = tests[i];
         if (disp.err) { results.push({ name: t.name, ok: false, msg: "your code did not load: " + disp.err }); continue; }
-        var r = evalRuby(vm, src, t.code);
+        // each test runs in a BRAND-NEW VM (like the Lua adapter) so state never
+        // leaks between tests and the source is executed exactly once per VM —
+        // no double-definition / accumulated-output bugs for class exercises.
+        var r = evalRuby(await freshVM(), src, t.code);
         results.push({ name: t.name, ok: r.ok, msg: r.ok ? "" : r.err });
       }
       var passed = 0; results.forEach(function (r) { if (r.ok) passed++; });

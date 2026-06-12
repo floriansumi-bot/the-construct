@@ -3,7 +3,7 @@
    NETWORK-FIRST for same-origin assets: when online you always get the latest
    version; the cache is only a fallback for offline. CDN engines (Pyodide,
    sql.js, wasmoon, ruby.wasm, CodeMirror...) are cross-origin -> network. */
-const CACHE = "construct-shell-v21";
+const CACHE = "construct-shell-v24";
 const SHELL = [
   "./", "./index.html", "./css/style.css", "./manifest.json",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/maskable-512.png",
@@ -24,7 +24,10 @@ self.addEventListener("fetch", (e) => {
   // Network-first: always try the live version; fall back to cache only offline.
   e.respondWith(
     fetch(req).then((res) => {
-      if (res && res.status === 200 && res.type === "basic") {
+      // Cache successful same-origin assets, but NOT navigations: a 200 page that
+      // happens to be broken must never overwrite the known-good precached shell
+      // (offline always falls back to the install-time index.html).
+      if (res && res.status === 200 && res.type === "basic" && req.mode !== "navigate") {
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(req, copy));
       }
