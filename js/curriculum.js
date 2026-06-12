@@ -745,7 +745,7 @@ assert isinstance(r, tuple) and r==(2,1), repr(r)` },
     subtitle: "if · elif · else · boolean logic · branching",
     theory: `
 ## Branching
-**if** runs a block only when a condition is True. Add **elif** (else-if) for more cases and **else** for the fallback. Indentation (4 spaces) defines each block.
+A **condition** is any test that comes out either **True** or **False** (those two capitalized words are Python's built-in yes/no values — the booleans you met earlier). **if** runs a chunk of code only when its condition is True. That chunk is a **block**: the indented lines beneath the \`if\`. Add **elif** (short for "else if") to test another condition when the first was False, and **else** as the catch-all that runs when none matched. The indentation — **4 spaces** — is how Python knows which lines belong to the block.
 
 ~~~python
 if level >= 5:
@@ -757,7 +757,7 @@ else:
 ~~~
 
 ## Order matters
-Python checks branches **top to bottom** and stops at the first True one. Put the most specific / strictest test first.
+Python checks branches **top to bottom** and stops at the first True one. Put the most specific / strictest test first. (Reminder: **%** is the *remainder* operator, so \`n % 15 == 0\` means "n divides evenly by 15" — i.e. n is a multiple of 15.)
 
 ~~~python
 # divisible by 15 must be checked BEFORE 3 or 5
@@ -768,7 +768,7 @@ elif n % 3 == 0:
 ~~~
 
 ## Combining tests
-Use **and**, **or**, **not**, and comparison chaining:
+Use **and** (both sides must be True), **or** (at least one True), and **not** (flips True/False). You can also **chain** comparisons the way maths does — \`0 <= score <= 100\` reads as "score is between 0 and 100 inclusive" and is True only when both halves hold:
 
 ~~~python
 if 0 <= score <= 100:
@@ -942,7 +942,7 @@ verdict(120) -> "INVALID"
     subtitle: "for · while · range · break · accumulators",
     theory: `
 ## Repeating work
-A **for** loop walks a sequence. **range(n)** yields \`0 .. n-1\`; \`range(a, b, step)\` is fully configurable.
+A loop runs the same block of code over and over. A **for** loop takes a collection of items (a list, the characters in a string, a range of numbers) and runs its block **once for each item**, handing you that item in a variable each pass. **range(n)** is a handy number generator: \`range(5)\` gives \`0, 1, 2, 3, 4\` — it starts at 0 and **stops just before** n. The fuller \`range(start, stop, step)\` lets you choose where to begin, where to stop (still exclusive), and how big a jump to take each pass (a negative step counts downward).
 
 ~~~python
 for i in range(3):
@@ -953,7 +953,7 @@ for i in range(5, 0, -1):
 ~~~
 
 ## The accumulator pattern
-Start with an empty total / list, then build it up each pass. This is the backbone of data work. The same shape works for a **running product** — but start at **1** and use **\\*=**:
+First, the shorthand: **\`total += c\`** simply means **\`total = total + c\`** (take the current total, add c, store it back); likewise \`product *= f\` means \`product = product * f\`. Now the pattern: start with an empty total or list, then build it up each pass — the backbone of data work. The same shape works for a **running product**, but start at **1** (multiplying by 1 changes nothing, so an empty chain stays 1):
 
 ~~~python
 total = 0
@@ -966,7 +966,7 @@ for c in [2, 3, 4]:
 ~~~
 
 ## Looping by index
-Sometimes you need the position, not just the value. **range(len(seq))** gives the indices 0 up to len minus 1; index back into the sequence with **seq[i]**. Returning mid-loop is the clean way to "find the first match and stop":
+Sometimes you need an item's **position** (its index), not just its value. **range(len(seq))** produces every valid index: \`0, 1, 2 ...\` up to one less than the length (positions count from **0**, so a 3-item list has indices 0, 1, 2). Reach the item with **seq[i]** ("the item at position i"). Returning mid-loop is the clean way to "find the first match and stop" — the moment you \`return\`, the function ends and the loop never reaches the rest. (The example below sits inside a function, so \`return\` is allowed.)
 
 ~~~python
 for i in range(len(readings)):
@@ -985,7 +985,7 @@ for i in range(1, 4):
 ~~~
 
 ## while loops
-**while** repeats as long as a condition holds. You must change something inside, or it loops forever.
+**while** repeats as long as a condition holds. You must change something inside, or it loops forever. (\`//\` below is *floor* division — it divides and drops any fraction, so \`7 // 2\` is \`3\`, not 3.5 — handy for whole steps like repeatedly halving.)
 
 ~~~python
 n = 8
@@ -1137,7 +1137,7 @@ s[-1]   # "N"
 ~~~
 
 ## Slicing
-\`s[start:stop:step]\` carves out a substring. Omit parts for defaults. The **step** controls stride: **2** keeps every other character, **-1** walks backwards (a reverse).
+\`s[start:stop:step]\` carves out a substring. The **start** index is included but the **stop** is **not** — \`s[1:3]\` takes indices 1 and 2, stopping just before 3. Omit parts for defaults. The **step** controls stride: **2** keeps every other character, **-1** walks backwards (a reverse).
 
 ~~~python
 s[1:3]    # "AI"
@@ -1146,8 +1146,8 @@ s[::-1]   # "NIAL" (reversed)
 ~~~
 
 ## Essential methods
-Strings are immutable — methods return **new** strings:
-- \`.upper()\` \`.lower()\` \`.title()\`
+Strings are **immutable** (they can never be changed in place) — so every method below leaves the original untouched and hands you a **new** string. You have to keep that result: \`s = s.upper()\`.
+- \`.upper()\` → ALL CAPS, \`.lower()\` → all lowercase, \`.title()\` → First Letter Of Each Word Capitalised
 - \`.strip()\` — trim whitespace
 - \`.replace(a, b)\`
 - \`.count(sub)\` — how many **non-overlapping** times \`sub\` appears (case-sensitive)
@@ -1162,6 +1162,17 @@ Strings are immutable — methods return **new** strings:
 ~~~
 
 Chain methods left to right — each acts on the previous result: \`raw.strip().replace("-", "_")\`.
+
+## f-strings — drop values into text
+Put **f** right before the opening quote, then wrap any expression in \`{ }\` and Python swaps in its value. The braces can even hold method calls.
+
+~~~python
+name = "spike"
+f"Pilot: {name.upper()}"     # "Pilot: SPIKE"
+f"{2 + 2} rounds left"       # "4 rounds left"
+~~~
+
+This is the clean way to build a formatted line from several pieces.
 
 > INTEL — \`ch.lower() in "aeiou"\` is a tidy way to test whether a character is a vowel regardless of case.
 `,
@@ -1278,7 +1289,7 @@ format_track("daft punk", "discovery") -> "DAFT PUNK - Discovery"
     subtitle: "sequences · methods · sorting · comprehensions",
     theory: `
 ## Lists
-An ordered, mutable collection. Index, slice, and mutate it.
+An ordered collection you can **change in place** (that's what *mutable* means): add, remove, or overwrite items after it's built.
 
 ~~~python
 crew = ["Spike", "Jet", "Faye"]
@@ -1294,19 +1305,21 @@ sorted([5, 2, 9], reverse=True)   # [9, 5, 2]
 ~~~
 
 ## Tuples
-Like lists but **immutable** — fixed once created. Great for fixed records and returning multiple values.
+Like a list, but **frozen once created** (immutable) — you can read it but never add to or change it. Great for fixed records and for returning several values at once.
 
 ~~~python
 point = (10, 20)
-lo, hi = (3, 99)       # unpacking
+lo, hi = (3, 99)       # unpacking: lo becomes 3, hi becomes 99
+                       # (the names on the left must match the count on the right)
 ~~~
 
 ## List comprehensions
-Build a new list in one expressive line — \`[expr for item in seq if condition]\`. The \`expr\` **transforms**, the \`if\` **filters**:
+Build a new list in one line — \`[expr for item in seq if condition]\`. The \`expr\` **transforms** each item, and the optional \`if\` **filters** which ones survive. Meet the idea one piece at a time:
 
 ~~~python
-loud = [name for (name, bpm) in tracks if bpm >= 120]
-doubled = [n * 2 for n in levels if n > 0]
+squares = [n * n for n in [1, 2, 3]]         # [1, 4, 9]   (transform only)
+doubled = [n * 2 for n in levels if n > 0]   # filter, then transform
+loud    = [name for (name, bpm) in tracks if bpm >= 120]   # unpack each tuple, then filter
 ~~~
 
 This is the Pythonic workhorse for filtering and transforming data. Master it.
@@ -1325,7 +1338,7 @@ list(zip(["A", "B"], [1, 2]))   # [("A", 1), ("B", 2)]
 ~~~
 
 ## Sets — a one-minute primer
-A **set** is an unordered bag of **unique** items. \`set()\` makes an empty one, \`seen.add(x)\` drops an item in, and \`x in seen\` is a fast "is it already here?" check. Sets get full coverage next sector — here you just use one as a quick memory of what you've already seen.
+A **set** is an unordered bag of **unique** items. \`set()\` makes an empty one (careful — empty \`{}\` makes a *dict*, not a set), \`seen.add(x)\` drops an item in, and \`x in seen\` is a fast "is it already here?" check. Sets get full coverage next sector — here you just use one as a quick memory of what you've already seen.
 
 ## Dedupe, keeping order
 A **set** removes duplicates but **scrambles order**. To keep the **first** appearance of each item, track what you've **seen**:

@@ -163,7 +163,7 @@ every_other("SxTyAzRwS") -> "STARS"
       id: "lists-comp-power",
       title: "POWER ROUTING",
       kind: "function",
-      difficulty: 1,
+      difficulty: 2,
       xp: 120,
       brief: "Reroute only the live conduits, at double output.",
       prompt: `
