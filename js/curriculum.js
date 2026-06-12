@@ -1460,7 +1460,7 @@ assert r==(1,2,1.5) and isinstance(r[2], float), repr(r)` },
     subtitle: "key/value · frequency tables · sets",
     theory: `
 ## Dictionaries
-A **dict** maps **keys** to **values** — instant lookup by key.
+A **dict** (dictionary) stores pairs: each **key** points to a **value**, written \`key: value\` inside \`{ }\`. Think of a contacts list — you look up a *name* (the key) to get a *number* (the value). Fetch a value by putting its key in square brackets, like \`bounty["Asimov"]\`.
 
 ~~~python
 bounty = {"Asimov": 2500000, "Teddy": 1000000}
@@ -1468,7 +1468,7 @@ bounty["Asimov"]          # 2500000
 bounty.get("Spike", 0)    # 0  (safe default, no crash)
 ~~~
 
-Use **.get(key, default)** to avoid \`KeyError\` on missing keys.
+Asking for a key that isn't there normally **crashes** your program with an error called a \`KeyError\`. To stay safe, use **.get(key, default)**: it hands back your chosen \`default\` instead of crashing when the key is missing.
 
 ## Building frequency tables
 The bread-and-butter of data analysis (hello, Dataquest): count occurrences by accumulating into a dict.
@@ -1482,7 +1482,7 @@ for ch in text:
 ## Building & walking dicts
 - **dict(zip(keys, values))** builds a dict from two parallel lists.
 - **d.items()** yields each (key, value) pair to loop over.
-- A **dict comprehension** transforms in one line — e.g. swap keys and values:
+- A **dict comprehension** builds a whole new dict in one line. It reads \`{ new_key: new_value for key, value in d.items() }\` — it walks every pair and decides what each new pair becomes. For example, to swap each key with its value:
 
 ~~~python
 dict(zip(["a", "b"], [1, 2]))        # {"a": 1, "b": 2}
@@ -1492,14 +1492,14 @@ for k, v in d.items():
 ~~~
 
 ## Picking by value
-**max(d, key=d.get)** returns the **key** with the largest value — exactly "which entry counts highest" in a frequency table.
+**max(d, key=d.get)** returns the **key** whose value is the largest. The \`key=d.get\` part tells \`max\` to compare the dict's *values* (not the keys) when deciding which is biggest — so in a frequency table it finds "which entry was counted highest". (You write \`d.get\` with no parentheses on purpose: you're handing \`max\` the lookup tool to use, not calling it yourself.)
 
 ~~~python
 max(freq, key=freq.get)   # the most common element
 ~~~
 
 ## Sets
-A **set** holds **unique** items, unordered. Perfect for dedupe and membership.
+A **set** holds **unique** items, unordered. Perfect for dedupe and membership. Because it's unordered it has no "first" or "last", and printing it can show items in any order — so when you need a predictable list, wrap it in \`sorted(...)\`.
 
 ~~~python
 set([3, 1, 2, 3, 1])     # {1, 2, 3}
@@ -1626,7 +1626,7 @@ unique_nodes(["b","a","b"])   -> ["a", "b"]
     subtitle: "try · except · raise · guarding input",
     theory: `
 ## When things go wrong
-Operations that can fail raise an **exception**. Unhandled, it crashes the program. Catch it with **try / except**.
+When Python hits something it can't do — like turning the text \`"oops"\` into a number — it stops and signals an error called an **exception**. If nothing deals with it, that exception **crashes** your whole program. You can intercept it instead with a **try / except** block: put the risky line under \`try:\`, and the recovery plan under \`except:\`.
 
 ~~~python
 try:
@@ -1635,7 +1635,7 @@ except ValueError:
     n = None              # recover gracefully
 ~~~
 
-Catch **specific** types (\`ValueError\`, \`ZeroDivisionError\`, \`KeyError\`, ...) — not a bare \`except\`, which hides real bugs.
+Each kind of failure has a name: **ValueError** (a value is the wrong kind, e.g. \`int("oops")\`), **ZeroDivisionError** (dividing by zero), **KeyError** (asking a dict for a missing key). Catch the **specific** name that matches the failure you expect — a bare \`except:\` that swallows *everything* hides real bugs you didn't mean to ignore.
 
 ## Raising your own
 Enforce rules by **raising** when input is illegal.
@@ -1658,7 +1658,7 @@ except (ValueError, ZeroDivisionError):
 ~~~
 
 ## else and finally
-A full **try / except / else / finally** gives you four slots:
+A full **try / except / else / finally** gives you four slots (start any shared variable like \`status\` *before* the block so it always exists; and to glue a number into a text message, convert it first with \`str(...)\` — Python won't \`+\` a number straight onto text):
 - **try** — the risky operation
 - **except** — runs only if it failed
 - **else** — runs only if it **succeeded** (no exception)
@@ -1675,8 +1675,8 @@ finally:
     status += ":DONE"         # always
 ~~~
 
-## The validation loop
-Professional code never trusts input. Convert + check, recover or reject.
+## Guarding input
+Professional code never trusts raw input: **try** the risky conversion, **except** the error to recover or reject. Every exercise below is one shape of this same move.
 
 > INTEL — \`int("3.5")\` raises ValueError because the **text** \`"3.5"\` isn't a valid whole-number string — the dot makes it illegal. \`int("3")\` works fine. (That's different from \`int(3.5)\` on an actual number, which simply truncates to \`3\`.) Catching the exception turns a crash into a clean fallback value.
 `,
@@ -1803,7 +1803,7 @@ safe_divide(7, 0)  -> "DIV/0"
     subtitle: "pattern matching with the re module",
     theory: `
 ## Patterns
-A **regular expression** describes a text pattern. Import the **re** module and write patterns as **raw strings** (\`r"..."\`) so backslashes stay literal.
+A **regular expression** (or "regex") is a mini-language for describing a *shape* of text — "four digits", "two letters then a dash". You write the shape once and let Python check text against it for you. The tools live in the built-in **re** module, so every program starts with \`import re\`. Always write patterns as a **raw string** — an ordinary string with an \`r\` stuck on the front, like \`r"\\d{4}"\` — because regex leans on the backslash \`\\\` a lot, and the \`r\` passes it through exactly as you typed it. (Don't worry about \`\\d{4}\` yet — the next section breaks down every symbol.)
 
 ~~~python
 import re
@@ -1815,14 +1815,16 @@ re.fullmatch(r"\\d{4}", "2099")   # match: four digits
 - \`[A-Z]\` a character class · \`{n}\` exactly n · \`{1,3}\` 1 to 3
 - \`+\` one-or-more · \`*\` zero-or-more · \`?\` optional
 
+Read a pattern left to right, like saying its shape out loud: \`r"[A-Z]{2}-\\d{4}"\` means "two uppercase letters, then a literal \`-\`, then exactly four digits" — so it matches \`GS-0009\`. A plain character like \`-\` just means that exact character.
+
 ## search vs fullmatch
 - **re.fullmatch(pat, s)** — the **whole** string must match (great for validation)
 - **re.search(pat, s)** — find the pattern **anywhere**
 
-Both return a match object (truthy) or **None**.
+Both give you back a **match object** if the text fits, or the special value **None** if it doesn't. A match object counts as "true" in an \`if\`, so the usual move is \`if re.search(...):\` to react to a hit, or check \`re.fullmatch(...) is not None\` to get a plain True/False.
 
 ## Capturing groups
-Parentheses capture part of the match; pull it out with **.group(1)**.
+Wrap part of a pattern in parentheses \`(...)\` to **capture** it — marking the exact slice you want to pull out. After a successful match, **.group(1)** hands you the text caught by the **first** pair of parentheses (the count starts at 1, not 0).
 
 ~~~python
 m = re.search(r"v=([\\w-]{11})", url)
@@ -1973,7 +1975,7 @@ def valid_callsign(s):
     subtitle: "classes · __init__ · methods · inheritance",
     theory: `
 ## Classes
-A **class** is a blueprint; an **object** is an instance built from it. **__init__** is the constructor — it sets up each new instance. **self** is the instance itself.
+A **class** is a blueprint — it describes what a kind of thing knows and can do. An **object** (or "instance") is one actual thing built from that blueprint; from one \`Mech\` class you can build many mechs. Variables stored on an object are its **attributes** (its data, like \`hp\`); functions defined inside the class are its **methods** (its actions, like \`damage\`). Two special pieces appear in every class: **__init__** is a method that runs automatically the moment you build an object, to set up its starting attributes; **self** is always the first parameter of a method and means "the specific object this was called on" — you write \`self.hp\` to read or change that object's own data. You never pass \`self\` yourself: when you write \`unit.damage(150)\`, Python fills in \`self = unit\` for you, and \`150\` becomes \`amount\`.
 
 ~~~python
 class Mech:
@@ -1999,6 +2001,8 @@ class Target:
     def __str__(self):
         return f"{self.name}: {self.reward} woolongs"
 ~~~
+
+Names wrapped in double underscores like \`__init__\` and \`__str__\` are special "hooks" (Python folks say **dunder**, for *double underscore*). You rarely call them by name — Python calls them for you at the right moment: \`__init__\` when you build the object, \`__str__\` when you print it.
 
 ## __eq__
 By default two distinct objects are **never** equal. Define **__eq__(self, other)** to compare by **value** — Python calls it for the **==** operator. It must **return** a bool.
@@ -2027,7 +2031,7 @@ class Drone:
 > [!warn] Update the shared tally with the **class name**: \`Drone.count += 1\`. Writing \`self.count += 1\` would instead create a separate per-instance \`count\` and leave the shared tally stuck at 0.
 
 ## Inheritance
-A subclass **inherits** attributes and methods from a base class and can **override** them.
+Writing \`class Replicant(Android):\` makes **Replicant** a *subclass* of **Android** — the name in parentheses is the **parent**. The subclass automatically **inherits** (gets for free) the parent's attributes and methods, and can **override** any of them by defining one with the same name.
 
 ~~~python
 class Replicant(Android):
@@ -2036,7 +2040,7 @@ class Replicant(Android):
 ~~~
 
 ## super()
-To **extend** a parent's method instead of replacing it, call **super()**. A common case: a subclass **__init__** runs the parent's setup, then adds its own.
+Sometimes you want to *add to* a parent's method, not replace it. **super()** is a stand-in for "the parent class", so \`super().__init__(name)\` runs the parent's \`__init__\`. The classic case: a subclass \`__init__\` calls \`super().__init__(...)\` to do the parent's setup, then adds its own attributes.
 
 ~~~python
 class Mecha(Robot):
@@ -2046,10 +2050,11 @@ class Mecha(Robot):
 ~~~
 
 ## Polymorphism
-Different classes can define the **same method name**. Call it on each object and Python dispatches to the right override automatically — no type checks needed.
+If several classes each define a method with the **same name**, you can call that method on any of them without checking which class you have — Python automatically runs the version belonging to each object. That's **polymorphism**: same call, right behaviour.
 
 ~~~python
-[s.tone() for s in synths]   # each synth answers in its own voice
+# each synth is some subclass with its own tone(); we don't care which
+[s.tone() for s in synths]   # -> e.g. ["warm hum", "crisp bleep", ...]
 ~~~
 
 > INTEL — If a subclass doesn't define \`__init__\`, it uses the parent's automatically. \`isinstance(obj, Cls)\` and \`issubclass(Sub, Base)\` test the family tree.
