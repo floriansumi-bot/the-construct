@@ -29,17 +29,40 @@
     "   DDD    DDD   ",
   ];
   var HPAL = { D: "#063b2c", H: "#00ff9c", V: "#25e1ff", C: "#eafff5" };
-  var INVADER = [
-    "  X     X  ",
-    "   X   X   ",
-    "  XXXXXXX  ",
-    " XX XXX XX ",
-    "XXXXXXXXXXX",
-    "X XXXXXXX X",
-    "X X     X X",
-    "   XX XX   ",
+  /* Original alien designs (NOT the Taito Space Invaders sprites) — a flying
+     saucer, an eye-drone and a spiky orb. All hand-drawn here, no copyright. */
+  var INVADERS = [
+    { pal: { X: "#ff4dd2", o: "#7a1f63" }, map: [
+      "    XXX    ",
+      "   XoooX   ",
+      "  XXoooXX  ",
+      "XXXXXXXXXXX",
+      "XoXoXoXoXoX",
+      " XXXXXXXXX ",
+      "   X X X   ",
+      "  o     o  ",
+    ] },
+    { pal: { X: "#ffb000", o: "#7a5400" }, map: [
+      "  XX   XX  ",
+      " X  X X  X ",
+      "  XXXXXXX  ",
+      " XXoooooXX ",
+      " Xo XXX oX ",
+      " XXoooooXX ",
+      "  XXXXXXX  ",
+      "   o   o   ",
+    ] },
+    { pal: { X: "#7af0ff", o: "#1c5a66" }, map: [
+      "  X  X  X  ",
+      "   XoXoX   ",
+      "  XXXXXXX  ",
+      " XXXoXoXXX ",
+      "XXXoXXXoXXX",
+      " XXXoXoXXX ",
+      "  XXXXXXX  ",
+      "   o   o   ",
+    ] },
   ];
-  var IPAL = { X: "#ff2e88" };
 
   function drawSprite(ctx, map, pal, x, y, s) {
     for (var r = 0; r < map.length; r++) { var row = map[r]; for (var c = 0; c < row.length; c++) { var col = pal[row[c]]; if (!col) continue; ctx.fillStyle = col; ctx.fillRect(x + c * s, y + r * s, s, s); } }
@@ -88,7 +111,7 @@
   function startVictory() {
     state = "victory"; vClock = 0; fireTimer = 0; proj = null; booms = [];
     update._won = false; winUntil = 0;
-    invaders = [{ x: 20, alive: true }, { x: 69, alive: true }, { x: 118, alive: true }];
+    invaders = [{ x: 20, alive: true, s: 0 }, { x: 69, alive: true, s: 1 }, { x: 118, alive: true, s: 2 }];
     setStatus("TARGETS ACQUIRED", "fight");
   }
   function update(dt, ts) {
@@ -130,10 +153,84 @@
     for (var y = 0; y < H; y += 3) ctx.fillRect(0, y, W, 1);
     ctx.strokeStyle = "rgba(0,255,156,0.15)"; ctx.strokeRect(0.5, 0.5, W - 1, H - 1);
   }
+  /* ---- idle animation engine (~20 cycling moves) ---- */
+  var TAU = Math.PI * 2;
+  var idleFn = null, idleDur = 0, idleStart = 0, idleLast = -1;
+
+  function drawHeroFX(o) {
+    o = o || {};
+    var sx = o.scaleX == null ? 1 : o.scaleX, sy = o.scaleY == null ? 1 : o.scaleY;
+    var cx = heroX + 8 * HS, footY = heroY + 16 * HS;
+    ctx.save();
+    ctx.translate(cx + (o.dx || 0), footY + (o.dy || 0));
+    ctx.scale(o.flipX ? -sx : sx, sy);
+    ctx.translate(-8 * HS, -16 * HS);
+    if (o.alpha != null) ctx.globalAlpha = o.alpha;
+    drawSprite(ctx, HERO, HPAL, 0, 0, HS);
+    drawEyes(o.eyeMode);
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
+  function drawEyes(mode) {
+    if (!mode || mode === "open") return;
+    var ex = 4 * HS, ey = 4 * HS, ew = 6 * HS, eh = 2 * HS;
+    if (mode === "closed") { ctx.fillStyle = "#063b2c"; ctx.fillRect(ex, ey, ew, eh); ctx.fillStyle = "#25e1ff"; ctx.fillRect(ex, ey + eh - HS, ew, HS); return; }
+    if (mode === "wink") { ctx.fillStyle = "#063b2c"; ctx.fillRect(ex, ey, 3 * HS, eh); ctx.fillStyle = "#25e1ff"; ctx.fillRect(ex, ey + eh - HS, 3 * HS, HS); return; }
+    ctx.fillStyle = "#0a2e22"; ctx.fillRect(ex, ey, ew, eh);
+    var px = mode === "left" ? ex : mode === "right" ? ex + ew - 2 * HS : ex + 2 * HS;
+    ctx.fillStyle = "#7af0ff"; ctx.fillRect(px, ey, 2 * HS, eh);
+  }
+  /* screen-space overlays used by some animations */
+  function waveArm(p) {
+    var sw = Math.sin(p * Math.PI * 6), ax = heroX + 13 * HS, ay = heroY + 5 * HS - Math.abs(Math.sin(Math.min(1, p * 1.5) * Math.PI)) * 7;
+    ctx.fillStyle = "#00ff9c"; ctx.fillRect(ax + sw * 2, ay, HS, 4 * HS); ctx.fillRect(ax + sw * 3, ay - HS, 2 * HS, HS);
+  }
+  function sleepZ(p) {
+    ctx.fillStyle = "#25e1ff"; ctx.font = "bold 11px monospace";
+    for (var i = 0; i < 3; i++) { var t = (p + i / 3) % 1; ctx.globalAlpha = 1 - t; ctx.fillText("z", heroX + 12 * HS + i * 5, heroY + 3 * HS - t * 24); }
+    ctx.globalAlpha = 1;
+  }
+  function scanLine(p) { var y = heroY + p * 16 * HS; ctx.fillStyle = "rgba(0,255,156,0.45)"; ctx.fillRect(heroX - HS, y, 18 * HS, 2); ctx.fillStyle = "rgba(234,255,245,0.85)"; ctx.fillRect(heroX - HS, y, 18 * HS, 1); }
+  function chargeArm(p) {
+    ctx.globalAlpha = 0.4 + 0.6 * Math.abs(Math.sin(p * Math.PI * 4)); ctx.fillStyle = "#ffb300"; ctx.fillRect(heroX + HS, heroY + 13 * HS, 3 * HS, 3 * HS); ctx.globalAlpha = 1;
+    for (var i = 0; i < 4; i++) if (Math.random() > 0.5) { ctx.fillStyle = "#ffe27a"; ctx.fillRect(heroX + ((Math.random() * 5) | 0) * HS, heroY + 13 * HS - ((Math.random() * 8) | 0), 2, 2); }
+  }
+  function happyPulse(p) { ctx.globalAlpha = Math.max(0, 1 - p); ctx.strokeStyle = "#00ff9c"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(heroX + 8 * HS, heroY + 8 * HS, p * 30, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1; }
+  function sparkleEyes(p) { if (Math.random() > 0.6) { ctx.fillStyle = "#eafff5"; ctx.fillRect(heroX + (4 + ((Math.random() * 6) | 0)) * HS, heroY + (4 + ((Math.random() * 2) | 0)) * HS, 2, 2); } }
+
+  var IDLE_ANIMS = [
+    { d: 2600, f: function (p) { var s = Math.sin(p * TAU); drawHeroFX({ scaleY: 1 + 0.03 * s, scaleX: 1 - 0.02 * s, dy: -1 - s }); } },                 // breathe
+    { d: 2200, f: function (p) { drawHeroFX({ dy: -Math.abs(Math.sin(p * TAU)) * 3 }); } },                                                                // bob
+    { d: 1400, f: function (p) { drawHeroFX({ eyeMode: (p > 0.45 && p < 0.55) ? "closed" : "open" }); } },                                                  // blink
+    { d: 1600, f: function (p) { var c = (p > 0.30 && p < 0.37) || (p > 0.50 && p < 0.57); drawHeroFX({ eyeMode: c ? "closed" : "open" }); } },             // double blink
+    { d: 1900, f: function (p) { drawHeroFX({ eyeMode: "left", dx: -Math.sin(Math.min(1, p * 2) * Math.PI) * 2 }); } },                                     // look left
+    { d: 1900, f: function (p) { drawHeroFX({ eyeMode: "right", dx: Math.sin(Math.min(1, p * 2) * Math.PI) * 2 }); } },                                     // look right
+    { d: 1600, f: function (p) { drawHeroFX({ eyeMode: "up", dy: -2 }); } },                                                                                // look up
+    { d: 1500, f: function (p) { var s = Math.max(0, Math.sin(p * TAU)); drawHeroFX({ scaleY: 1 - 0.07 * s, dy: 2 * s }); } },                              // nod
+    { d: 1300, f: function (p) { drawHeroFX({ dx: Math.sin(p * Math.PI * 6) * 3 }); } },                                                                    // shake "no"
+    { d: 1500, f: function (p) { drawHeroFX({ dy: -Math.abs(Math.sin(p * TAU)) * 11 }); } },                                                                // hop
+    { d: 1700, f: function (p) { drawHeroFX({ flipX: p > 0.25 && p < 0.75, scaleX: Math.abs(Math.cos(p * TAU)) * 0.45 + 0.55 }); } },                       // turn around
+    { d: 1900, f: function (p) { drawHeroFX({}); waveArm(p); } },                                                                                           // wave
+    { d: 2100, f: function (p) { var st = Math.sin(Math.min(1, p * 1.3) * Math.PI); drawHeroFX({ scaleY: 1 + 0.16 * st, scaleX: 1 - 0.06 * st, dy: -2 * st, eyeMode: st > 0.4 ? "closed" : "open" }); } }, // yawn/stretch
+    { d: 3200, f: function (p) { drawHeroFX({ scaleY: 1 + 0.02 * Math.sin(p * TAU), eyeMode: "closed" }); sleepZ(p); } },                                    // sleep
+    { d: 1500, f: function (p) { var w = p > 0.4 && p < 0.62; drawHeroFX({ eyeMode: w ? "wink" : "open", dx: w ? 1 : 0 }); } },                              // wink
+    { d: 1700, f: function (p) { drawHeroFX({}); scanLine(p); } },                                                                                          // self-scan
+    { d: 1800, f: function (p) { drawHeroFX({}); chargeArm(p); } },                                                                                         // charge cannon
+    { d: 2200, f: function (p) { drawHeroFX({ dx: Math.sin(p * Math.PI * 4) * 4, dy: -Math.abs(Math.sin(p * Math.PI * 4)) * 3 }); } },                       // dance
+    { d: 1700, f: function (p) { var s = Math.sin(p * TAU); drawHeroFX({ dx: s * 5, eyeMode: s < -0.2 ? "left" : s > 0.2 ? "right" : "open" }); } },         // sway + peek
+    { d: 1200, f: function (p) { drawHeroFX({ alpha: Math.random() > 0.18 ? 1 : 0.35, eyeMode: Math.random() > 0.85 ? "closed" : "open" }); } },             // boot flicker
+    { d: 1600, f: function (p) { drawHeroFX({ scaleY: 1 + 0.04 * Math.sin(p * TAU) }); happyPulse(p); } },                                                   // happy pulse
+    { d: 1800, f: function (p) { drawHeroFX({ eyeMode: "open" }); sparkleEyes(p); } },                                                                      // sparkle
+  ];
+  function pickIdle(ts) {
+    var i; do { i = (Math.random() * IDLE_ANIMS.length) | 0; } while (IDLE_ANIMS.length > 1 && i === idleLast);
+    idleLast = i; idleFn = IDLE_ANIMS[i].f; idleDur = IDLE_ANIMS[i].d; idleStart = ts;
+  }
+
   function render(ts) {
     bg(ts);
     if (state === "victory") {
-      for (var k = 0; k < invaders.length; k++) { var iv = invaders[k]; if (iv.alive) drawSprite(ctx, INVADER, IPAL, Math.round(iv.x), Math.round(iv.y || 14), IS); }
+      for (var k = 0; k < invaders.length; k++) { var iv = invaders[k]; if (iv.alive) { var sp = INVADERS[(iv.s || 0) % INVADERS.length]; drawSprite(ctx, sp.map, sp.pal, Math.round(iv.x), Math.round(iv.y || 14), IS); } }
       for (var b = 0; b < booms.length; b++) { var bb = booms[b], rad = 2 + bb.age / 18; ctx.fillStyle = (bb.age % 60 < 30) ? "#ffb300" : "#eafff5"; for (var p = 0; p < 8; p++) { var ang = p / 8 * Math.PI * 2; ctx.fillRect(Math.round(bb.x + Math.cos(ang) * rad), Math.round(bb.y + Math.sin(ang) * rad), 2, 2); } }
       if (proj) { ctx.fillStyle = "#eafff5"; ctx.fillRect(Math.round(proj.x), Math.round(proj.y), 2, 5); ctx.fillStyle = "#25e1ff"; ctx.fillRect(Math.round(proj.x) - 1, Math.round(proj.y) + 2, 4, 3); if (proj.age < 90) { ctx.fillStyle = "#ffb300"; ctx.fillRect(heroX + 2, heroY + 2, 7, 7); } }
       drawSprite(ctx, HERO, HPAL, heroX, heroY, HS);
@@ -149,11 +246,9 @@
       for (var n = 0; n < 6; n++) ctx.fillRect((Math.random() * W) | 0, (Math.random() * H) | 0, 3, 3);
       return;
     }
-    // idle: bob + blink
-    var bobY = Math.round(Math.sin(ts / 350) * 2);
-    drawSprite(ctx, HERO, HPAL, heroX, heroY + bobY, HS);
-    var blink = (Math.floor(ts / 160) % 18 === 0);
-    if (blink) { ctx.fillStyle = "#063b2c"; ctx.fillRect(heroX + 4 * HS, heroY + bobY + 4 * HS, 6 * HS, 2 * HS); }
+    // idle: cycle through ~20 animations
+    if (!idleFn || ts - idleStart > idleDur) pickIdle(ts);
+    idleFn(Math.min(1, (ts - idleStart) / idleDur), ts);
   }
   function loop(ts) {
     if (!Companion.open) { raf = null; return; }
