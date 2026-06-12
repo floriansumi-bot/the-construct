@@ -1058,6 +1058,8 @@ total_power([])           -> 0
           { name: "sums a list", code: `assert total_power([10,20,12])==42 and total_power([1,2,3,4])==10` },
           { name: "empty -> 0", code: `assert total_power([])==0` },
           { name: "handles negatives", code: `assert total_power([10,-4,2])==8` },
+          { name: "uses a loop, not sum()", code: `import re as _re
+assert not _re.search(r"\\bsum\\s*\\(", _re.sub(r"#.*","",_src)), "Add it up with a loop + accumulator — don't call sum()."` },
         ],
         hint: `total = 0; for c in cells: total += c; return total.`,
         lore: "Every cell counts when you're burning for the gate.",

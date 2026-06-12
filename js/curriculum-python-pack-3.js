@@ -219,7 +219,9 @@ Use Python's conditional expression form: **VALUE_IF_TRUE if CONDITION else VALU
         { name: "above 0 -> CLIPPING", code: `assert louder(3)=="CLIPPING"` },
         { name: "exactly 0 -> SAFE", code: `assert louder(0)=="SAFE"` },
         { name: "below 0 -> SAFE", code: `assert louder(-6)=="SAFE"` },
-        { name: "written with if/else on one line", code: `assert "if" in _src and "else" in _src` },
+        { name: "must be a one-line ternary (not multi-line if)", code: `import re as _re
+_c=_re.sub(r"#.*","",_src)
+assert " if " in _c and " else " in _c and not _re.search(r"\\n\\s+if\\b", _c), "Write it as ONE line: return A if cond else B — not a multi-line if/else block."` },
       ],
       hint: `return "CLIPPING" if db > 0 else "SAFE". The whole thing is one expression — no separate if statement needed.`,
       lore: "These go to eleven. The needle pins and the room turns red.",
@@ -298,6 +300,8 @@ resonance([9, 0, 9]) -> 0
         { name: "empty -> 1 (identity)", code: `assert resonance([])==1` },
         { name: "a zero collapses it", code: `assert resonance([9,0,9])==0` },
         { name: "handles negatives", code: `assert resonance([-2,3])==-6` },
+        { name: "uses a loop, not math.prod()", code: `import re as _re
+assert not _re.search(r"\\bprod\\s*\\(", _re.sub(r"#.*","",_src)), "Multiply with a loop + running product — don't use math.prod()."` },
       ],
       hint: `Start product = 1 (NOT 0, or everything becomes 0). Then for f in freqs: product *= f.`,
       lore: "Unforeseen consequences ripple out from a single sour note.",
