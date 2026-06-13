@@ -2600,17 +2600,42 @@ window.CONTENT_FR = {
       "sqlm01-select": {
         "title": "INTERROGATION",
         "subtitle": "SELECT · WHERE · ORDER BY",
-        "theory": "\n## Lire la base de données\nSQL extrait des lignes depuis des tables. La requête fondamentale :\n~~~sql\nSELECT columns FROM table WHERE condition ORDER BY column;\n~~~\n**SELECT** choisit les colonnes (ou **\\*** pour toutes), **FROM** nomme la table, **WHERE** filtre les lignes, **ORDER BY** trie (ajoutez **DESC** pour un ordre décroissant).\n\n## La table bounties\n~~~text\nbounties(id, name, reward, planet)\n~~~\n~~~sql\nSELECT name, reward FROM bounties WHERE reward > 1000000 ORDER BY reward DESC;\n~~~\n\n> INTEL — Les littéraux textuels utilisent des apostrophes simples : planet = 'Mars'. Pas les nombres.\n"
+        "theory": "\n## Interroger la grille\nUne base de données est une pile de **tables** — des grilles de lignes (enregistrements) et de colonnes (champs). On ne lit jamais une table à la main ; on l'**interroge** avec une requête et le moteur vous renvoie exactement les lignes demandées. Une seule instruction, quatre rouages :\n~~~sql\nSELECT columns FROM table WHERE condition ORDER BY column;\n~~~\n\n## SELECT — choisissez vos colonnes\n**QUOI :** **SELECT** nomme les colonnes que vous voulez récupérer ; **FROM** nomme la table d'où les tirer. Utilisez **\\*** pour tout rafler.\n**POURQUOI :** vous n'avez presque jamais besoin de toute la table — ne tirer que les champs qui vous intéressent garde les résultats serrés et rapides.\n~~~sql\nSELECT name, reward FROM bounties;\n~~~\n\n## WHERE — ne gardez que les lignes voulues\n**QUOI :** **WHERE** est un filtre : le moteur teste chaque ligne contre votre condition et écarte celles qui échouent. Combinez les tests avec **AND** / **OR**, comparez avec **=**, **>**, **>=**, **<**, **<=**, **!=**.\n**POURQUOI :** il répond aux questions — « quelles cibles valent plus d'un million ? » — au lieu de vous balancer le registre entier.\n~~~sql\nSELECT name, reward FROM bounties WHERE reward > 1000000;\n~~~\n\n## ORDER BY — triez le résultat\n**QUOI :** **ORDER BY** classe les lignes selon une colonne. Par défaut c'est croissant (A→Z, du plus petit au plus grand) ; ajoutez **DESC** pour inverser (du plus grand au plus petit).\n**POURQUOI :** « qui est la cible numéro un ? » n'est qu'un tri — laissez le moteur les classer pour vous.\n~~~sql\nSELECT name, reward FROM bounties WHERE reward > 1000000 ORDER BY reward DESC;\n~~~\n\n## La table bounties\nLes données préchargées sont votre liste de cibles active — quatre proies éparpillées dans le système :\n~~~text\nbounties(id, name, reward, planet)\n~~~\n**id** (nombre), **name** (texte), **reward** en woolongs (nombre), **planet** où elles se planquent (texte).\n\n> INTEL — L'ordre des clauses est fixe : SELECT, puis FROM, puis WHERE, puis ORDER BY. Le moteur les lit dans cet ordre, lui aussi.\n\n> WARNING — Les valeurs textuelles exigent des apostrophes simples : planet = 'Mars' fonctionne, planet = Mars déclenche une erreur (le moteur croit que Mars est un nom de colonne). Les nombres ne prennent AUCUNE apostrophe : reward > 1000000, jamais reward > '1000000'.\n"
       },
       "sqlm02-agg": {
         "title": "AGRÉGATION",
         "subtitle": "COUNT · SUM · GROUP BY · HAVING",
-        "theory": "\n## Synthèse\nLes fonctions d'agrégation réduisent plusieurs lignes en une seule valeur : **COUNT**, **SUM**, **AVG**, **MIN**, **MAX**.\n~~~sql\nSELECT COUNT(*) FROM tracks;\n~~~\n\n## Regroupement\n**GROUP BY** exécute l'agrégat une fois par groupe. **HAVING** filtre les groupes (comme WHERE, mais pour les agrégats).\n~~~sql\nSELECT artist, COUNT(*) FROM tracks GROUP BY artist HAVING COUNT(*) >= 2;\n~~~\n\n## Le catalogue\n~~~text\ntracks(title, artist, bpm, genre)\n~~~\n\n> INTEL — WHERE filtre les lignes *avant* le regroupement ; HAVING filtre les groupes *après*.\n"
+        "theory": "\n## Des lignes aux chiffres\n**SELECT** vous balance des lignes. L'**agrégation** broie ces lignes en une seule réponse — un total, une moyenne, un comptage. Au lieu de \"montre-moi les tracks\", vous demandez \"combien de tracks ? quel est le BPM moyen ?\" Le moteur fait le calcul.\n\n## Les fonctions d'agrégation\n**QUOI :** cinq fonctions réduisent une colonne entière de valeurs à un seul chiffre :\n- **COUNT** — combien\n- **SUM** — la somme\n- **AVG** — la moyenne\n- **MIN** / **MAX** — le plus petit / le plus grand\n**POURQUOI :** elles transforment un tas d'enregistrements en l'unique chiffre dont une question a réellement besoin.\n~~~sql\nSELECT COUNT(*), AVG(bpm), MAX(bpm) FROM tracks;\n~~~\n\n## GROUP BY — une réponse par catégorie\n**QUOI :** **GROUP BY** répartit les lignes dans des paniers qui partagent une même valeur, puis exécute l'agrégat une fois par panier. Groupez par **artist**, et COUNT(\\*) compte les tracks de chaque artist — pas toute la table.\n**POURQUOI :** il répond aux questions \"par X\" — tracks par artist, récompense totale par planète — en une seule requête.\n~~~sql\nSELECT artist, COUNT(*) FROM tracks GROUP BY artist;\n~~~\n\n## HAVING — filtrer les groupes\n**QUOI :** **HAVING** est un filtre pour les groupes, comme **WHERE** est un filtre pour les lignes. Après le regroupement, il ne garde que les paniers qui passent un test sur leur agrégat.\n**POURQUOI :** \"quels artists ont 2 tracks ou plus ?\" est un test sur un comptage — et vous ne pouvez pas tester un comptage avant que le regroupement n'ait eu lieu.\n~~~sql\nSELECT artist, COUNT(*) FROM tracks GROUP BY artist HAVING COUNT(*) >= 2;\n~~~\n\n## Le catalogue\nLes données amorcées sont la playlist de la station — cinq morceaux répartis sur quelques genres :\n~~~text\ntracks(title, artist, bpm, genre)\n~~~\n**title** (texte), **artist** (texte), **bpm** battements par minute (nombre), **genre** (texte).\n\n> INTEL — Le pipeline s'exécute dans l'ordre WHERE → GROUP BY → HAVING. WHERE filtre les lignes individuelles *avant* qu'elles ne soient groupées ; HAVING filtre des groupes entiers *après*. Utilisez WHERE pour les tests sur lignes brutes (genre = 'house'), HAVING pour les tests sur l'agrégat (COUNT(\\*) >= 2).\n\n> WARNING — COUNT(\\*) compte chaque ligne, y compris celles dont des champs sont vides. COUNT(column) ne compte que les lignes où cette colonne est NOT NULL (non vide) — les deux peuvent donc donner des nombres différents. Quand vous voulez juste \"combien de lignes\", optez pour COUNT(\\*).\n"
       },
       "sqlm03-join": {
         "title": "JOINTURES & MUTATIONS",
         "subtitle": "JOIN · INSERT · UPDATE",
-        "theory": "\n## Joindre des tables\nUn **JOIN** assemble les lignes de deux tables sur une clé correspondante.\n~~~sql\nSELECT crew.name, ships.name\nFROM crew JOIN ships ON crew.ship_id = ships.id;\n~~~\n\n## Modifier les données\n- **INSERT INTO** table (cols) **VALUES** (...) — ajoute une ligne\n- **UPDATE** table **SET** col = val **WHERE** ... — modifie des lignes\n~~~sql\nINSERT INTO crew (name, ship_id, role) VALUES ('Ein', 1, 'dog');\nUPDATE crew SET role = 'captain' WHERE name = 'Spike';\n~~~\n\n## Tables\n~~~text\nships(id, name)   crew(name, ship_id, role)\n~~~\n\n> WARNING — Un UPDATE sans WHERE réécrit *chaque* ligne. Visez toujours avant de tirer.\n"
+        "theory": "\n## JOIN — recoudre deux tables ensemble\n**QUOI :** les vraies données sont éclatées dans plusieurs tables pour éviter de se répéter — la table **crew** stocke un numéro **ship_id**, pas le vaisseau entier. Un **JOIN** recolle deux tables en faisant correspondre cette clé (**ON crew.ship_id = ships.id**), si bien que chaque ligne d'équipage se voit greffer les détails de son vaisseau.\n**POURQUOI :** ça vous permet d'interroger plusieurs tables d'un seul coup — « qui sert sur quel vaisseau ? » — au lieu de chercher les ids à la main.\n~~~sql\nSELECT crew.name, ships.name\nFROM crew JOIN ships ON crew.ship_id = ships.id;\n~~~\nQuand un nom de colonne existe dans les deux tables (comme **name** ici), préfixez-le avec la table — **crew.name**, **ships.name** — pour que le moteur sache de laquelle vous parlez.\n\n## INSERT — ajouter une nouvelle ligne\n**QUOI :** **INSERT INTO** ajoute un enregistrement tout neuf. Listez les colonnes, puis les **VALUES** correspondantes dans le même ordre.\n**POURQUOI :** chaque nouvelle recrue, vente ou inscription est une nouvelle ligne — c'est comme ça que les données *entrent* dans la table.\n~~~sql\nINSERT INTO crew (name, ship_id, role) VALUES ('Ein', 1, 'dog');\n~~~\n\n## UPDATE — modifier des lignes existantes\n**QUOI :** **UPDATE** réécrit des champs dans des lignes qui existent déjà. **SET** dit ce qui change ; **WHERE** dit quelles lignes.\n**POURQUOI :** les enregistrements évoluent — promotions, ajustements de prix, changements de statut — et vous les corrigez sur place au lieu de supprimer puis réajouter.\n~~~sql\nUPDATE crew SET role = 'captain' WHERE name = 'Spike';\n~~~\n\n## Les tables\nDeux tables préremplies, liées par l'id du vaisseau :\n~~~text\nships(id, name)              crew(name, ship_id, role)\n~~~\n**ships** — **id** (nombre), **name** (texte). **crew** — **name** (texte), **ship_id** l'id de leur vaisseau (nombre, correspond à ships.id), **role** (texte).\n\n> INTEL — Le lien entre les tables n'est qu'une valeur partagée : crew.ship_id contient le même nombre que ships.id. C'est cette clé partagée que la clause ON du JOIN met en correspondance.\n\n> WARNING — Un UPDATE (ou DELETE) sans WHERE frappe TOUTES les lignes de la table — une ligne négligée et tout l'équipage devient capitaine. Écrivez toujours le WHERE d'abord, visez avec soin, puis tirez.\n"
+      },
+      "sqlm04-filters": {
+        "title": "FILTRES & ENSEMBLES",
+        "subtitle": "DISTINCT · LIMIT · IN · BETWEEN · LIKE · IS NULL",
+        "theory": "## Élaguer le jeu de résultats\nUn SELECT brut peut déverser des milliers de lignes. Les mots-clés de ce secteur vous permettent de *restreindre, découper et filtrer par motif* avant même que les données n'atteignent votre console.\n\n## DISTINCT — supprimer les doublons\n**DISTINCT** élimine les lignes répétées, n'en laissant qu'une par valeur unique. Utilisez-le quand une colonne se répète et que vous ne voulez que l'ensemble distinct.\n~~~sql\nSELECT DISTINCT district FROM runners;\n~~~\n**POURQUOI :** Douze runners peuvent opérer dans trois districts — DISTINCT réduit cela aux trois noms de district.\n\n> WARNING — DISTINCT s'applique à la *ligne entière que vous sélectionnez*, pas à une seule colonne. **SELECT DISTINCT district, rep** garde une ligne dès que la paire (district, rep) diffère, vous pouvez donc obtenir des districts \"en double\". Ne listez que les colonnes que vous voulez réellement uniques.\n\n## LIMIT et OFFSET — top-N et pagination\n**LIMIT n** renvoie au plus **n** lignes. Associez-le à **ORDER BY** pour obtenir un véritable top-N (les plus hauts, les plus récents, etc.). **LIMIT n OFFSET k** saute d'abord les **k** premières lignes — c'est ainsi que vous paginez à travers les résultats.\n~~~sql\nSELECT name FROM runners ORDER BY rep DESC LIMIT 3;\nSELECT name FROM runners ORDER BY rep DESC LIMIT 3 OFFSET 3;\n~~~\n**POURQUOI :** La première requête donne le top 3 par rep ; la seconde donne la \"page 2\" — les lignes 4, 5, 6.\n\n> INTEL — LIMIT sans ORDER BY vous donne *un certain* nombre n de lignes, mais lesquelles reste indéfini. Pour un top-N qui a du sens, triez toujours d'abord.\n\n## IN — correspondre à une liste de valeurs\n**IN (a, b, c)** est un raccourci pour **= a OR = b OR = c**. Plus propre que d'enchaîner des OR.\n~~~sql\nSELECT name FROM runners WHERE district IN ('Neon Strip', 'The Sprawl');\n~~~\n\n## BETWEEN — un intervalle inclusif\n**BETWEEN low AND high** correspond aux valeurs de low à high, **bornes comprises**.\n~~~sql\nSELECT name FROM runners WHERE rep BETWEEN 40 AND 70;\n~~~\n**POURQUOI :** Cela renvoie tous ceux dont le rep vaut 40, 70, et tout ce qui se trouve entre les deux — les deux bornes comptent.\n\n> WARNING — BETWEEN est inclusif aux deux bornes. **BETWEEN 40 AND 70** inclut 40 et 70. Si vous vouliez dire \"au-dessus de 40 jusqu'à 70\", il vous faut plutôt **rep > 40 AND rep <= 70**.\n\n## LIKE — recherche par motif avec jokers\n**LIKE** compare du texte à un motif. Deux jokers : **%** correspond à une suite quelconque de caractères (y compris aucune), et **_** correspond à exactement un caractère.\n~~~sql\nSELECT name FROM runners WHERE handle LIKE 'Gh%';      -- starts with Gh\nSELECT name FROM runners WHERE handle LIKE '%x';       -- ends with x\nSELECT name FROM runners WHERE handle LIKE 'V_per';    -- V, one char, then per\n~~~\n\n> INTEL — Le LIKE de SQLite est insensible à la casse pour les lettres ASCII simples : **LIKE 'gh%'** et **LIKE 'Gh%'** correspondent aux mêmes lignes.\n\n## IS NULL — les cellules vides\nNULL signifie \"aucune valeur ici\" — ce n'est **pas** zéro et **pas** une chaîne vide. Vous ne pouvez pas le tester avec **=**. Utilisez **IS NULL** / **IS NOT NULL**.\n~~~sql\nSELECT name FROM runners WHERE handle IS NULL;\nSELECT name FROM runners WHERE handle IS NOT NULL;\n~~~\n\n> WARNING — **handle = NULL** est l'erreur classique du débutant : ça ne correspond jamais à rien, même aux cellules vides. NULL est inconnu, donc **= NULL** est lui-même inconnu. Utilisez toujours **IS NULL**.\n\n## La table runners\n~~~text\nrunners(id, name, handle, district, rep, credits)\n~~~\nCertains runners sont hors réseau — leur **handle** est NULL."
+      },
+      "sqlm05-expr": {
+        "title": "EXPRESSIONS & CASE",
+        "subtitle": "AS · arithmétique · fonctions de chaîne · CASE",
+        "theory": "## Façonner la sortie\nJusqu'ici vous renvoyiez les colonnes exactement telles qu'elles étaient stockées. SQL peut aussi **calculer de nouvelles valeurs** à l'intérieur de SELECT et les renommer. La liste entre SELECT et FROM n'est qu'un ensemble d'expressions.\n\n## Les alias avec AS\n**AS** donne à une colonne un nom convivial dans le résultat. Cela ne change pas la table, seulement l'étiquette sur la sortie.\n~~~sql\nSELECT name AS item FROM gear;\n~~~\n**POURQUOI** — les colonnes calculées héritent de noms automatiques moches comme `price*qty`. Un alias rend le résultat lisible.\n\n> INTEL — Le mot-clé AS est facultatif (`name item` fonctionne) mais l'écrire est plus clair.\n\n## L'arithmétique dans SELECT\nVous pouvez faire des calculs sur les colonnes ligne par ligne : `+`, `-`, `*`, `/`.\n~~~sql\nSELECT name, price * qty AS stock_value FROM gear;\n~~~\nChaque ligne obtient son propre résultat. **POURQUOI** — stockez les pièces brutes (price, qty) une seule fois, calculez les totaux à la demande.\n\n> WARNING — Diviser deux entiers fait de l'arithmétique entière : `7 / 2` vaut **3**, pas 3.5. Multipliez par 1.0 (`7 * 1.0 / 2`) pour forcer les décimales.\n\n## Les fonctions de chaîne\n- **UPPER(s)** / **LOWER(s)** — changent la casse\n- **LENGTH(s)** — nombre de caractères\n- **SUBSTR(s, start, len)** — découpe ; les positions commencent à **1**\n- **a || b** — colle deux chaînes ensemble (concaténation)\n~~~sql\nSELECT UPPER(name) AS shout, LENGTH(name) AS chars FROM gear;\nSELECT name || ' [' || grade || ']' AS tag FROM gear;\n~~~\n\n> WARNING — SUBSTR compte à partir de 1, pas de 0. `SUBSTR('NEON', 1, 2)` vaut `'NE'`.\n\n## Arrondir les nombres\n**ROUND(x, n)** arrondit x à n décimales.\n~~~sql\nSELECT name, ROUND(rating, 1) AS stars FROM gear;\n~~~\n**POURQUOI** — les nombres calculés bruts peuvent comporter de nombreuses décimales ; ROUND les rend présentables.\n\n## CASE — le if/else pour les colonnes\n**CASE** choisit une valeur selon des conditions, ligne par ligne. C'est le if/else de SQL.\n~~~sql\nSELECT name,\n  CASE WHEN price >= 1000 THEN 'premium' ELSE 'budget' END AS tier\nFROM gear;\n~~~\nIl se lit de haut en bas : le premier WHEN qui est vrai l'emporte ; ELSE attrape le reste. Terminez toujours par **END** (et donnez-lui un alias avec AS).\n\n> INTEL — Vous pouvez enchaîner les conditions : `CASE WHEN x>=900 THEN 'A' WHEN x>=600 THEN 'B' ELSE 'C' END`.\n\n## Le marché\n~~~text\ngear(id, name, price, qty, rating, grade)\n~~~\nUn étal de cyberware au marché noir : chaque ligne est un article avec un prix unitaire, des unités en stock, une note de 0 à 5 et une note alphabétique (grade)."
+      },
+      "sqlm06-joins2": {
+        "title": "JOINTURES AVANCÉES",
+        "subtitle": "LEFT JOIN · multi-tables · self-join · jointure+agrégat",
+        "theory": "## La grille sur laquelle vous vous branchez\nTrois tables câblées ensemble :\n~~~text\ncrews(id, name, sector)\nrunners(id, alias, crew_id, mentor_id)\ncontracts(id, runner_id, target, payout)\n~~~\nUn **runner** appartient à un **crew** (crew_id) et peut avoir un **mentor** qui est *un autre runner* (mentor_id). Un **contract** est un job décroché par un runner (runner_id).\n\n## LEFT JOIN — garder chaque ligne de gauche\nUn simple `JOIN` (jointure interne) ne renvoie que les lignes qui correspondent des **deux** côtés. Si un runner n'a pas de crew, une jointure interne fait disparaître ce runner en silence.\n\nUn **LEFT JOIN** garde **chaque** ligne de la table de **gauche** (celle qui précède `LEFT JOIN`). Quand le côté droit n'a aucune correspondance, ses colonnes reviennent à **NULL** au lieu de s'évaporer.\n~~~sql\nSELECT runners.alias, crews.name\nFROM runners\nLEFT JOIN crews ON runners.crew_id = crews.id;\n~~~\n**POURQUOI :** vous voulez un effectif complet — y compris le freelance sans crew — et pas seulement ceux qui se trouvent correspondre.\n\n> INTEL — Pour trouver les lignes *non appariées* (le freelance, le crew vide), faites un LEFT JOIN puis filtrez `WHERE rightTable.id IS NULL`. Ces NULL sont les lignes qui n'avaient aucun partenaire.\n\n> WARNING — **Gauche vs droite, ça compte.** `runners LEFT JOIN crews` garde tous les runners ; `crews LEFT JOIN runners` garde tous les crews. Ils répondent à des questions différentes. Choisissez la table que vous ne devez pas perdre, et placez-la à gauche.\n\n## Joindre trois tables\nEnchaînez les clauses `JOIN`. Chaque `ON` connecte la nouvelle table à une déjà présente dans la requête. Pour remonter d'un contract jusqu'au crew, sautez de contract → runner → crew :\n~~~sql\nSELECT contracts.target, runners.alias, crews.name\nFROM contracts\nJOIN runners ON contracts.runner_id = runners.id\nJOIN crews   ON runners.crew_id = crews.id;\n~~~\n**POURQUOI :** le fait dont vous avez besoin (le target) vit dans une table mais les étiquettes (alias, nom du crew) vivent dans d'autres. Les jointures réassemblent l'image complète.\n\n## Self-join — une table, deux rôles\nQuand une table pointe vers elle-même (le `mentor_id` d'un runner est l'`id` d'un autre runner), joignez la table **à elle-même** en utilisant deux **alias** pour que SQLite puisse distinguer les deux copies :\n~~~sql\nSELECT r.alias AS student, m.alias AS mentor\nFROM runners AS r\nJOIN runners AS m ON r.mentor_id = m.id;\n~~~\nIci `r` est la copie student et `m` la copie mentor de la *même* table.\n\n> WARNING — Sans alias, `SELECT alias FROM runners JOIN runners ...` est **ambigu** — SQLite ne peut pas savoir de quelle copie vous parlez et la requête échoue. Les alias (`r`, `m`) sont obligatoires.\n\n## JOIN + GROUP BY + un agrégat\nJoignez d'abord pour assembler les lignes, puis `GROUP BY` pour les replier en paquets et lancer un agrégat (`COUNT`, `SUM`, `AVG`...). Compter les **contracts par runner** avec un LEFT JOIN garde les runners qui ont décroché **zéro** job (leur compte vaut 0) :\n~~~sql\nSELECT runners.alias, COUNT(contracts.id) AS jobs\nFROM runners\nLEFT JOIN contracts ON contracts.runner_id = runners.id\nGROUP BY runners.id;\n~~~\n> INTEL — Comptez la colonne de la table de **droite** (`COUNT(contracts.id)`), pas `COUNT(*)`. `COUNT(*)` compte les lignes — et un runner LEFT-JOINté sans contract a quand même une ligne NULL, donc `COUNT(*)` rapporterait 1 à tort. `COUNT(contracts.id)` ignore les NULL et rapporte correctement 0."
+      },
+      "sqlm07-subq": {
+        "title": "SOUS-REQUÊTES",
+        "subtitle": "scalaire · IN (sous-requête) · corrélée · table dérivée",
+        "theory": "## Ce qu'est une sous-requête\nUne **sous-requête** est un SELECT glissé à l'intérieur d'une autre requête. La requête interne s'exécute d'abord, transmet son résultat à la requête externe, et celle-ci s'en sert. Voyez ça comme poser une petite question pour en résoudre une plus grosse.\n\n## 1. Sous-requête scalaire (renvoie UNE valeur)\nUne sous-requête scalaire renvoie une seule valeur, vous pouvez donc comparer une colonne à elle dans le **WHERE**.\n~~~sql\nSELECT handle, payout FROM runners\nWHERE payout > (SELECT AVG(payout) FROM runners);\n~~~\n**CE** qu'elle fait : la requête interne calcule la moyenne de payout une seule fois ; la requête externe ne garde que les lignes au-dessus. **POURQUOI** s'en servir : vous ne pouvez pas mettre AVG() directement dans une clause WHERE, alors vous l'emballez dans une sous-requête.\n\n> INTEL — Une sous-requête scalaire doit renvoyer exactement une ligne et une colonne. Utilisez AVG/MAX/MIN/COUNT, ou une recherche sur une seule ligne comme (SELECT rep FROM runners WHERE handle = 'Cipher').\n\n## 2. WHERE col IN (SELECT ...)\nQuand la requête interne renvoie une *liste* de valeurs, testez l'appartenance avec **IN**.\n~~~sql\nSELECT handle FROM runners\nWHERE id IN (SELECT runner_id FROM contracts);\n~~~\n**CE** qu'elle fait : la requête interne liste chaque runner_id détenant un contrat ; la requête externe garde les runners dont l'id figure dans cette liste. **POURQUOI** : elle répond à « quelles lignes correspondent à quelque chose dans une autre table ? » sans écrire de JOIN. Inversez-la en **NOT IN** pour le groupe opposé.\n\n> WARNING — NOT IN se comporte bizarrement si la liste interne contient un NULL. Gardez la colonne interne exempte de NULL (comme la nôtre) et vous serez tranquille.\n\n## 3. Sous-requête corrélée (s'exécute une fois par ligne externe)\nUne sous-requête **corrélée** fait référence à la requête externe, elle se réexécute donc pour chaque ligne externe.\n~~~sql\nSELECT handle, sector FROM runners r\nWHERE payout = (SELECT MAX(payout) FROM runners s WHERE s.sector = r.sector);\n~~~\n**CE** qu'elle fait : pour chaque runner r, la requête interne trouve le payout le plus élevé *dans le secteur de ce runner* ; on ne garde r que s'il détient ce payout maximal. **POURQUOI** : elle compare chaque ligne à son propre groupe. Les alias de table **r** et **s** sont ce qui relie la requête interne à la requête externe.\n\n## 4. Table dérivée — FROM (SELECT ...) alias\nVous pouvez faire un SELECT sur le résultat d'un autre SELECT. Ce résultat interne est une **table dérivée**, et il DOIT recevoir un alias.\n~~~sql\nSELECT sector, avg_rep\nFROM (SELECT sector, AVG(rep) AS avg_rep FROM runners GROUP BY sector) t\nWHERE avg_rep >= 70;\n~~~\n**CE** qu'elle fait : la requête interne construit une mini-table d'une ligne par secteur avec sa rep moyenne ; la requête externe filtre cette mini-table. **POURQUOI** : elle vous permet de filtrer ou trier sur un agrégat que vous venez de calculer.\n\n> WARNING — Oublier l'alias après la parenthèse fermante (le **t** ci-dessus) est l'erreur de débutant numéro 1. SQLite rejette une table dérivée sans nom.\n\n## La grille\n~~~text\nrunners(id, handle, sector, rep, payout)\ncontracts(id, runner_id, target, bounty)\n~~~"
+      },
+      "sqlm08-mutate2": {
+        "title": "MUTATIONS II",
+        "subtitle": "DELETE · UPDATE expr · INSERT…SELECT · conditionnel",
+        "theory": "## Réécrire la grille\nDans le dernier secteur, vous avez ajouté des lignes (INSERT) et vous les avez modifiées (UPDATE). Maintenant vous apprenez à **supprimer** des lignes, **calculer** de nouvelles valeurs, **copier** des lignes entre tables et faire des modifications **conditionnelles**. Chaque manœuvre ici est une *mutation* — elle change la base de données au lieu de simplement la lire.\n\nPour chaque tâche vous écrivez la mutation ; le vérificateur exécute ensuite une requête de **contrôle** (un simple SELECT, montré dans la consigne) et compare ce qu'elle révèle. Vous savez donc toujours exactement ce qui sera inspecté ensuite.\n\n## DELETE — supprimer des lignes\n**QUOI :** **DELETE FROM table WHERE condition;** efface chaque ligne qui correspond à la condition.\n**POURQUOI :** purger les enregistrements morts, expirés ou indésirables.\n~~~sql\nDELETE FROM drones WHERE status = 'scrapped';\n~~~\n\n> WARNING — Un DELETE **sans WHERE** efface la table *entière*. Il n'y a aucune annulation possible ici. Visez toujours avec WHERE avant de tirer.\n\n## UPDATE avec une expression\nSET peut stocker une **valeur calculée**, pas seulement une valeur fixe. Le côté droit peut faire de l'arithmétique sur la valeur actuelle de la colonne.\n**QUOI :** **SET battery = battery + 10** lit la valeur battery actuelle de chaque ligne et réécrit le nouveau nombre.\n**POURQUOI :** recharger, appliquer une remise, ajouter un bonus — changer des valeurs *relativement* à ce qu'elles sont déjà.\n~~~sql\nUPDATE drones SET battery = battery + 10 WHERE status = 'active';\n~~~\n\n> INTEL — **battery = battery + 10** n'est pas une contradiction. SQL lit l'ancienne valeur, ajoute 10 et stocke le résultat. C'est la même idée que x = x + 10 dans d'autres langages.\n\n## INSERT … SELECT — copier des lignes\nAu lieu de taper VALUES, vous pouvez alimenter INSERT avec les **lignes que renvoie un SELECT**. Les colonnes sélectionnées s'alignent, dans l'ordre, avec les colonnes cibles.\n**QUOI :** copier les lignes correspondantes d'une table vers une autre.\n**POURQUOI :** archiver, prendre un instantané ou déplacer des enregistrements sans les retaper.\n~~~sql\nINSERT INTO scrapyard (codename, status)\nSELECT codename, status FROM drones WHERE battery = 0;\n~~~\n\n> WARNING — Les colonnes du SELECT doivent correspondre à la liste de colonnes de l'INSERT en **nombre et en ordre**, sinon vous stockez les données au mauvais endroit.\n\n## UPDATE conditionnel avec CASE\n**CASE** permet à **un seul** UPDATE d'écrire des valeurs **différentes** par ligne, selon un test.\n**QUOI :** **CASE WHEN test THEN value ... ELSE value END** choisit une valeur ligne par ligne.\n**POURQUOI :** réétiqueter, reclasser ou répartir de nombreuses lignes en une seule instruction.\n~~~sql\nUPDATE drones\nSET status = CASE WHEN battery = 0 THEN 'dead' ELSE 'active' END;\n~~~\n\n> INTEL — Sans **ELSE**, les lignes qui ne correspondent à aucun **WHEN** sont mises à NULL. Ajoutez ELSE pour les laisser sur une valeur par défaut sensée.\n"
       }
     },
     "exercises": {
@@ -2632,23 +2657,83 @@ window.CONTENT_FR = {
         "hint": "WHERE planet = 'Mars' (apostrophes simples), puis ORDER BY name.",
         "prompt": "\nRenvoyez le **name** de chaque prime cachée sur **Mars**, trié par ordre alphabétique (A→Z).\n"
       },
+      "sql-roster": {
+        "title": "REGISTRE COMPLET",
+        "brief": "Sortez tout le fichier, dans l'ordre.",
+        "hint": "Utilisez SELECT * pour toutes les colonnes, puis ORDER BY id.",
+        "prompt": "La table **bounties(id, name, reward, planet)** est votre dossier d'enquête actif. Renvoyez **toutes les colonnes** pour **chaque** prime, triées par **id** (du plus petit au plus grand).\n"
+      },
+      "sql-planets": {
+        "title": "PLANQUES CONNUES",
+        "brief": "Listez chaque monde-planque une seule fois.",
+        "hint": "SELECT DISTINCT planet réduit les doublons à une seule ligne chacun.",
+        "prompt": "À partir de **bounties(id, name, reward, planet)**, renvoyez la liste des valeurs **distinct planet** — chaque planète exactement une fois. Aucun ordre précis n'est exigé.\n"
+      },
+      "sql-offworld": {
+        "title": "HORS DE MARS",
+        "brief": "Tous ceux qui ne sont pas sur Mars.",
+        "hint": "Utilisez WHERE planet <> 'Mars' (ou !=), puis ORDER BY name.",
+        "prompt": "À partir de **bounties(id, name, reward, planet)**, renvoyez le **name** et la **planet** de chaque prime dont la **planet n'est pas 'Mars'**, triée par **name** alphabétiquement (A->Z).\n"
+      },
+      "sql-midrange": {
+        "title": "CIBLES INTERMÉDIAIRES",
+        "brief": "Les primes dans une fourchette de paie.",
+        "hint": "WHERE reward BETWEEN 1000000 AND 3000000 garde la fourchette, puis ORDER BY reward.",
+        "prompt": "À partir de **bounties(id, name, reward, planet)**, renvoyez **name** et **reward** pour chaque prime dont le **reward est compris entre 1 000 000 et 3 000 000 inclus**, triée par **reward** croissant (du plus bas au plus élevé).\n"
+      },
+      "sql-cheapmars": {
+        "title": "BON MARCHÉ SUR MARS",
+        "brief": "Cibles à faible prime sur la planète rouge.",
+        "hint": "Enchaînez deux conditions avec AND : planet = 'Mars' AND reward < 2000000.",
+        "prompt": "À partir de **bounties(id, name, reward, planet)**, renvoyez le **name** de chaque prime qui est **sur Mars ET vaut moins de 2 000 000**, triée par **name** alphabétiquement (A->Z).\n"
+      },
       "sql-count": {
         "title": "TAILLE DU CATALOGUE",
-        "brief": "Combien de morceaux y a-t-il sur la platine ?",
+        "brief": "Combien de tracks y a-t-il sur la platine ?",
         "hint": "COUNT(*) compte toutes les lignes.",
-        "prompt": "\nLa table **tracks(title, artist, bpm, genre)** est la playlist de la station. Renvoyez un seul nombre : le **nombre total** de morceaux.\n"
+        "prompt": "\nLa table **tracks(title, artist, bpm, genre)** est la playlist de la station. Renvoyez un seul nombre : le **comptage total** des tracks.\n"
       },
       "sql-tally": {
         "title": "DÉCOMPTE DES ARTISTES",
-        "brief": "Comptez les morceaux par artiste.",
+        "brief": "Comptez les tracks par artist.",
         "hint": "GROUP BY artist, puis SELECT artist, COUNT(*). Ajoutez ORDER BY artist.",
-        "prompt": "\nRenvoyez chaque **artiste** et le **nombre de morceaux** qu'il possède, sous forme de deux colonnes, triés par nom d'artiste (A→Z).\n"
+        "prompt": "\nRenvoyez chaque **artist** et **combien de tracks** il possède, en deux colonnes, triés par nom d'artist (A→Z).\n"
       },
       "sql-prolific": {
         "title": "ARTISTES PROLIFIQUES",
-        "brief": "Seulement les artistes qui ont de l'ampleur.",
+        "brief": "Seulement les artists qui ont du coffre.",
         "hint": "Filtrez les groupes avec HAVING COUNT(*) >= 2.",
-        "prompt": "\nRenvoyez le nom de l'**artiste** pour chaque artiste ayant **2 morceaux ou plus** dans le catalogue, triés A→Z. (Une seule colonne.)\n"
+        "prompt": "\nRenvoyez le nom **artist** de chaque artist ayant **2 tracks ou plus** dans le catalogue, triés A→Z. (Une seule colonne.)\n"
+      },
+      "sql-avgbpm": {
+        "title": "TEMPO MOYEN",
+        "brief": "Tempo moyen sur toute la caisse.",
+        "hint": "AVG(bpm) réduit chaque ligne à une seule valeur moyenne.",
+        "prompt": "Depuis **tracks(title, artist, bpm, genre)**, renvoyez une **valeur unique** : le **bpm moyen** sur **tous** les tracks. Aucun ordre particulier n'est requis.\n"
+      },
+      "sql-tempobounds": {
+        "title": "LE PLUS LENT ET LE PLUS RAPIDE",
+        "brief": "Le plancher et le plafond du tempo sur une seule ligne.",
+        "hint": "Placez à la fois MIN(bpm) et MAX(bpm) dans la même liste SELECT.",
+        "prompt": "Depuis **tracks(title, artist, bpm, genre)**, renvoyez **deux valeurs sur une seule ligne** : le **bpm minimum** et le **bpm maximum** sur tous les tracks (min d'abord, puis max). Aucun ordre particulier n'est requis.\n"
+      },
+      "sql-genreavg": {
+        "title": "TEMPO PAR GENRE",
+        "brief": "Tempo moyen, groupé par genre.",
+        "hint": "GROUP BY genre crée une ligne par genre, puis ORDER BY genre.",
+        "prompt": "Depuis **tracks(title, artist, bpm, genre)**, renvoyez le **genre** et le **bpm moyen** de ce genre, une ligne **par genre**. Triez par **genre** par ordre alphabétique (A->Z).\n"
+      },
+      "sql-bpmsum": {
+        "title": "TOTAUX PAR GENRE",
+        "brief": "Comptage et tempo cumulé par genre, uniquement les genres à plusieurs tracks.",
+        "hint": "Groupez par genre, puis filtrez les groupes avec HAVING COUNT(*) > 1.",
+        "prompt": "Depuis **tracks(title, artist, bpm, genre)**, renvoyez le **genre**, le **nombre de tracks** dans ce genre, et le **bpm total (cumulé)** de ce genre — mais uniquement pour les genres contenant **plus d'un track**. Triez par **genre** par ordre alphabétique (A->Z).\n"
+      },
+      "sql-fastfloor": {
+        "title": "DANCEFLOORS RAPIDES UNIQUEMENT",
+        "brief": "Les artists dont même le track le plus lent cogne dur.",
+        "hint": "Groupez par artist, puis utilisez HAVING MIN(bpm) >= 100 pour écarter les crews trop lentes.",
+        "prompt": "Depuis **tracks(title, artist, bpm, genre)**, renvoyez l'**artist** et le **bpm minimum** de cet artist, en ne gardant que les artists dont le **bpm minimum est d'au moins 100**. Triez par **artist** par ordre alphabétique (A->Z).\n"
       },
       "sql-manifest": {
         "title": "MANIFESTE D'ÉQUIPAGE",
@@ -2660,13 +2745,283 @@ window.CONTENT_FR = {
         "title": "RECRUE",
         "brief": "Ajoutez le chien de données au manifeste.",
         "hint": "INSERT INTO crew (name, ship_id, role) VALUES ('Ein', 1, 'dog');",
-        "prompt": "\nAjoutez un nouveau membre d'équipage à la table **crew** : name **Ein**, ship_id **1**, role **dog**. Utilisez INSERT.\n\nLe vérificateur exécute ensuite : SELECT name FROM crew WHERE role = 'dog'.\n"
+        "prompt": "\nAjoutez un nouveau membre à la table **crew** : name **Ein**, ship_id **1**, role **dog**. Utilisez INSERT.\n\nLe vérificateur exécute ensuite : SELECT name FROM crew WHERE role = 'dog'.\n"
       },
       "sql-promote": {
         "title": "PROMOTION SUR LE TERRAIN",
         "brief": "Mettez à jour un enregistrement sur place.",
         "hint": "UPDATE crew SET role = 'captain' WHERE name = 'Spike'; — n'oubliez pas le WHERE !",
-        "prompt": "\n**Spike** vient d'obtenir une promotion. Avec UPDATE, modifiez la table **crew** pour mettre son **role** à **captain** — et ne changez personne d'autre.\n\nLe vérificateur exécute ensuite : SELECT role FROM crew WHERE name = 'Spike'.\n"
+        "prompt": "\n**Spike** vient de décrocher une promotion. UPDATE la table **crew** pour passer son **role** à **captain** — et ne changez personne d'autre.\n\nLe vérificateur exécute ensuite : SELECT role FROM crew WHERE name = 'Spike'.\n"
+      },
+      "sql-hunters-ship": {
+        "title": "CHASSEURS À BORD",
+        "brief": "Le nom du vaisseau pour chaque chasseur.",
+        "hint": "Ajoutez WHERE crew.role = 'hunter' au JOIN pour que seuls les chasseurs de primes apparaissent.",
+        "prompt": "Joignez **crew** à **ships** sur crew.ship_id = ships.id. Renvoyez le **name de chaque chasseur** et le **name de son vaisseau** (deux colonnes), en ne gardant que les lignes où le **role** du membre est **'hunter'**. Triez par **name** d'équipage (A->Z).\n"
+      },
+      "sql-crew-count": {
+        "title": "EFFECTIF PAR COQUE",
+        "brief": "Combien de membres chaque vaisseau embarque.",
+        "hint": "Après le JOIN, GROUP BY ships.name pour que COUNT(*) donne un total par vaisseau.",
+        "prompt": "Joignez **crew** à **ships** sur crew.ship_id = ships.id, puis renvoyez le **name de chaque vaisseau** et le **nombre de membres d'équipage** à son bord, une ligne **par vaisseau qui a de l'équipage**. Triez par **name** de vaisseau (A->Z).\n"
+      },
+      "sql-board-swordfish": {
+        "title": "EMBARQUER SUR LE SWORDFISH",
+        "brief": "Enrôlez un pilote sur le vaisseau vide.",
+        "hint": "INSERT INTO crew (name, ship_id, role) VALUES ('Vicious', 2, 'pilot');",
+        "prompt": "Le **Swordfish** (ship id **2**) vole sans équipage. INSERT une nouvelle ligne dans **crew** : name **Vicious**, ship_id **2**, role **pilot**. N'ajoutez personne d'autre.\n\nLe vérificateur exécute ensuite : SELECT name, role FROM crew WHERE ship_id = 2.\n"
+      },
+      "sql-empty-hulls": {
+        "title": "COQUES VIDES",
+        "brief": "Chaque vaisseau et son effectif, même les vides.",
+        "hint": "Le LEFT JOIN conserve les vaisseaux vides ; COUNT(crew.name) compte 0 pour eux, alors que COUNT(*) en compterait 1 à tort.",
+        "prompt": "Utilisez un **LEFT JOIN** de **ships** vers **crew** sur ships.id = crew.ship_id pour que **chaque vaisseau apparaisse** — y compris ceux sans équipage. Renvoyez le **name de chaque vaisseau** et le **nombre de membres d'équipage** à bord (utilisez COUNT sur une colonne de crew pour que les vaisseaux vides affichent **0**), une ligne par vaisseau. Triez par **name** de vaisseau (A->Z).\n"
+      },
+      "sql-transfer-fleet": {
+        "title": "TRANSFERT DE FLOTTE",
+        "brief": "Déplacez tout l'équipage du Bebop vers le Swordfish par nom.",
+        "hint": "SET ship_id = (SELECT id FROM ships WHERE name = 'Swordfish') WHERE ship_id = (SELECT id FROM ships WHERE name = 'Bebop').",
+        "prompt": "Le commandement réaffecte tout l'équipage du Bebop. UPDATE **crew** : passez le **ship_id** à l'id du vaisseau nommé **'Swordfish'** pour chaque membre actuellement affecté au vaisseau nommé **'Bebop'**. Ne codez pas en dur les nombres 1 ou 2 — récupérez les deux ids depuis la table **ships** avec des sous-requêtes.\n\nLe vérificateur exécute ensuite : SELECT crew.name, ships.name FROM crew JOIN ships ON crew.ship_id = ships.id ORDER BY crew.name.\n"
+      },
+      "sql-districts": {
+        "title": "TERRAIN CONNU",
+        "brief": "Lister chaque district une seule fois.",
+        "hint": "DISTINCT réduit les valeurs de district répétées à une seule chacune.",
+        "prompt": "La table **runners(id, name, handle, district, rep, credits)** consigne chaque coursier du réseau. Renvoyez chaque **district** ayant des runners, sans doublons — une seule colonne **district**. L'ordre n'est pas requis."
+      },
+      "sql-topcred": {
+        "title": "LISTE DES NANTIS",
+        "brief": "Top 3 par credits.",
+        "hint": "ORDER BY credits DESC, puis LIMIT 3 ne garde que les trois premiers.",
+        "prompt": "Renvoyez le **name** et les **credits** des **3 runners les plus riches** de la table **runners**, ordonnés par **credits** du plus élevé au plus bas."
+      },
+      "sql-page2": {
+        "title": "PAGE DEUX",
+        "brief": "Sauter le top 3, prendre les 2 suivants.",
+        "hint": "LIMIT 2 OFFSET 3 saute les trois premières lignes, puis en prend deux.",
+        "prompt": "Triez les **runners** par **rep** du plus élevé au plus bas, puis renvoyez le **name** des runners de la \"page 2\" : **sautez les 3 premiers** et renvoyez les **2 noms suivants**. (Une seule colonne **name**, dans cet ordre de classement.)"
+      },
+      "sql-incity": {
+        "title": "DEUX DISTRICTS",
+        "brief": "Correspondre à une liste de districts.",
+        "hint": "WHERE district IN ('Neon Strip', 'Old Town'), puis ORDER BY name.",
+        "prompt": "Renvoyez le **name** de chaque runner opérant soit à **Neon Strip**, soit à **Old Town**, en utilisant une liste de valeurs **IN** sur **district**. Triez par **name** de A à Z. (Une seule colonne **name**.)"
+      },
+      "sql-midrep": {
+        "title": "RATISSAGE DU MILIEU",
+        "brief": "Intervalle de rep inclusif.",
+        "hint": "rep BETWEEN 40 AND 70 inclut à la fois 40 et 70.",
+        "prompt": "Renvoyez le **name** et le **rep** de chaque runner dont le **rep** est **entre 40 et 70 inclus**, en utilisant **BETWEEN**. Triez par **rep** du plus bas au plus haut."
+      },
+      "sql-vhandles": {
+        "title": "V COMME VENIN",
+        "brief": "Handles commençant par V.",
+        "hint": "LIKE 'V%' — le % correspond à n'importe quels caractères après le V.",
+        "prompt": "Renvoyez le **handle** de chaque runner dont le **handle commence par la lettre V**, en utilisant **LIKE**. Triez par **handle** de A à Z. (Une seule colonne **handle**.)"
+      },
+      "sql-offgrid": {
+        "title": "HORS RÉSEAU",
+        "brief": "Runners sans handle.",
+        "hint": "Utilisez IS NULL, jamais = NULL — la forme avec égal ne correspond jamais.",
+        "prompt": "Certains runners restent anonymes — leur **handle** est NULL. Renvoyez le **name** de chaque runner dont le **handle IS NULL**. Triez par **name** de A à Z. (Une seule colonne **name**.)"
+      },
+      "sql-named": {
+        "title": "DANS LES REGISTRES",
+        "brief": "Le plus riche ayant un handle.",
+        "hint": "Filtrez avec handle IS NOT NULL, ORDER BY credits DESC, puis LIMIT 1.",
+        "prompt": "Parmi les runners qui **ont un handle** (handle IS NOT NULL), renvoyez le **name** et les **credits** de l'unique **plus riche** — les **credits** les plus élevés. Renvoyez exactement une ligne, deux colonnes."
+      },
+      "sql-alias": {
+        "title": "RÉÉTIQUETER LA MARCHANDISE",
+        "brief": "Renommer une colonne en sortie.",
+        "hint": "SELECT name AS item FROM gear;",
+        "prompt": "Depuis la table **gear(id, name, price, qty, rating, grade)**, renvoyez la colonne **name** mais étiquetez-la **item** dans le résultat (utilisez AS). Renvoyez cette seule colonne pour chaque ligne, dans l'ordre de la table (pas de tri nécessaire)."
+      },
+      "sql-shout": {
+        "title": "HURLER L'INVENTAIRE",
+        "brief": "Mettre chaque name en majuscules.",
+        "hint": "Enveloppez la colonne : UPPER(name) AS loud.",
+        "prompt": "Depuis la table **gear**, renvoyez le **name de chaque article converti en majuscules**, étiqueté **loud** (utilisez UPPER et AS). Une colonne, chaque ligne, ordre de la table."
+      },
+      "sql-stockval": {
+        "title": "VALEUR DU STOCK",
+        "brief": "Multiplier price par qty.",
+        "hint": "Calculez-le dans la liste SELECT : price * qty AS stock_value.",
+        "prompt": "Pour chaque ligne de **gear**, renvoyez deux colonnes : le **name**, et **price multiplié par qty** étiqueté **stock_value**. L'ordre de la table convient."
+      },
+      "sql-stars": {
+        "title": "ARRONDIR LA NOTE",
+        "brief": "Arrondir les notes à une décimale.",
+        "hint": "ROUND(rating, 1) AS stars — le 1 signifie une décimale.",
+        "prompt": "Depuis **gear**, renvoyez le **name** et la **note (rating) arrondie à 1 décimale**, étiquetée **stars** (utilisez ROUND). Deux colonnes, chaque ligne, ordre de la table."
+      },
+      "sql-tag": {
+        "title": "CONSTRUIRE L'ÉTIQUETTE",
+        "brief": "Concaténer name et grade.",
+        "hint": "Enchaînez les morceaux avec || : name || ' [' || grade || ']'.",
+        "prompt": "Depuis **gear**, construisez une colonne étiquetée **tag** qui colle le **name** de chaque article, puis une espace et un crochet ouvrant, puis son **grade**, puis un crochet fermant — par exemple `Neural Jack [A]`. Utilisez l'opérateur ||. Une colonne, chaque ligne, ordre de la table."
+      },
+      "sql-tier": {
+        "title": "GAMME DE PRIX",
+        "brief": "Étiqueter les articles premium ou budget.",
+        "hint": "CASE WHEN price >= 1000 THEN 'premium' ELSE 'budget' END AS tier.",
+        "prompt": "Depuis **gear**, renvoyez le **name** et une étiquette calculée **tier** à l'aide de CASE : si **price vaut 1000 ou plus**, le tier est **'premium'**, sinon **'budget'**. Deux colonnes, chaque ligne, ordre de la table."
+      },
+      "sql-prefix": {
+        "title": "CODE DE STOCK",
+        "brief": "Découper les trois premières lettres, en majuscules.",
+        "hint": "SUBSTR(name, 1, 3) attrape les trois premiers caractères ; enveloppez-le dans UPPER(...).",
+        "prompt": "Depuis **gear**, construisez une colonne étiquetée **code** : prenez les **3 premiers caractères** du **name** de chaque article et convertissez-les en majuscules (utilisez SUBSTR et UPPER). Par exemple `Neural Jack` devient `NEU`. Une colonne, chaque ligne, ordre de la table."
+      },
+      "sql-restock": {
+        "title": "ALERTE RÉAPPRO",
+        "brief": "Statut de stock à trois voies avec CASE.",
+        "hint": "L'ordre compte dans CASE : testez qty < 5 d'abord, puis qty < 10, puis ELSE.",
+        "prompt": "Depuis **gear**, renvoyez le **name** et une colonne **status** à l'aide d'un CASE enchaîné sur **qty** : quand qty est **inférieur à 5** renvoyez **'critical'**, quand qty est **inférieur à 10** renvoyez **'low'**, sinon **'stocked'**. Deux colonnes, chaque ligne, ordre de la table."
+      },
+      "sql-roster-full": {
+        "title": "EFFECTIF COMPLET",
+        "brief": "Chaque runner, avec crew ou non.",
+        "hint": "LEFT JOIN crews ON runners.crew_id = crews.id — le LEFT garde le runner sans crew.",
+        "prompt": "Listez **chaque** runner avec le **name** de son crew. Renvoyez deux colonnes : runners.**alias** et crews.**name**. Les runners sans crew doivent quand même apparaître (le nom de leur crew sera NULL). Utilisez un LEFT JOIN. Triez par runners.alias (A→Z)."
+      },
+      "sql-freelancer": {
+        "title": "FREELANCE",
+        "brief": "Le runner sans crew.",
+        "hint": "Après le LEFT JOIN, les lignes non appariées sont exactement celles WHERE crews.id IS NULL.",
+        "prompt": "Trouvez le(s) runner(s) qui n'appartiennent à **aucun crew**. Faites un LEFT JOIN de runners vers crews, puis ne gardez que les lignes où le crew n'a pas correspondu (crews.id IS NULL). Renvoyez une colonne : runners.**alias**. L'ordre n'a pas d'importance."
+      },
+      "sql-empty-crew": {
+        "title": "CREW VIDE",
+        "brief": "Un crew sans personne dedans.",
+        "hint": "Mettez crews à gauche, LEFT JOIN runners, puis filtrez WHERE runners.id IS NULL.",
+        "prompt": "Trouvez le(s) crew(s) qui n'ont **aucun runner** assigné. Faites un LEFT JOIN de crews vers runners (crews à gauche cette fois), puis gardez les lignes où aucun runner n'a correspondu (runners.id IS NULL). Renvoyez une colonne : crews.**name**. L'ordre n'a pas d'importance."
+      },
+      "sql-contract-trace": {
+        "title": "TRAÇAGE DE CONTRAT",
+        "brief": "Remonter de contract à runner à crew.",
+        "hint": "Deux JOIN : contracts JOIN runners ON runner_id=id, puis JOIN crews ON crew_id=id. Ensuite ORDER BY contracts.payout DESC.",
+        "prompt": "Pour chaque contract, renvoyez trois colonnes : contracts.**target**, runners.**alias** (qui l'a décroché) et crews.**name** (son crew). Joignez les trois tables (contracts → runners → crews). Triez par contracts.payout **décroissant** (payout le plus élevé d'abord)."
+      },
+      "sql-mentor-link": {
+        "title": "LIEN MENTOR",
+        "brief": "Apparier chaque student avec son mentor.",
+        "hint": "FROM runners AS r JOIN runners AS m ON r.mentor_id = m.id — deux alias pour la même table.",
+        "prompt": "Le mentor_id de chaque runner pointe vers l'id d'un autre runner. Faites un self-join de la table **runners** sur elle-même (alias **r** pour le student, **m** pour le mentor) pour apparier chaque student avec son mentor. Renvoyez deux colonnes : l'alias du student et l'alias du mentor. Seuls les runners qui ont effectivement un mentor doivent apparaître. Triez par l'alias du student (A→Z)."
+      },
+      "sql-jobs-per-runner": {
+        "title": "JOBS PAR RUNNER",
+        "brief": "Compter les contracts, zéros inclus.",
+        "hint": "Le LEFT JOIN garde les runners à zéro contract ; COUNT(contracts.id) (pas COUNT(*)) rapporte 0 pour eux.",
+        "prompt": "Comptez combien de contracts chaque runner a décrochés — y compris les runners qui en ont décroché **zéro** (leur compte doit valoir 0). Faites un LEFT JOIN de runners vers contracts, GROUP BY le runner, et COUNT les contracts. Renvoyez deux colonnes : runners.**alias** et le compte. Triez par runners.alias (A→Z)."
+      },
+      "sql-crew-haul": {
+        "title": "BUTIN DU CREW",
+        "brief": "Payout total empoché par chaque crew.",
+        "hint": "Trois tables jointes, GROUP BY crews.id, SUM(contracts.payout), puis ORDER BY cette somme DESC.",
+        "prompt": "Totalisez le payout empoché par chaque crew. Joignez crews → runners → contracts, GROUP BY le crew, et SUM contracts.payout. Renvoyez deux colonnes : crews.**name** et le payout total. Seuls les crews ayant au moins un contract apparaîtront. Triez par le payout total **décroissant** (plus gros butin d'abord)."
+      },
+      "sql-mentor-crew": {
+        "title": "MENTOR & CREW",
+        "brief": "Student, mentor, et le crew du student.",
+        "hint": "Gardez le self-join (r, m), puis ajoutez JOIN crews ON r.crew_id = crews.id pour le nom du crew du student.",
+        "prompt": "Pour chaque runner qui a un mentor, renvoyez trois colonnes : l'alias du student, l'alias du mentor, et le **name** du crew du **student**. Faites un self-join de runners sur elle-même (r = student, m = mentor) et joignez aussi crews sur le crew_id du student. Triez par l'alias du student (A→Z)."
+      },
+      "sql-overpaid": {
+        "title": "SURPAYÉS",
+        "brief": "Les runners gagnant au-dessus de la moyenne.",
+        "hint": "Emballez la moyenne dans une sous-requête : WHERE payout > (SELECT AVG(payout) FROM runners).",
+        "prompt": "La table **runners(id, handle, sector, rep, payout)** liste chaque netrunner sur la grille. Renvoyez le **handle** et le **payout** de chaque runner dont le **payout** est **strictement supérieur au payout moyen** de tous les runners. Deux colonnes. Ordre indifférent."
+      },
+      "sql-outclass": {
+        "title": "SURPASSER CIPHER",
+        "brief": "Les reps au-dessus de celle de Cipher.",
+        "hint": "Comparez rep à (SELECT rep FROM runners WHERE handle = 'Cipher').",
+        "prompt": "Renvoyez le **handle** de chaque runner dont la **rep** est **strictement supérieure à la rep de Cipher**. Récupérez la rep de Cipher avec une sous-requête (ne codez pas un nombre en dur). Une colonne, triée par handle (de A à Z)."
+      },
+      "sql-contracted": {
+        "title": "SUR LE TABLEAU",
+        "brief": "Les runners détenant un contrat.",
+        "hint": "WHERE id IN (SELECT runner_id FROM contracts).",
+        "prompt": "La table **contracts(id, runner_id, target, bounty)** enregistre qui est sur un job. Renvoyez le **handle** de chaque runner qui détient **au moins un contrat** — faites correspondre runners.id aux valeurs de runner_id dans contracts avec **IN (SELECT ...)**. Une colonne, triée par handle (de A à Z)."
+      },
+      "sql-benched": {
+        "title": "SUR LE BANC",
+        "brief": "Les runners sans aucun contrat.",
+        "hint": "Inversez le test d'appartenance : WHERE id NOT IN (SELECT runner_id FROM contracts).",
+        "prompt": "Renvoyez le **handle** de chaque runner qui ne détient **aucun contrat** — utilisez **NOT IN (SELECT runner_id FROM contracts)**. Une colonne, triée par handle (de A à Z)."
+      },
+      "sql-richseam": {
+        "title": "FILON RICHE",
+        "brief": "Tout le monde dans le secteur du mieux payé.",
+        "hint": "Requête interne : (SELECT sector FROM runners ORDER BY payout DESC LIMIT 1). Comparez sector à elle.",
+        "prompt": "Trouvez le secteur du runner le mieux payé, puis renvoyez le **handle** de **chaque** runner travaillant dans ce **même secteur**. Utilisez une sous-requête scalaire pour obtenir le secteur du mieux payé. Une colonne, triée par handle (de A à Z)."
+      },
+      "sql-localking": {
+        "title": "ROIS LOCAUX",
+        "brief": "Le mieux payé de chaque secteur.",
+        "hint": "Aliasez la table externe r et la table interne s ; reliez-les avec WHERE s.sector = r.sector.",
+        "prompt": "Renvoyez le **handle** et le **sector** du runner ayant le **payout le plus élevé dans son propre secteur** (un par secteur). Utilisez une **sous-requête corrélée** qui compare le payout de chaque runner au MAX du payout de ce même secteur. Deux colonnes, triées par sector (de A à Z)."
+      },
+      "sql-overlocal": {
+        "title": "AU-DESSUS DU BLOC",
+        "brief": "Battre la moyenne de son propre secteur.",
+        "hint": "Corrélez l'AVG interne à la ligne externe : (SELECT AVG(payout) FROM runners s WHERE s.sector = r.sector).",
+        "prompt": "Renvoyez le **handle** et le **sector** de chaque runner dont le **payout est supérieur au payout moyen de SON PROPRE secteur**. Utilisez une **sous-requête corrélée** (l'AVG interne doit être filtré sur le secteur de la ligne externe). Deux colonnes, triées par handle (de A à Z)."
+      },
+      "sql-repmap": {
+        "title": "POINTS CHAUDS REP",
+        "brief": "Les secteurs à rep moyenne élevée.",
+        "hint": "FROM (SELECT sector, AVG(rep) AS avg_rep FROM runners GROUP BY sector) t, puis WHERE avg_rep >= 70.",
+        "prompt": "Construisez d'abord une rep moyenne par secteur, puis ne gardez que les secteurs solides. À l'aide d'une **table dérivée** dans la clause FROM, renvoyez **sector** et son **avg_rep** pour chaque secteur dont la rep moyenne est de **70 ou plus**. Triez par avg_rep, du plus élevé au plus bas. La table dérivée DOIT avoir un alias."
+      },
+      "sql-purge-scrap": {
+        "title": "PURGER LA FERRAILLE",
+        "brief": "Supprimez les unités mortes.",
+        "hint": "DELETE FROM drones WHERE status = 'scrapped';",
+        "prompt": "La flotte **drones(id, codename, battery, status, credits)** est encombrée de rebuts. DELETE de **drones** chaque ligne dont le **status** vaut **'scrapped'** — et rien d'autre.\n\nLe vérificateur exécute ensuite : SELECT codename FROM drones ORDER BY codename."
+      },
+      "sql-drop-broke": {
+        "title": "LARGUER LES FAUCHÉS",
+        "brief": "Supprimez les unités sans crédits.",
+        "hint": "Ajoutez WHERE credits = 0 pour ne supprimer que l'unité fauchée.",
+        "prompt": "Coupez les profiteurs. DELETE de **drones** chaque ligne dont le **credits** est égal à **0** — laissez toutes les autres lignes intactes.\n\nLe vérificateur exécute ensuite : SELECT codename FROM drones ORDER BY codename."
+      },
+      "sql-recharge-active": {
+        "title": "RECHARGER LES ACTIFS",
+        "brief": "Ajoutez 10 de battery aux unités actives.",
+        "hint": "Utilisez SET battery = battery + 10 (lisez l'ancienne valeur, ajoutez 10), pas battery = 10.",
+        "prompt": "Une surtension recharge la flotte en service. UPDATE **drones** : pour chaque ligne dont le **status** vaut **'active'**, mettez **battery** à sa valeur actuelle **plus 10**. Les autres lignes restent telles quelles.\n\nLe vérificateur exécute ensuite : SELECT codename, battery FROM drones WHERE status = 'active' ORDER BY codename."
+      },
+      "sql-double-credits": {
+        "title": "DOUBLER LA PRIME",
+        "brief": "Doublez les credits des unités au repos.",
+        "hint": "SET credits = credits * 2, et ajoutez WHERE status = 'idle' pour que seules les unités idle doublent.",
+        "prompt": "La direction propose une prime de fidélisation. UPDATE **drones** : pour chaque ligne dont le **status** vaut **'idle'**, mettez **credits** au **double** de sa valeur actuelle (credits fois 2). Laissez toutes les autres lignes tranquilles.\n\nLe vérificateur exécute ensuite : SELECT codename, credits FROM drones WHERE status = 'idle' ORDER BY codename."
+      },
+      "sql-archive-dead": {
+        "title": "ARCHIVER LES MORTS",
+        "brief": "Copiez les unités à batterie plate vers la casse.",
+        "hint": "INSERT INTO scrapyard (codename, status) SELECT codename, status FROM drones WHERE battery = 0;",
+        "prompt": "Photographiez les pertes. INSERT INTO **scrapyard(codename, status)** le **codename** et le **status** de chaque drone dont la **battery** vaut **0**. Lisez les lignes avec un SELECT depuis **drones**.\n\nLe vérificateur exécute ensuite : SELECT codename, status FROM scrapyard ORDER BY codename."
+      },
+      "sql-mothball-idle": {
+        "title": "METTRE LES INACTIFS SOUS COCON",
+        "brief": "Archivez les unités au repos et videz leur batterie.",
+        "hint": "Sélectionnez codename et le littéral 'mothballed', puis UPDATE ... SET battery = 0 WHERE status = 'idle'.",
+        "prompt": "Décommissionnement en deux temps. D'abord INSERT INTO **scrapyard(codename, status)** le **codename** et le texte de statut littéral **'mothballed'** pour chaque drone dont le **status** vaut **'idle'**. Ensuite UPDATE ces mêmes drones **idle** dans **drones**, en mettant leur **battery** à **0**.\n\nLe vérificateur exécute ensuite : SELECT s.codename, s.status, d.battery FROM scrapyard s JOIN drones d ON d.codename = s.codename ORDER BY s.codename."
+      },
+      "sql-retag-battery": {
+        "title": "RÉÉTIQUETER PAR CHARGE",
+        "brief": "Un seul UPDATE CASE déduit le status de la battery.",
+        "hint": "UPDATE drones SET status = CASE WHEN battery = 0 THEN 'dead' WHEN battery < 50 THEN 'low' ELSE 'ready' END; — ordonnez les WHEN pour que 0 soit attrapé en premier.",
+        "prompt": "Reclassez toute la flotte en une seule instruction. UPDATE **drones** et définissez **status** avec CASE selon la **battery** : battery **0** → **'dead'** ; battery **inférieure à 50** (mais pas 0) → **'low'** ; sinon → **'ready'**. Appliquez-le à chaque ligne.\n\nLe vérificateur exécute ensuite : SELECT codename, status FROM drones ORDER BY codename."
+      },
+      "sql-tier-credits": {
+        "title": "CLASSER PAR CRÉDITS",
+        "brief": "UPDATE CASE réservé aux gros gagnants.",
+        "hint": "Ajoutez WHERE credits >= 900 pour que le CASE ne touche que les gagnants ; le CASE sépare ensuite elite de veteran.",
+        "prompt": "Récompensez les gagnants — et eux seuls. UPDATE **drones** : pour chaque ligne dont les **credits** valent **au moins 900**, définissez **status** avec CASE — credits **au moins 1000** → **'elite'**, sinon → **'veteran'**. Les lignes dont les credits sont inférieurs à 900 doivent rester exactement telles quelles.\n\nLe vérificateur exécute ensuite : SELECT codename, status FROM drones ORDER BY codename."
       }
     }
   },

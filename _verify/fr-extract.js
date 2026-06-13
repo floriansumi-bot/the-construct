@@ -28,7 +28,7 @@ const order = [
   "curriculum-ts-pack-1.js", "curriculum-ts-pack-2.js", "curriculum-ts-pack-3.js",
   "curriculum-ts-pack-4.js", "curriculum-ts-pack-5.js", "curriculum-ts-pack-6.js",
   "curriculum-ts-pack-7.js", "curriculum-ts-pack-8.js",
-  "curriculum-sql.js", "curriculum-lua.js", "curriculum-ruby.js",
+  "curriculum-sql.js", "curriculum-sql-pack-1.js", "curriculum-lua.js", "curriculum-ruby.js",
 ];
 
 for (const f of order) {
