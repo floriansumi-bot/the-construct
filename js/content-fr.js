@@ -1741,103 +1741,133 @@ window.CONTENT_FR = {
     "modules": {
       "tsm01-annotate": {
         "title": "ANNOTATIONS DE TYPE",
-        "subtitle": "paramètres & retours typés · primitifs · types littéraux/d'union",
-        "theory": "## Types statiques\nTypeScript, c'est du JavaScript que vous **annotez**. Le compilateur lit les annotations, traque les contradictions, puis les supprime - le code qui s'exécute est du JS pur.\nAnnotez une liaison avec `: type`. Les primitifs sont `number`, `string`, `boolean`.\n~~~ts\nconst codename: string = 'Lain';\nlet clearance: number = 7;\nconst online: boolean = true;\n~~~\n## Fonctions typées\nAnnotez chaque paramètre et la valeur de retour. Désormais, le compilateur fait respecter le contrat à chaque site d'appel.\n~~~ts\nfunction amplify(signal: number): number {\n  return signal * 2;\n}\n~~~\n## Types littéraux & d'union\nUn type peut être une valeur **littérale** exacte, et une **union** (`|`) accepte n'importe lequel parmi plusieurs types - parfait pour un menu fixe d'options.\n~~~ts\ntype Status = 'ONLINE' | 'OFFLINE';\nfunction uptime(s: Status): number {\n  return s === 'ONLINE' ? 1 : 0;\n}\n~~~\n> INTEL - Les annotations disparaissent à l'exécution. Elles existent pour briefer le compilateur, pas le processeur."
+        "subtitle": "paramètres & retours typés · primitives · types littéraux/union",
+        "theory": "## Types statiques\n**QUOI :** TypeScript, c'est du JavaScript avec des **étiquettes** qui indiquent quel genre de valeur vit où. **POURQUOI :** le compilateur lit ces étiquettes *avant* la moindre exécution et hurle si vous glissez un `number` là où un `string` a sa place - les bugs sont attrapés à votre bureau, pas en production.\nVous posez une étiquette avec `: type`. Les trois **primitives** fondamentales sont `number`, `string`, `boolean`.\n~~~ts\nconst codename: string = 'Lain';\nlet clearance: number = 7;\nconst online: boolean = true;\n~~~\nUne fois étiqueté, `clearance = \"seven\"` est rejeté par le compilateur avant même que le code ne démarre.\n## Fonctions typées\n**QUOI :** étiquetez chaque paramètre *et* la valeur de retour. **POURQUOI :** c'est un **contrat** - le compilateur vérifie que chaque appel transmet les bons types en entrée et que vous renvoyez le bon type en sortie.\n~~~ts\nfunction amplify(signal: number): number {\n  return signal * 2;\n}\n~~~\nAppelez `amplify(\"loud\")` et le compilateur le bloque sur-le-champ - l'argument n'est pas un `number`.\n## Types littéraux & union\n**QUOI :** un type peut être une valeur **littérale** exacte (par ex. `'ONLINE'`), et une **union** avec `|` signifie « n'importe laquelle parmi celles-ci ». **POURQUOI :** cela épingle une valeur à un menu figé, si bien que les fautes de frappe comme `'ONLNE'` sont attrapées immédiatement.\n~~~ts\ntype Status = 'ONLINE' | 'OFFLINE';\nfunction uptime(s: Status): number {\n  return s === 'ONLINE' ? 1 : 0;\n}\n~~~\nTout ce qui sort du menu - `uptime('BUSY')` - est rejeté avant l'exécution.\n> INTEL - Les annotations sont **effacées** avant l'exécution du code. Elles briefent le compilateur, pas le CPU ; le JS livré ne conserve aucune info de type.\n> WARNING - Les types sont une vérification *à la compilation* uniquement. Ils ne s'exécutent jamais, ne valident jamais de données en direct, et ne nettoient jamais l'entrée venue du Wired - une étiquette `: number` n'empêche pas une chaîne d'arriver à l'exécution si la vérification a été sautée."
       },
       "tsm02-shapes": {
         "title": "FORMES & STRUCTURES",
-        "subtitle": "interfaces · type aliases · arrays · tuples · optional params",
-        "theory": "## Interfaces & alias de type\nDécrivez la **forme** d'un objet une seule fois, puis réutilisez-la partout. Une `interface` et un `type` objet sont presque interchangeables ici.\n~~~ts\ninterface Operator {\n  name: string;\n  clearance: number;\n}\ntype Track = { title: string; bpm: number };\n~~~\n## Tableaux typés\nUne liste d'un seul type s'écrit `T[]`. Le compilateur surveille désormais chaque élément.\n~~~ts\nconst cells: number[] = [10, 20, 12];\nconst crew: string[] = ['Spike', 'Jet', 'Faye'];\n~~~\n## Tuples\nUn **tuple** est un tableau de longueur fixe où chaque emplacement a son propre type - idéal pour des coordonnées ou des renvois appariés.\n~~~ts\nconst point: [number, number] = [128, 256];\n~~~\n## Paramètres optionnels\nUn `?` rend un paramètre optionnel ; à l'intérieur de la fonction, son type inclut `undefined`, alors prévoyez une valeur de repli.\n~~~ts\nfunction greet(name: string, rank?: string): string {\n  return rank ? `${rank} ${name}` : name;\n}\n~~~\n> INTEL - `param?: T` est un raccourci pour `param: T | undefined`. Gérez toujours le cas manquant."
+        "subtitle": "interfaces · alias de type · tableaux · tuples · paramètres optionnels",
+        "theory": "## Interfaces & alias de type\n**QUOI :** décrivez la **forme** d'un objet une seule fois - quels champs il possède et leurs types - puis réutilisez ce nom partout. **POURQUOI :** au lieu de re-saisir `{ name: string; clearance: number }` à chaque fonction, vous écrivez `Operator` et le compilateur vérifie que chaque objet correspond.\nDeux outils s'en chargent. Une `interface` et un alias `type` sont quasiment interchangeables pour les formes d'objet simples :\n~~~ts\ninterface Operator {\n  name: string;\n  clearance: number;\n}\ntype Track = { title: string; bpm: number };\n~~~\nPassez un objet auquel il manque `clearance`, ou avec `clearance: 'high'`, et le compilateur le rejette.\n## Tableaux typés\n**QUOI :** `T[]` signifie « un tableau dont chaque élément est un `T` ». **POURQUOI :** le compilateur protège chaque emplacement, vous ne pouvez donc pas pousser accidentellement une `string` dans une liste de nombres.\n~~~ts\nconst cells: number[] = [10, 20, 12];\nconst crew: string[] = ['Spike', 'Jet', 'Faye'];\n~~~\n## Tuples\n**QUOI :** un **tuple** est un tableau à longueur fixe où chaque *position* possède son propre type - `[number, number]` désigne exactement deux nombres. **POURQUOI :** parfait pour des coordonnées ou un retour apparié où l'ordre et le nombre comptent.\n~~~ts\nconst point: [number, number] = [128, 256];\n~~~\nUn simple `number[]` autorise n'importe quelle longueur ; un tuple verrouille les emplacements, si bien que `[128]` ou `[1, 2, 3]` est rejeté.\n## Paramètres optionnels\n**QUOI :** un `?` après le nom d'un paramètre le rend optionnel - l'appelant peut l'omettre. **POURQUOI :** des valeurs par défaut sensées sans forcer chaque appelant à tout passer.\n~~~ts\nfunction greet(name: string, rank?: string): string {\n  return rank ? `${rank} ${name}` : name;\n}\n~~~\n> INTEL - `rank?: string` est un raccourci pour `rank: string | undefined`. À l'intérieur de la fonction, la valeur peut réellement manquer.\n> WARNING - Optionnel veut dire **peut-être undefined**. Touchez `rank.toUpperCase()` sans vérifier d'abord son existence et vous risquez un crash à l'exécution dans le cas manquant - gérez toujours la branche `undefined`."
       },
       "tsm03-generics": {
         "title": "PROTOCOLE GÉNÉRIQUES",
         "subtitle": "paramètres de type · fonctions génériques · contrats réutilisables",
-        "theory": "## Pourquoi les génériques\nParfois une fonction opère sur **n'importe quel** type tout en devant le préserver. Sans génériques, vous vous rabattez sur `any` et perdez toute sécurité. Un **paramètre de type** `<T>` conserve le lien entre l'entrée et la sortie.\n~~~ts\nfunction identity<T>(x: T): T {\n  return x;\n}\nidentity<string>('Neo'); // type is string, not any\n~~~\n## Générique sur les tableaux\nUn paramètre de type brille sur les collections - le type de l'élément circule directement.\n~~~ts\nfunction firstOf<T>(xs: T[]): T {\n  return xs[0];\n}\n~~~\n## Inférence\nVous écrivez rarement `<T>` au point d'appel - le compilateur l'**infère** à partir de l'argument.\n~~~ts\nfirstOf([1, 2, 3]); // T inferred as number\n~~~\n> INTEL - Les génériques sont un contrat entre l'appelant et la fonction : \"donne-moi un T, je te renverrai quelque chose construit à partir de ce même T\"."
+        "theory": "## Pourquoi les génériques\n**QUOI :** un **paramètre de type** `<T>` est un emplacement réservé pour « le type, quel qu'il soit, que l'appelant utilise ». **POURQUOI :** certaines fonctions travaillent sur *n'importe quel* type mais doivent renvoyer le **même** type. Sans génériques, vous vous rabattez sur `any` et jetez tout le contrôle de type ; `<T>` maintient le fil connecté de l'entrée à la sortie.\nVoyez `T` comme une variable pour les types - l'appelant la remplit, et elle reste cohérente partout où elle apparaît :\n~~~ts\nfunction identity<T>(x: T): T {\n  return x;\n}\nidentity<string>('Neo'); // result type is string, not any\n~~~\n## Générique sur les tableaux\n**QUOI :** le même emplacement réservé brille sur les collections. **POURQUOI :** le type des éléments circule directement - injectez des nombres, récupérez un nombre, sans aucune conversion.\n~~~ts\nfunction firstOf<T>(xs: T[]): T {\n  return xs[0];\n}\n~~~\n## Inférence\n**QUOI :** vous écrivez rarement `<T>` au point d'appel. **POURQUOI :** le compilateur **infère** `T` à partir de l'argument que vous passez réellement, si bien que le code se lit comme du JS ordinaire tout en restant entièrement typé.\n~~~ts\nfirstOf([1, 2, 3]); // T inferred as number - no <number> needed\n~~~\n> INTEL - Un générique est un contrat : « donne-moi un `T`, et je te renverrai quelque chose construit à partir de ce même `T` ». C'est ce lien qui le rend plus sûr que `any`.\n> WARNING - Laissez l'inférence faire le travail. Écrire `firstOf<number>([1, 2, 3])` partout n'est que du bruit que le compilateur connaît déjà - n'explicitez `<T>` que lorsqu'il est réellement impossible de le deviner."
       },
       "tsm04-enums": {
         "title": "ENUMS & CONSTANTES",
-        "subtitle": "enums numériques · enums de chaînes · ensembles nommés de valeurs",
-        "theory": "## Les enums nomment un ensemble fixe\nUn **enum** donne des noms à un ensemble fermé de constantes liées — plus clair que des nombres ou des chaînes épars.\n~~~ts\nenum Day { Mon, Tue, Wed, Thu, Fri, Sat, Sun }  // Mon = 0 ... Sun = 6\nDay.Sat;   // 5\n~~~\n## Valeurs personnalisées\nAffectez vos propres nombres, ou utilisez des **enums de chaînes** pour des valeurs auto-descriptives.\n~~~ts\nenum Level { Guest = 1, Operator = 2, Root = 3 }\nenum Signal { Red = 'STOP', Green = 'GO', Yellow = 'SLOW' }\n~~~\n## Comparez, ne calculez pas\nComparez une valeur aux membres d'un enum avec `===`. (Évitez l'arithmétique qui produit un simple `number` et le réaffecte au type de l'enum — le compilateur la rejette.)\n> INTEL — `Day.Sat` se lit mieux que le nombre magique `5`, et le compilateur protège l'ensemble."
+        "subtitle": "enums numériques · enums de chaînes · ensembles de valeurs nommés",
+        "theory": "## Les enums nomment un ensemble figé\n**QUOI** — un `enum` colle des noms lisibles par un humain sur un ensemble fermé de constantes apparentées. **POURQUOI** — `Day.Sat` dit exactement ce que vous voulez dire à la prochaine personne qui passe, là où un `5` brut est un nombre magique que personne ne peut décoder à 3h du matin.\nPar défaut, un enum numérique se numérote tout seul à partir de `0`, en grimpant d'une unité pour chaque membre.\n~~~ts\nenum Day { Mon, Tue, Wed, Thu, Fri, Sat, Sun }  // Mon = 0 ... Sun = 6\nDay.Sat;   // 5\n~~~\n> WARNING — ces noms ne sont que des étiquettes posées sur des **nombres** à l'exécution. `Day.Sat` *est* littéralement `5` une fois compilé, donc passer le `5` brut fonctionne aussi. N'attendez pas que la chaîne `'Sat'` vous revienne.\n## Valeurs sur mesure\n**QUOI** — vous pouvez choisir vous-même les nombres, ou basculer vers un **enum de chaînes** où chaque membre porte sa propre chaîne lisible. **POURQUOI** — les enums de chaînes survivent aux logs et aux charges utiles réseau sous forme de texte porteur de sens, au lieu de chiffres mystérieux.\n~~~ts\nenum Level { Guest = 1, Operator = 2, Root = 3 }  // numeric -> 1, 2, 3\nenum Signal { Red = 'STOP', Green = 'GO', Yellow = 'SLOW' }  // string -> 'STOP' ...\nLevel.Root;     // 3\nSignal.Green;   // 'GO'\n~~~\n## Comparez, ne calculez pas\n**QUOI** — lisez la valeur d'un enum en la comparant avec `===`. **POURQUOI** — les enums sont un ensemble sous garde, pas des maths flottant en liberté ; traitez-les comme des drapeaux figés, pas comme des nombres à additionner.\n~~~ts\nif (level === Level.Root) { /* full access */ }\n~~~\n> WARNING — bourde classique du débutant : faire de l'arithmétique comme `Level.Guest + 1` produit un simple `number`, et le réaffecter au type enum se fait rejeter par le compilateur. Comparez, faites un switch, ou allez chercher la valeur — ne calculez pas.\n> INTEL — `Day.Sat` se lit mieux que le nombre magique `5`, et le compilateur garde l'ensemble pour qu'une faute de frappe ne puisse pas y glisser un membre invalide."
       },
       "tsm05-unions": {
         "title": "UNIONS & RESTRICTION",
-        "subtitle": "T | U · typeof guards · discriminated unions",
-        "theory": "## Une valeur de plusieurs types\nUne **union** `string | number` contient l'un ou l'autre. Avant d'utiliser un comportement propre à un type, vous devez **affiner** (narrow) vers une seule branche.\n## Affinage avec typeof\nÀ l'intérieur d'un bloc `if (typeof x === 'string')`, le compilateur sait qu'à cet endroit `x` est une chaîne.\n~~~ts\nfunction describe(x: string | number): string {\n  if (typeof x === 'string') return 'text:' + x;\n  return 'num:' + x;\n}\n~~~\n## Les membres partagés ne nécessitent aucun affinage\n`string` et `T[]` possèdent tous deux `.length`, donc une union des deux peut l'utiliser directement.\n## Unions discriminées\nDonnez à chaque forme un **tag** littéral commun, puis faites un switch dessus — le compilateur affine les autres champs pour vous.\n~~~ts\ntype Shape = { kind: 'circle'; r: number } | { kind: 'square'; s: number };\nif (sh.kind === 'circle') { /* sh.r is available here */ }\n~~~\n> INTEL — Le tag `kind` est la clé qui déverrouille les bons champs. Vérifiez-le en premier."
+        "subtitle": "T | U · gardes typeof · unions discriminées",
+        "theory": "## Une valeur de plusieurs types\n**QUOI** — une **union** comme `string | number` déclare une valeur qui pourrait être de *l'un ou l'autre* type. **POURQUOI** — les données réelles sont chaotiques ; un même emplacement peut transporter du texte à une exécution et un compteur à la suivante, et une union laisse le compilateur suivre les deux possibilités.\nLe piège : le compilateur ne vous laisse manipuler que le comportement sûr pour **chaque** membre, tant que vous n'avez pas prouvé lequel vous détenez réellement.\n~~~ts\nlet id: string | number = '7F-3A';\nid = 42;  // also legal\n~~~\n## Réduction via typeof\n**QUOI** — la **réduction de type** consiste à prouver, par une vérification à l'exécution, sur quelle branche de l'union vous vous trouvez. `typeof` est la garde classique. **POURQUOI** — à l'intérieur d'un bloc `if (typeof x === 'string')`, le compilateur vous fait confiance et traite `x` comme un pur `string`, débloquant les méthodes de chaîne.\n~~~ts\nfunction describe(x: string | number): string {\n  if (typeof x === 'string') return 'text:' + x.toUpperCase();\n  return 'num:' + x.toFixed(0);  // here x is a number\n}\n~~~\n> WARNING — le piège numéro un du débutant : appeler `x.toUpperCase()` *avant* la réduction. Sur l'union brute, le compilateur refuse, car cette méthode n'existe pas sur `number`. Réduisez toujours d'abord, puis allez chercher un comportement propre à un membre.\n## Les membres partagés ne nécessitent aucune réduction\n**QUOI** — si une propriété existe sur *tous* les membres de l'union, vous pouvez l'utiliser immédiatement. **POURQUOI** — `string` comme `T[]` portent `.length`, donc le compilateur sait déjà que c'est sûr — aucune garde requise.\n~~~ts\nfunction size(v: string | number[]): number { return v.length; }\n~~~\n## Unions discriminées\n**QUOI** — donnez à chaque forme d'objet un **marqueur** littéral partagé (souvent appelé `kind`), puis branchez sur ce marqueur. **POURQUOI** — vérifier le marqueur réduit l'objet *entier* à votre place, si bien que les champs correspondants deviennent disponibles sans aucun transtypage.\n~~~ts\ntype Shape = { kind: 'circle'; r: number } | { kind: 'square'; s: number };\nfunction area(sh: Shape): number {\n  if (sh.kind === 'circle') return 3.14 * sh.r * sh.r;  // sh.r is in scope\n  return sh.s * sh.s;                                   // here sh.s is in scope\n}\n~~~\n> WARNING — aller chercher `sh.r` sans vérifier d'abord `sh.kind` échoue : un `square` n'a pas de `r`. C'est la vérification du marqueur qui fait apparaître le champ.\n> INTEL — le marqueur `kind` est la clé qui débloque les bons champs. Vérifiez-le d'abord, à chaque fois."
       },
       "tsm06-records": {
         "title": "RECORDS & MAPS",
-        "subtitle": "Record<K, V> · recherches par indice · agrégation de valeurs",
-        "theory": "## Record<K, V>\n`Record<string, number>` type un objet utilisé comme map : clés de type chaîne, valeurs de type number.\n~~~ts\nconst freq: Record<string, number> = {};\nfreq['a'] = (freq['a'] || 0) + 1;\n~~~\n## Recherches sûres\n`key in obj` teste la présence d'une clé — vrai même lorsque la valeur vaut 0 ou '' (contrairement à `if (obj[key])`).\n~~~ts\nconst price = item in menu ? menu[item] : 0;\n~~~\n## Parcourir les valeurs\n`for (const k in rec)` parcourt les clés ; `rec[k]` est typé avec le type de la valeur.\n> INTEL — Typez l'objet vide dès le départ (`const out: Record<string, number> = {}`) pour que le compilateur le suive."
+        "subtitle": "Record<K, V> · accès par index · agrégation de valeurs",
+        "theory": "## Record<K, V> — le dictionnaire typé\n**QUOI.** Un `Record<K, V>` est un objet utilisé comme table de correspondance : chaque clé a le type `K`, chaque valeur a le type `V`. `Record<string, number>` signifie *des clés string associées à des valeurs number* — un registre nom-vers-nombre.\n**POURQUOI.** Un `{}` brut vous laisse écrire n'importe quoi n'importe où. Déclarer la forme du `Record` d'emblée permet au compilateur d'attraper une valeur mal typée ou un accès mal orthographié avant même que le runtime ne s'en aperçoive.\n~~~ts\nconst freq: Record<string, number> = {};\nfreq['a'] = (freq['a'] || 0) + 1;  // first hit: undefined || 0 -> 0, then +1\n~~~\n> WARNING — Une clé absente se relit comme `undefined`, pas comme un `0` propre. Fournissez toujours une valeur de repli (`freq[k] || 0`) avant de faire un calcul, sinon vous additionnerez à `undefined` et frapperez du `NaN`.\n## Accès sûrs — la clé existe-t-elle ?\n**QUOI.** `key in obj` pose une seule question honnête : *cette clé est-elle présente ?* Elle répond `true` même quand la valeur stockée est falsy — `0`, `''`, ou `false`.\n**POURQUOI.** Les tests de truthiness mentent sur les vraies données. `if (menu[item])` saute un article au prix de `0`, traitant une boisson gratuite comme si elle n'était pas du tout au menu. `in` vérifie la présence, pas la valeur.\n~~~ts\nconst price = item in menu ? menu[item] : 0;  // a 0 price survives\n~~~\n> WARNING — `if (obj[key])` est un test de présence déguisé qui élimine toute valeur légitimement falsy. Tournez-vous vers `key in obj` quand zéro ou vide sont des données valides.\n## Parcourir les valeurs — agréger\n**QUOI.** `for (const k in rec)` boucle sur les clés ; à l'intérieur, `rec[k]` est déjà typé comme le type de valeur `V`, vous pouvez donc le sommer, le maximiser ou le replier directement.\n**POURQUOI.** Agréger (totaliser un registre, trouver un pic) signifie visiter chaque entrée une fois. La boucle `for...in` vous tend chaque clé, et la valeur typée laisse le calcul rester contrôlé par le type.\n~~~ts\nlet sum = 0;\nfor (const k in rec) { sum += rec[k]; }  // rec[k] is a number here\n~~~\n> INTEL — Typez l'objet vide d'emblée (`const out: Record<string, number> = {}`) pour que le compilateur suive chaque écriture et chaque lecture dès la toute première ligne."
       },
       "tsm07-classes": {
         "title": "CLASSES & ACCÈS",
         "subtitle": "champs typés · private · raccourci de constructeur · classe générique",
-        "theory": "## Classe typée\nLes champs reçoivent des types ; **private** les masque de l'extérieur ; les méthodes déclarent les types de leurs paramètres et de leur valeur de retour.\n~~~ts\nclass Vault {\n  private balance: number;\n  constructor(start: number) { this.balance = start; }\n  get(): number { return this.balance; }\n}\n~~~\n## Raccourci de constructeur\nPréfixez un paramètre de constructeur avec `public`/`private`/`readonly` et TS déclare **et** affecte le champ à votre place.\n~~~ts\nclass Vec2 {\n  constructor(public x: number, public y: number) {}\n}\n~~~\n## Classe générique\nUne classe peut porter un paramètre de type afin de fonctionner pour n'importe quel type d'élément tout en restant sûre au niveau des types.\n~~~ts\nclass Box<T> { constructor(private value: T) {} get(): T { return this.value; } }\n~~~\n> INTEL — `private` n'existe qu'à la compilation ; à l'exécution c'est une propriété normale, ce qui explique pourquoi les tests peuvent tout de même observer le comportement à travers les méthodes publiques."
+        "theory": "## Classe typée — des champs sous contrat\n**QUOI.** Une classe regroupe des données (champs) avec les méthodes qui agissent dessus. En TS, chaque champ porte un type, les méthodes déclarent le type de leurs paramètres et de leur valeur de retour, et `private` marque un champ comme interdit au monde extérieur.\n**POURQUOI.** Les champs typés vous empêchent de fourrer une chaîne là où un nombre est attendu. `private` cache l'état interne pour que les appelants ne puissent y toucher qu'à travers les méthodes que vous contrôlez — le solde ne peut pas être réécrit depuis l'extérieur, seulement ajusté selon les règles que vous avez écrites.\n~~~ts\nclass Vault {\n  private balance: number;\n  constructor(start: number) { this.balance = start; }\n  get(): number { return this.balance; }\n}\n~~~\n> WARNING — `private` est imposé par le **compilateur uniquement**, pas à l'exécution. Le JS compilé le conserve comme une propriété ordinaire, donc un test (ou n'importe quel JS) peut tout de même l'atteindre — et c'est précisément pourquoi on vérifie un coffre par ses méthodes publiques, pas en lorgnant le champ.\n## Raccourci de constructeur — déclarer et assigner d'un seul geste\n**QUOI.** Préfixez un paramètre de constructeur avec `public`, `private` ou `readonly` et TS fait deux choses à la fois : il **déclare** le champ sur la classe **et assigne** l'argument entrant à celui-ci. Pas de ligne de champ séparée, pas de `this.x = x`.\n**POURQUOI.** La plupart des constructeurs ne sont que du remplissage — recopier chaque argument dans un champ correspondant. Le raccourci réduit ce cérémonial à la liste des paramètres, si bien que `Vec2` ci-dessous se retrouve réellement avec des champs publics `x` et `y` initialisés depuis les arguments.\n~~~ts\nclass Vec2 {\n  constructor(public x: number, public y: number) {}  // declares + assigns x and y\n}\n~~~\n> WARNING — Retirez le mot-clé d'accès et la magie s'arrête : `constructor(x: number)` est un simple paramètre qui s'évanouit dès que le constructeur retourne — aucun champ n'est créé. C'est le préfixe `public`/`private`/`readonly` qui accomplit les deux tâches.\n## Classe générique — une seule forme, n'importe quel type\n**QUOI.** Une classe peut prendre un paramètre de type `<T>`, un emplacement à remplir au moment où vous créez une instance. `Box<T>` stocke un `T` et vous rend un `T`, donc `new Box(7)` est un `Box<number>` et `new Box('x')` est un `Box<string>`.\n**POURQUOI.** Sans les génériques, vous écririez une boîte pour les nombres, une autre pour les chaînes, ou vous vous rabattriez sur `any` en perdant toute sécurité. `<T>` permet à une seule définition de servir chaque type d'élément pendant que le compilateur garde la trace exacte de ce qu'il y a à l'intérieur.\n~~~ts\nclass Box<T> { constructor(private value: T) {} get(): T { return this.value; } }\n~~~\n> INTEL — Combinez les astuces librement : `constructor(private value: T)` utilise le raccourci pour déclarer un champ générique privé, donc `get()` retourne le même `T` que vous avez mis dedans — entièrement typé d'un bout à l'autre."
       },
       "tsm08-fntypes": {
         "title": "TYPES DE FONCTION",
-        "subtitle": "signatures de callback · ordre supérieur · paramètres du reste",
-        "theory": "## Typer une valeur de fonction\nUn type de fonction s'écrit `(arg: A) => R`. Utilisez-le pour typer un paramètre **callback**.\n~~~ts\nfunction twice(f: (n: number) => number, x: number): number {\n  return f(f(x));\n}\n~~~\n## Passer des fonctions\nLe callback doit correspondre à la signature — le compilateur vérifie les arguments et le type de retour au point d'appel.\n## Paramètres du reste\n`...args: number[]` regroupe un nombre quelconque d'arguments finaux dans un tableau typé.\n~~~ts\nfunction sum(...nums: number[]): number {\n  return nums.reduce((a, b) => a + b, 0);\n}\n~~~\n> INTEL — Un alias de type de fonction garde les signatures lisibles : `type NumFn = (n: number) => number;`"
+        "subtitle": "signatures de callback · ordre supérieur · paramètres rest",
+        "theory": "## Typer une valeur fonction\nEn TypeScript, **les fonctions sont des valeurs** — vous pouvez en passer une à une autre fonction, exactement comme un nombre ou une chaîne. Pour le faire en toute sécurité, vous devez décrire sa *forme* : quels arguments elle prend et ce qu'elle renvoie. Cette forme, c'est un **type de fonction**, écrit `(arg: A) => R` — à lire comme « prend un `A`, renvoie un `R` ».\nPourquoi s'embêter ? Parce que le compilateur peut alors garantir que la fonction que vous transmettez correspond vraiment. Aucune surprise à l'exécution.\n~~~ts\nfunction twice(f: (n: number) => number, x: number): number {\n  return f(f(x));\n}\n~~~\nIci `f` est typé comme `(n: number) => number` : une fonction qui avale un nombre et recrache un nombre. `twice` est une **fonction d'ordre supérieur** — une fonction qui prend une autre fonction en entrée (ou qui en renvoie une).\n## Passer des fonctions\nQuand vous appelez `twice`, la fonction que vous passez **doit correspondre exactement à la signature déclarée**. Le compilateur vérifie à la fois les types des paramètres et le type de retour au point d'appel — passez `(s: string) => string` là où un `(n: number) => number` est attendu et il refuse de compiler.\n> WARNING — Les types de paramètre et de retour d'un callback doivent s'aligner avec la signature dans laquelle il est branché. Un dérapage classique : renvoyer le mauvais type (par ex. un `string` depuis une fonction déclarée `=> number`). Le corps de la fonction doit honorer le contrat, pas seulement les arguments.\n## Paramètres rest\nParfois vous ne savez pas *combien* d'arguments arriveront. Un **paramètre rest** `...args: number[]` ramasse tous les arguments restants dans un seul tableau typé — le caller peut donc passer zéro, une ou cinquante valeurs et, à l'intérieur de la fonction, ce n'est qu'un seul `number[]` bien rangé.\n~~~ts\nfunction sum(...nums: number[]): number {\n  return nums.reduce((a, b) => a + b, 0);\n}\n~~~\nÀ l'intérieur de `sum`, `nums` est réellement un `number[]` — les méthodes de tableau comme `reduce`, `map` et `filter` fonctionnent toutes dessus.\n> INTEL — Un **alias de type** de fonction garde les signatures courtes et lisibles quand vous les réutilisez : `type NumFn = (n: number) => number;` Vous pouvez maintenant écrire `f: NumFn` au lieu de répéter toute la flèche à chaque fois."
       },
       "tsm09-keyof": {
         "title": "CONTRAINTES & KEYOF",
         "subtitle": "T extends · keyof T · accès indexé T[K]",
-        "theory": "## Contraindre un paramètre de type\n`<T extends Shape>` garantit que `T` possède au moins les membres de `Shape` — vous pouvez donc les utiliser en toute sécurité.\n~~~ts\nfunction longer<T extends { length: number }>(a: T, b: T): T {\n  return a.length >= b.length ? a : b;\n}\n~~~\n## keyof & accès indexé\n`keyof T` est l'union des clés de `T` ; `T[K]` est le type de la valeur à la clé `K`. Ensemble, ils typent un\naccesseur de propriété parfaitement sûr.\n~~~ts\nfunction getProp<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}\n~~~\n> INTEL — `K extends keyof T` force le compilateur à rejeter toute clé qui n'existe pas réellement sur l'objet."
+        "theory": "## Contraindre un paramètre de type\nUn générique brut `<T>` accepte *littéralement n'importe quoi*, ce qui signifie qu'à l'intérieur de la fonction vous ne pouvez supposer aucune caractéristique particulière pour `T`. Une **contrainte** resserre cela : `<T extends Shape>` est une promesse que `T` possède *au moins* tout ce qui se trouve dans `Shape`. En échange, le compilateur vous laisse toucher ces membres en toute sécurité.\nVoyez `extends` ici comme un 'doit être assignable à' — pas de l'héritage, mais une exigence minimale que l'appelant doit satisfaire.\n~~~ts\nfunction longer<T extends { length: number }>(a: T, b: T): T {\n  return a.length >= b.length ? a : b;\n}\n~~~\nGrâce à `extends { length: number }`, lire `a.length` est autorisé — pourtant `T` reste flexible, donc cela fonctionne pour les chaînes, les tableaux, ou tout objet qui possède une `length`.\n## keyof & accès indexé\nDeux opérateurs débloquent le travail type-safe sur les propriétés. `keyof T` est l'**union des noms de propriétés de `T`** en tant que type — pour `{ name: string; age: number }` c'est `'name' | 'age'`. Et `T[K]` est l'**accès indexé** : le type de la valeur stockée à la clé `K` — `T['age']` est `number`.\nCombinez-les et vous obtenez un accesseur qui ne se laisse pas berner : la clé doit réellement exister, et le type de retour suit le champ que vous avez demandé.\n~~~ts\nfunction getProp<T, K extends keyof T>(obj: T, key: K): T[K] {\n  return obj[key];\n}\n~~~\nAppeler `getProp(person, 'name')` renvoie un `string` ; `getProp(person, 'age')` renvoie un `number` — le type suit la clé automatiquement, sans aucun cast nécessaire.\n> WARNING — `keyof T` est l'**union des NOMS de propriétés**, pas les valeurs. Et `T[K]` est le **type À** cette clé, pas la clé elle-même. Les confondre est le piège classique du débutant — `keyof` vous donne `'name' | 'age'`, tandis que `T['name']` vous donne le type de valeur `string`.\n> INTEL — La contrainte `K extends keyof T` est ce qui garde la clé honnête : elle force `K` à être l'une des vraies clés de `T`, de sorte que le compilateur rejette tout nom qui n'est pas réellement sur l'objet — détecté à la compilation, jamais à l'exécution."
       },
       "tsm0a-transforms": {
         "title": "TRANSFORMATIONS TYPÉES",
-        "subtitle": "filter · generic reduce · predicate counting",
-        "theory": "## Les transformations conservent leurs types\n`filter`, `map` et `reduce` restent tous typés en toute sécurité. Un callback générique vous permet de replier n'importe quel type d'élément.\n~~~ts\nfunction sumBy<T>(xs: T[], f: (x: T) => number): number {\n  return xs.reduce((acc, x) => acc + f(x), 0);\n}\n~~~\n## Les prédicats\nUn **prédicat** est `(x: T) => boolean` — passez-le à `filter`, ou comptez combien d'éléments le satisfont.\n> INTEL — `reduce((acc, x) => ..., start)` est le pliage universel : somme, maximum, construction d'un objet, n'importe quoi."
+        "subtitle": "filter · reduce générique · comptage par prédicat",
+        "theory": "## Les transformations conservent leurs types\n**QUOI** — `filter`, `map` et `reduce` remodèlent un tableau sans jeter le type aux orties. Donnez-leur un\n`number[]` et vous récupérez encore des nombres typés. **POURQUOI** — le compilateur surveille chaque élément, donc une\nfaute de frappe dans le callback est interceptée avant même que le code ne s'exécute.\n## Callbacks génériques avec `<T>`\n**QUOI** — un `<T>` sur la fonction permet à une seule transformation de fonctionner sur n'importe quel type d'élément, pas seulement les nombres. **POURQUOI** —\nécrivez le pliage une fois, réutilisez-le sur des utilisateurs, des paquets, des prix — quoi que `T` finisse par désigner au point d'appel.\n~~~ts\nfunction sumBy<T>(xs: T[], f: (x: T) => number): number {\n  return xs.reduce((acc, x) => acc + f(x), 0);  // acc starts at 0\n}\n~~~\n> WARNING — `reduce` a besoin de la **bonne valeur initiale**. Le deuxième argument (`0` ci-dessus) fixe à la fois la valeur de départ ET\nle type de `acc`. Oubliez-le et `acc` devient le premier élément, ce qui casse un tableau vide et peut mal typer\nle résultat. Passez toujours une valeur initiale qui correspond à votre type de retour.\n## Prédicats\n**QUOI** — un **prédicat** n'est qu'une fonction `(x: T) => boolean` qui répond oui/non pour un élément. **POURQUOI**\n— confiez-le à `filter` pour conserver les correspondances, ou `.filter(pred).length` pour compter combien ont passé le filtre.\n~~~ts\nconst longs = words.filter((w) => w.length >= 4);  // keeps the matches\nconst howMany = words.filter((w) => w.length >= 4).length;  // counts them\n~~~\n> INTEL — `reduce((acc, x) => ..., start)` est le pliage universel : somme, maximum, construction d'un objet, n'importe quoi. `filter`\net `map` ne sont que les deux pliages que vous dégainez le plus souvent."
       },
       "tsm0b-nullsafe": {
         "title": "SÛRETÉ NULL",
-        "subtitle": "champs optionnels · ?. · ?? · conserver les valeurs falsy",
-        "theory": "## Champs optionnels\nUn `?` sur un champ signifie qu'il peut valoir **undefined** — le compilateur vous force à gérer ce cas.\n~~~ts\ninterface User { name?: string }\n~~~\n## ?? et ?.\n**??** fournit une valeur de repli uniquement quand le côté gauche vaut `null`/`undefined` (PAS pour 0 ni '').\n**?.** lit à travers un objet potentiellement absent sans planter.\n~~~ts\nuser.name ?? 'ANON';\nuser.address?.city ?? 'UNKNOWN';\n~~~\n## Le piège des valeurs falsy\n`x || fallback` remplace à tort `0` et `''`. Utilisez `x ?? fallback` (ou un test explicite `=== undefined`)\nquand zéro/chaîne vide sont des valeurs valides.\n> INTEL — `??` ne s'intéresse qu'à null/undefined ; `||` se déclenche sur chaque valeur falsy. Choisissez délibérément."
+        "subtitle": "champs optionnels · ?. · ?? · préserver les valeurs falsy",
+        "theory": "## Champs optionnels\n**QUOI** — un `?` après le nom d'un champ le marque comme optionnel : la valeur peut être **undefined**. **POURQUOI** — les données réelles\nsont pleines de trous (un utilisateur sans adresse pour l'instant), et le type dit la vérité au lieu de faire croire que le champ\nest toujours présent.\n~~~ts\ninterface User { name?: string }  // name may be undefined\n~~~\n> WARNING — dès qu'un champ est `?`, le compilateur refuse de vous laisser l'utiliser aveuglément. Vous devez d'abord traiter le cas\nmanquant — c'est tout l'enjeu.\n## Chaînage optionnel `?.`\n**QUOI** — `a?.b` lit `b` uniquement si `a` existe ; si `a` vaut `null`/`undefined`, l'expression entière\ncourt-circuite vers `undefined` au lieu de planter. **POURQUOI** — cela vous permet d'atteindre un objet imbriqué peut-être absent\nen une seule ligne, sans échelle de `if` manuelle.\n~~~ts\nuser.address?.city  // undefined if address is missing — no crash\n~~~\n> WARNING — `?.` s'arrête au PREMIER maillon manquant et renvoie `undefined`. Donc `a?.b.c` plante quand même si `b` est\nabsent — mettez un `?.` sur chaque saut susceptible d'être absent : `a?.b?.c`.\n## Coalescence nullish `??`\n**QUOI** — `x ?? fallback` renvoie `x` sauf si `x` vaut `null`/`undefined`, auquel cas il renvoie `fallback`.\n**POURQUOI** — il fournit une valeur par défaut UNIQUEMENT pour les valeurs réellement manquantes, en laissant les vraies données tranquilles.\n~~~ts\nuser.name ?? 'ANON';              // default only when name is missing\nuser.address?.city ?? 'UNKNOWN';  // chain + default, the classic combo\n~~~\n## Le piège des falsy — le gros morceau\n**QUOI** — l'ancien `x || fallback` se déclenche sur CHAQUE valeur falsy, il jette donc à tort un `0` ou un\n`''` valide. **POURQUOI** `??` existe — il ne se déclenche que sur `null`/`undefined`, donc un zéro légitime et une chaîne vide survivent.\n~~~ts\n0 || 5    // 5  — WRONG, the real 0 was discarded\n0 ?? 5    // 0  — correct, 0 is a real value and is kept\n'' ?? 'x' // ''  — empty string kept too\n~~~\n> WARNING — c'est le bug le plus courant ici : dégainer `||` alors que `0` ou `''` sont valides. Utilisez `??`\n(ou un test explicite `=== undefined`) chaque fois que le zéro/la chaîne vide doivent être préservés.\n> INTEL — `??` ne se soucie que de null/undefined ; `||` se déclenche sur chaque valeur falsy. Choisissez délibérément."
       },
       "tsm0c-errors": {
         "title": "GESTION DES ERREURS",
-        "subtitle": "throw · try/catch · typed Result unions",
-        "theory": "## Lever une erreur sur une saisie invalide\nRejetez bruyamment les états impossibles au lieu de renvoyer un nombre erroné.\n~~~ts\nfunction toInt(s: string): number {\n  const n = Number(s);\n  if (isNaN(n)) throw new Error('not a number');\n  return n;\n}\n~~~\n## Le motif Result typé\nLever une erreur n'est pas toujours la meilleure option. Une union **Result** rend le succès et l'échec explicites dans le type — l'appelant\ndoit vérifier avant d'utiliser la valeur.\n~~~ts\ntype Result = { ok: true; value: number } | { ok: false };\nfunction tryParse(s: string): Result {\n  const n = Number(s);\n  return isNaN(n) ? { ok: false } : { ok: true, value: n };\n}\n~~~\n> INTEL — `{ ok: true; value: T } | { ok: false }` impose une vérification de `.ok` avant que `.value` ne soit accessible."
+        "subtitle": "throw · try/catch · unions Result typées",
+        "theory": "## Lever une erreur sur entrée invalide\n**QUOI** — `throw new Error('...')` interrompt immédiatement la fonction et propage une erreur typée en remontant la pile d'appels.\n**POURQUOI** — une entrée invalide doit échouer bruyamment, et non se faufiler sous la forme d'un nombre erroné qui corrompt tout en aval.\n~~~ts\nfunction toInt(s: string): number {\n  const n = Number(s);\n  if (isNaN(n)) throw new Error('not a number');\n  return n;  // only reached when input is valid\n}\n~~~\n## Capturer ce que les autres lèvent\n**QUOI** — enveloppez les appels risqués dans `try { ... } catch (e) { ... }` afin qu'une erreur levée devienne une valeur que vous pouvez traiter.\n**POURQUOI** — sans `catch`, un seul throw fait planter tout le programme ; avec lui, vous récupérez ou signalez l'erreur proprement.\n~~~ts\ntry {\n  const n = toInt(raw);\n} catch (e) {\n  const msg = e instanceof Error ? e.message : String(e);\n}\n~~~\n> WARNING — dans `catch (e)`, l'erreur est typée `unknown` — affinez-la avec `e instanceof Error` avant de toucher à `.message`.\n## Le motif Result typé\n**QUOI** — une union **Result**, `{ ok: true; value: T } | { ok: false; error: string }`, renvoie l'échec sous forme de donnée.\n**POURQUOI** — au lieu de lever une erreur, vous RENVOYEZ l'échec, de sorte que l'appelant ne peut pas atteindre `.value` sans avoir d'abord vérifié `.ok`.\n~~~ts\ntype Result = { ok: true; value: number } | { ok: false; error: string };\nfunction tryParse(s: string): Result {\n  const n = Number(s);\n  return isNaN(n) ? { ok: false, error: 'NaN' } : { ok: true, value: n };\n}\n~~~\n> INTEL — l'union impose `if (r.ok)` avant que `r.value` ne compile — l'échec devient impossible à ignorer."
       },
       "tsm0d-stralgo": {
         "title": "ALGORITHMES DE CHAÎNES",
-        "subtitle": "reverse · palindrome · word count",
-        "theory": "## Des chaînes aux tableaux et retour\n`split('')` éclate une chaîne en caractères ; transformez, puis `join('')`.\n~~~ts\n'lain'.split('').reverse().join('');  // 'nial'\n~~~\n## Normaliser avant les comparaisons\nPassez en minuscules et retirez les caractères non alphabétiques avant de tester les palindromes ou les anagrammes.\n## Compter les mots\n`trim()` puis découpage sur les espaces — mais attention à la chaîne vide, qui se découpe en `['']` (longueur 1, ce qui est faux).\n> INTEL — `s.trim().split(/\\s+/)` regroupe les suites d'espaces ; traitez '' à part pour qu'elle compte pour 0 mot."
+        "subtitle": "inversion · palindrome · comptage de mots",
+        "theory": "## Des chaînes aux tableaux et retour\n**QUOI** — `split('')` éclate une chaîne en un tableau de caractères ; vous le transformez, puis `join('')` reconstruit une chaîne.\n**POURQUOI** — les chaînes sont immuables, donc les méthodes de tableau comme `reverse()` et `map()` sont votre seul moyen de les retravailler caractère par caractère.\n~~~ts\n'lain'.split('').reverse().join('');  // 'nial'\n~~~\n## Normaliser avant de comparer\n**QUOI** — aplatissez la casse et retirez le bruit d'abord : `.toLowerCase()` plus `.replace(/[^a-z0-9]/g, '')`.\n**POURQUOI** — un test de palindrome ou d'anagramme doit ignorer les majuscules et la ponctuation, donc 'Lain' et 'lain' doivent paraître identiques.\n~~~ts\nconst clean = s.toLowerCase().replace(/[^a-z0-9]/g, '');\nconst isPal = clean === clean.split('').reverse().join('');\n~~~\n> WARNING — comparez les chaînes NORMALISÉES, pas les brutes — sinon l'espacement ou la casse brise discrètement la correspondance.\n## Compter les mots\n**QUOI** — `s.trim().split(/\\s+/)` découpe sur les suites d'espaces ; sa `.length` est le nombre de mots.\n**POURQUOI** — `trim()` supprime les espaces de bord et `\\s+` fusionne les doubles espaces, donc une entrée brouillonne se compte quand même correctement.\n~~~ts\nconst words = s.trim() === '' ? 0 : s.trim().split(/\\s+/).length;\n~~~\n> INTEL — gardez-vous de la chaîne vide : `''.split(/\\s+/)` renvoie `['']` (length 1), alors traitez '' à part comme 0 mot."
       },
       "tsm0e-math": {
         "title": "NOMBRES & MATHS",
-        "subtitle": "clamp · gcd · primality",
-        "theory": "## Clamp\nVerrouillez une valeur dans un intervalle : `Math.max(lo, Math.min(x, hi))`.\n## PGCD d'Euclide\nRemplacez `(a, b)` par `(b, a % b)` jusqu'à ce que `b` soit à 0 — alors `a` est le plus grand commun diviseur.\n## Primalité jusqu'à √n\nNe testez les diviseurs que jusqu'à la racine carrée ; `i * i <= n` évite les erreurs de virgule flottante.\n> INTEL — Les comparaisons entières (`i * i <= n`) surpassent `Math.sqrt` en exactitude."
+        "subtitle": "clamp · pgcd · primalité",
+        "theory": "## Clamp\nLe **clamping** force un nombre à rester à l'intérieur d'un intervalle `[lo, hi]`. **Pourquoi :** curseurs, barres de vie et limiteurs ne doivent jamais déborder de leurs bornes. Prenez le plus petit de `x` et `hi`, puis le plus grand de ce résultat et `lo`.\n~~~ts\nconst safe = Math.max(lo, Math.min(x, hi));\n~~~\n> WARNING — L'arithmétique décimale est floue : `0.1 + 0.2` vaut `0.30000000000000004`, pas `0.3`. Ne testez jamais des flottants avec `===` ; comparez avec une petite tolérance ou ramenez à des entiers.\n## PGCD d'Euclide\nLe **plus grand commun diviseur** est le plus grand nombre qui divise deux valeurs sans reste. **Pourquoi :** il réduit les fractions et révèle des rythmes communs. L'astuce d'Euclide : remplacez sans cesse `(a, b)` par `(b, a % b)` jusqu'à ce que `b` atteigne 0 — alors `a` est la réponse.\n~~~ts\nwhile (b !== 0) { const r = a % b; a = b; b = r; }\n~~~\n## Primalité jusqu'à √n\nUn **nombre premier** n'a aucun diviseur hormis 1 et lui-même. **Pourquoi ne vérifier que jusqu'à √n :** si `n` avait un facteur plus grand que sa racine carrée, le co-facteur correspondant serait plus petit — et vous l'auriez déjà détecté. Donc `i * i <= n` couvre tout le balayage.\n~~~ts\nfor (let i = 2; i * i <= n; i++) { if (n % i === 0) return false; }\n~~~\n> INTEL — Boucler jusqu'à `n` fonctionne aussi mais gaspille l'essentiel de l'effort ; s'arrêter à √n donne la même réponse, bien plus vite. L'entier `i * i <= n` esquive en prime les arrondis de `Math.sqrt`."
       },
       "tsm0f-modeling": {
         "title": "MODÉLISATION DES DONNÉES",
         "subtitle": "mise à jour immuable · intersection (A & B) · valeurs par défaut Partial<T>",
-        "theory": "## Mise à jour immuable\nCopiez et redéfinissez avec le spread d'objet — ne mutez jamais l'objet de l'appelant.\n~~~ts\nconst updated = { ...item, name: 'new' };\n~~~\n## Types intersection\nFusionner deux objets produit **A & B** — une valeur dotée des membres des deux.\n## Partial<T>\n`Partial<T>` rend chaque champ optionnel — parfait pour un objet d'« overrides » superposé à des valeurs par défaut complètes.\n~~~ts\nfunction withDefaults<T>(over: Partial<T>, base: T): T {\n  return { ...base, ...over } as T;\n}\n~~~\n> INTEL — Les derniers spreads l'emportent : `{ ...base, ...over }` laisse `over` redéfinir `base`."
+        "theory": "## Mise à jour immuable\nUne **mise à jour immuable** crée une copie neuve avec un seul champ modifié au lieu de retoucher l'original. **Pourquoi :** muter un objet partagé provoque des bugs fantômes ailleurs. Le **spread** `...item` recopie chaque champ existant, et toute clé que vous ajoutez ensuite l'emporte sur lui.\n~~~ts\nconst updated = { ...item, name: 'new' };  // item is untouched\n~~~\n> WARNING — `item.name = 'new'` modifie l'objet de l'appelant en place. Faites un SPREAD dans un nouvel objet à la place — copiez, ne mutez pas.\n## Types intersection\nUne **intersection** `A & B` est une valeur qui satisfait **les deux** formes à la fois — elle possède chaque champ de `A` et chaque champ de `B`. **Pourquoi :** combiner deux enregistrements (réglages + métadonnées) produit exactement ceci.\n~~~ts\ntype Merged = { x: number } & { y: number };  // needs x AND y\n~~~\n> WARNING — `A & B` n'est pas « l'un ou l'autre ». Une valeur à laquelle manque un champ de `A` ou de `B` ne convient pas — elle doit porter les deux.\n## Partial<T>\n`Partial<T>` est un type intégré qui recopie `T` mais rend **chaque champ optionnel**. **Pourquoi :** un objet d'« overrides » doit pouvoir ne fixer qu'une ou deux clés, puis se superposer à un ensemble complet de valeurs par défaut.\n~~~ts\nfunction withDefaults<T>(over: Partial<T>, base: T): T {\n  return { ...base, ...over } as T;  // over wins on overlap\n}\n~~~\n> INTEL — Les spreads ultérieurs l'emportent : dans `{ ...base, ...over }`, toute clé de `over` redéfinit la même clé de `base`. Inversez l'ordre et les valeurs par défaut écraseraient vos overrides à la place."
       },
       "tsm10-algos": {
         "title": "ALGORITHMES",
-        "subtitle": "binary search · is-sorted · generic chunk",
-        "theory": "## Recherche dichotomique\nDivisez par deux un tableau **trié** à chaque étape : comparez l'élément du milieu, puis allez à gauche ou à droite. Environ 20 étapes pour un million d'éléments.\n## Découpage en blocs\nDécoupez un tableau en groupes de taille fixe en avançant l'indice de `size` puis en appelant `slice(i, i + size)`.\n> INTEL — Un découpeur générique `<T>` conserve le type des éléments d'un bout à l'autre, jusqu'à `T[][]`."
+        "subtitle": "recherche dichotomique · is-sorted · chunk générique",
+        "theory": "## Recherche dichotomique\n**La recherche dichotomique** trouve une valeur en divisant par deux la fenêtre de recherche à chaque étape : on vérifie le milieu, puis on ne garde que la moitié gauche ou droite. **Pourquoi :** doubler les données n'ajoute qu'une seule étape — ~20 sauts pour trouver un élément parmi un million.\n~~~ts\nconst mid = (lo + hi) >> 1;  // midpoint, floored\n~~~\n> WARNING — La recherche dichotomique ne fonctionne QUE sur un tableau **trié**. Sur des données non triées, elle renvoie silencieusement de mauvaises réponses — triez d'abord, ou utilisez un balayage linéaire.\n## Is-sorted\n**isSorted** confirme qu'une séquence ne revient jamais en arrière (croissante au sens large). **Pourquoi :** elle protège les entrées d'algorithmes comme la recherche dichotomique. Parcourez le tableau et abandonnez dès qu'un élément est plus petit que celui qui le précède.\n~~~ts\nfor (let i = 1; i < xs.length; i++) if (xs[i] < xs[i - 1]) return false;\n~~~\n## Découpage en blocs\n**Le découpage** tranche un tableau en groupes de taille fixe (le dernier peut être plus court). **Pourquoi :** la pagination et le traitement par lots. Avancez l'indice de `size` et récupérez `slice(i, i + size)` à chaque tour.\n~~~ts\nfor (let i = 0; i < xs.length; i += size) out.push(xs.slice(i, i + size));\n~~~\n> INTEL — Un découpeur générique `<T>` transmet le type des éléments directement jusqu'à `T[][]`, donc les nombres restent `number[][]` et les chaînes restent `string[][]` — aucun cast à la sortie."
       }
     },
     "exercises": {
       "ts-amplify": {
         "title": "AMPLIFIE LE SIGNAL",
-        "brief": "Amplifiez une transmission faible - avec des types cette fois.",
+        "brief": "Boostez une transmission faible - avec des types, cette fois.",
         "hint": "return signal * 2;",
-        "prompt": "Définissez **amplify(signal: number): number** qui **renvoie** le signal au double de l'amplitude.\n~~~ts\namplify(21) // 42\namplify(-3) // -6\n~~~"
+        "prompt": "Définissez **amplify(signal: number): number** qui **renvoie** le signal à amplitude doublée.\n~~~ts\namplify(21) // 42\namplify(-3) // -6\n~~~"
       },
       "ts-boot": {
         "title": "SÉQUENCE DE DÉMARRAGE",
-        "brief": "Mettez un superordinateur en ligne avec un retour de chaîne typé.",
+        "brief": "Mettez un superordinateur en ligne avec un retour de type string.",
         "hint": "return `${name} online. All systems nominal.`;",
-        "prompt": "Définissez **bootMessage(name: string): string** renvoyant la ligne ci-dessous. Utilisez un littéral de gabarit.\n~~~text\n<name> online. All systems nominal.\n~~~\n~~~ts\nbootMessage('MAGI') // 'MAGI online. All systems nominal.'\n~~~"
+        "prompt": "Définissez **bootMessage(name: string): string** qui renvoie la ligne ci-dessous. Utilisez un littéral de gabarit.\n~~~text\n<name> online. All systems nominal.\n~~~\n~~~ts\nbootMessage('MAGI') // 'MAGI online. All systems nominal.'\n~~~"
       },
       "ts-status": {
         "title": "LITTÉRAL DE STATUT",
         "brief": "Contraignez la saisie à un menu fixe avec une union de littéraux.",
         "hint": "Comparez d à chaque littéral avec === et renvoyez le nombre correspondant.",
         "prompt": "Une **union de littéraux de chaîne** restreint la saisie à un ensemble précis. Définissez le type **Drive = 'COLD' | 'WARM' | 'HOT'** et une fonction **thrust(d: Drive): number** renvoyant :\n- COLD -> 0\n- WARM -> 50\n- HOT -> 100\n~~~ts\nthrust('HOT') // 100\n~~~"
+      },
+      "ts-greet": {
+        "title": "POIGNÉE DE MAIN",
+        "brief": "Ouvrez un canal par son nom.",
+        "hint": "return 'hi ' + name;",
+        "prompt": "Définissez **greet(name: string): string** renvoyant `hi ` suivi du nom.\n~~~ts\ngreet('Spike') // 'hi Spike'\n~~~"
+      },
+      "ts-adult": {
+        "title": "CONTRÔLE D'ÂGE",
+        "brief": "Verrou booléen sur un seuil numérique.",
+        "hint": "return age >= 18;",
+        "prompt": "Définissez **isAdult(age: number): boolean** qui renvoie `true` quand `age` vaut **18 ou plus**, sinon `false`.\n~~~ts\nisAdult(18) // true\nisAdult(17) // false\n~~~"
+      },
+      "ts-credits": {
+        "title": "COMPTEUR DE CRÉDITS",
+        "brief": "Formatez un nombre en devise avec deux décimales.",
+        "hint": "return '$' + n.toFixed(2);",
+        "prompt": "Définissez **credits(n: number): string** renvoyant `$` suivi de `n` fixé à **deux décimales**. Utilisez `n.toFixed(2)`.\n~~~ts\ncredits(5) // '$5.00'\ncredits(2.5) // '$2.50'\n~~~"
+      },
+      "ts-rank": {
+        "title": "RANG DE MENACE",
+        "brief": "Mappez une union de littéraux vers un niveau numérique.",
+        "hint": "Comparez p à chaque littéral avec === et renvoyez 0, 1 ou 2.",
+        "prompt": "Une **union de littéraux de chaîne** épingle la saisie à un ensemble précis. Définissez le type **Priority = 'LOW' | 'MED' | 'HIGH'** et une fonction **rank(p: Priority): number** renvoyant :\n- LOW -> 0\n- MED -> 1\n- HIGH -> 2\n~~~ts\nrank('HIGH') // 2\n~~~"
+      },
+      "ts-flip": {
+        "title": "INTERRUPTEUR D'ARRÊT",
+        "brief": "Inversez un booléen et renvoyez le résultat typé.",
+        "hint": "return !b;",
+        "prompt": "Définissez **flip(b: boolean): boolean** qui renvoie l'**opposé** de `b`. Utilisez l'opérateur `!`.\n~~~ts\nflip(true) // false\nflip(false) // true\n~~~"
       },
       "ts-operator": {
         "title": "DOSSIER OPÉRATEUR",
@@ -1857,11 +1887,41 @@ window.CONTENT_FR = {
         "hint": "Testez k === undefined explicitement pour que passer 0 ne déclenche pas la valeur par défaut.",
         "prompt": "Définissez **scaleVec(v: [number, number], k?: number): [number, number]** qui multiplie les deux composantes par **k**. Si **k** est omis, utilisez **2** par défaut.\n~~~ts\nscaleVec([3, 4])    // [6, 8]\nscaleVec([3, 4], 0) // [0, 0]\n~~~"
       },
+      "ts-agentid": {
+        "title": "BADGE D'AGENT",
+        "brief": "Estampiller le nom et le niveau d'habilitation d'un agent.",
+        "hint": "return `${a.name} L${a.level}`; — le L se place entre les deux interpolations.",
+        "prompt": "Définissez `interface Agent { name: string; level: number }` et **label(a: Agent): string** qui renvoie `<name> L<level>` construit avec un **littéral de gabarit**.\n~~~ts\nlabel({ name: 'Faye', level: 3 }) // 'Faye L3'\n~~~"
+      },
+      "ts-topagent": {
+        "title": "BALAYAGE DE RANG",
+        "brief": "Nommer l'agent au plus haut niveau du tableau.",
+        "hint": "Renvoyez '' d'abord si le tableau est vide, puis bouclez en conservant l'agent dont le level est strictement supérieur.",
+        "prompt": "Avec `interface Agent { name: string; level: number }`, définissez **topAgent(agents: Agent[]): string** qui renvoie le **name** de l'agent ayant le **level** le plus élevé. Un tableau **vide** renvoie **''**.\n~~~ts\ntopAgent([{ name: 'Faye', level: 3 }, { name: 'Spike', level: 8 }]) // 'Spike'\ntopAgent([]) // ''\n~~~"
+      },
+      "ts-swap": {
+        "title": "RETOURNEMENT DE TUPLE",
+        "brief": "Inverser une paire de forme fixe de bout en bout.",
+        "hint": "return [p[1], p[0]]; — l'emplacement 1 (le nombre) passe en premier, l'emplacement 0 (la chaîne) en second.",
+        "prompt": "Définissez **swap(p: [string, number]): [number, string]** qui renvoie un nouveau tuple avec les deux emplacements **inversés** : le nombre d'abord, la chaîne ensuite.\n~~~ts\nswap(['hp', 100]) // [100, 'hp']\n~~~"
+      },
+      "ts-tag": {
+        "title": "SUFFIXE DE CŒUR",
+        "brief": "Ajouter un suffixe d'indicatif, avec le cœur par défaut.",
+        "hint": "return name + (suffix ?? '-CORE'); — ?? ne bascule sur la valeur de repli que pour null/undefined, donc '' reste.",
+        "prompt": "Définissez **tag(name: string, suffix?: string): string** qui renvoie `name` avec `suffix` ajouté à la fin. Lorsque `suffix` est **omis**, utilisez **'-CORE'** par défaut à l'aide de l'opérateur **`??`**.\n~~~ts\ntag('NODE')        // 'NODE-CORE'\ntag('NODE', '-7')  // 'NODE-7'\n~~~"
+      },
+      "ts-manhattan": {
+        "title": "DISTANCE DE GRILLE",
+        "brief": "Mesurer la distance « taxi » d'un point par rapport à l'origine.",
+        "hint": "return Math.abs(p.x) + Math.abs(p.y); — la distance n'est jamais négative.",
+        "prompt": "Définissez `type Point = { x: number; y: number }` et **manhattan(p: Point): number** qui renvoie la **distance de Manhattan** depuis l'origine : `Math.abs(p.x) + Math.abs(p.y)`.\n~~~ts\nmanhattan({ x: 3, y: 4 })   // 7\nmanhattan({ x: -2, y: 5 })  // 7\n~~~"
+      },
       "ts-last": {
         "title": "POINTEUR DE QUEUE",
-        "brief": "Un générique qui renvoie le dernier élément, en préservant le type.",
+        "brief": "Un générique qui renvoie le dernier élément, type préservé.",
         "hint": "xs[xs.length - 1]",
-        "prompt": "Définissez un générique **lastOf<T>(xs: T[]): T** qui renvoie le dernier élément du tableau.\n~~~ts\nlastOf([1, 2, 3])           // 3\nlastOf(['Spike', 'Jet'])    // 'Jet'\n~~~"
+        "prompt": "Définissez un générique **lastOf<T>(xs: T[]): T** renvoyant le dernier élément du tableau.\n~~~ts\nlastOf([1, 2, 3])           // 3\nlastOf(['Spike', 'Jet'])    // 'Jet'\n~~~"
       },
       "ts-pair": {
         "title": "PAIRE INTRIQUÉE",
@@ -1871,19 +1931,49 @@ window.CONTENT_FR = {
       },
       "ts-pluck": {
         "title": "EXTRACTEUR DE CHAMP",
-        "brief": "Un map générique qui extrait un champ nommé de chaque enregistrement.",
+        "brief": "Une projection générique qui extrait un champ nommé de chaque enregistrement.",
         "hint": "xs.map((x) => x.name) - la contrainte promet que x.name est une chaîne.",
         "prompt": "Définissez **pluckNames<T extends { name: string }>(xs: T[]): string[]** qui renvoie le champ `name` de chaque élément. La contrainte **T extends { name: string }** garantit qu'un name existe.\n~~~ts\npluckNames([{ name: 'Rei' }, { name: 'Asuka', unit: '02' }]) // ['Rei', 'Asuka']\n~~~"
       },
+      "ts-firstof": {
+        "title": "POINTEUR DE TÊTE",
+        "brief": "Lire la tête de n'importe quel flux, type préservé.",
+        "hint": "xs.length ? xs[0] : undefined",
+        "prompt": "Définissez un générique **firstOf<T>(xs: T[]): T | undefined** renvoyant le premier élément, ou `undefined` lorsque le tableau est vide.\n~~~ts\nfirstOf([10, 20])    // 10\nfirstOf<string>([])  // undefined\n~~~"
+      },
+      "ts-identity": {
+        "title": "CHAMBRE D'ÉCHO",
+        "brief": "Renvoyer exactement ce qu'on vous a donné, type intact.",
+        "hint": "Il n'y a rien à calculer — renvoyez simplement x.",
+        "prompt": "Définissez un générique **identity<T>(x: T): T** qui renvoie simplement son argument inchangé.\nC'est le contrat le plus simple : donnez-lui un `T`, récupérez le *même* `T` — et non `any`.\n~~~ts\nidentity(7)        // 7\nidentity('Neo')    // 'Neo'\n~~~"
+      },
+      "ts-repeat": {
+        "title": "RÉPLICATEUR",
+        "brief": "Estamper n copies de n'importe quelle valeur dans un tableau.",
+        "hint": "Partez d'un T[] vide et empilez x dans une boucle qui s'exécute n fois.",
+        "prompt": "Définissez un générique **repeat<T>(x: T, n: number): T[]** renvoyant un tableau contenant `x` répété `n` fois.\nLorsque `n` vaut `0`, renvoyez un tableau vide `[]`.\n~~~ts\nrepeat('x', 3)   // ['x', 'x', 'x']\nrepeat(0, 0)     // []\n~~~"
+      },
+      "ts-swappair": {
+        "title": "INVERSION DE POLARITÉ",
+        "brief": "Permuter un tuple à deux types, en suivant le type de chaque emplacement.",
+        "hint": "Renvoyez [p[1], p[0]] — le second emplacement d'abord, le premier ensuite.",
+        "prompt": "Définissez un générique **swapPair<A, B>(p: [A, B]): [B, A]** qui renvoie un nouveau tuple avec les deux emplacements échangés.\nDeux paramètres de type maintiennent le type de chaque emplacement câblé à la bonne position.\n~~~ts\nswapPair(['id', 42])   // [42, 'id']\nswapPair([true, 'on']) // ['on', true]\n~~~"
+      },
+      "ts-dropfirst": {
+        "title": "DÉCAPITER LE FLUX",
+        "brief": "Renvoyer tout ce qui suit la tête, type des éléments préservé.",
+        "hint": "xs.slice(1) conserve tout à partir de l'index 1.",
+        "prompt": "Définissez un générique **dropFirst<T>(xs: T[]): T[]** renvoyant un nouveau tableau avec tous les éléments *sauf* le premier.\nUne entrée vide produit un tableau vide `[]`.\n~~~ts\ndropFirst([1, 2, 3])      // [2, 3]\ndropFirst<number>([])     // []\n~~~"
+      },
       "ts-isweekend": {
         "title": "VERROUILLAGE WEEK-END",
-        "brief": "Repérez les jours de repos.",
+        "brief": "Signalez les jours hors service.",
         "hint": "return d === Day.Sat || d === Day.Sun;",
         "prompt": "Étant donné **enum Day { Mon, Tue, Wed, Thu, Fri, Sat, Sun }**, définissez **isWeekend(d: Day): boolean** —\n`true` pour Sat ou Sun.\n~~~ts\nisWeekend(Day.Sat)  // true\nisWeekend(Day.Mon)  // false\n~~~"
       },
       "ts-canroot": {
         "title": "PORTE RACINE",
-        "brief": "Seul le palier le plus élevé passe.",
+        "brief": "Seul le palier le plus haut passe.",
         "hint": "return l === Level.Root;  // Root === 3",
         "prompt": "Étant donné **enum Level { Guest = 1, Operator = 2, Root = 3 }**, définissez **canRoot(l: Level): boolean**\nqui renvoie `true` uniquement pour `Root`.\n~~~ts\ncanRoot(Level.Root)   // true\ncanRoot(Level.Guest)  // false\n~~~"
       },
@@ -1893,23 +1983,83 @@ window.CONTENT_FR = {
         "hint": "return s === Signal.Green;  // 'GO'",
         "prompt": "Étant donné **enum Signal { Red = 'STOP', Green = 'GO', Yellow = 'SLOW' }**, définissez **isGo(s: Signal):\nboolean** qui renvoie `true` uniquement pour `Green`.\n~~~ts\nisGo(Signal.Green)  // true\n~~~"
       },
+      "ts-turnright": {
+        "title": "PAS DE BOUSSOLE",
+        "brief": "Faites pivoter le cap de 90 degrés dans le sens horaire.",
+        "hint": "return (d + 1) % 4;",
+        "prompt": "Un **enum** nomme un ensemble figé de valeurs. Un enum numérique se numérote tout seul à partir de 0.\nAvec `enum Dir { N, E, S, W }` (0..3), définissez **turnRight(d: Dir): Dir** qui renvoie la direction suivante dans le sens horaire, en faisant repasser W à N.\n~~~ts\nturnRight(Dir.N) // Dir.E (1)\nturnRight(Dir.W) // Dir.N (0)\n~~~"
+      },
+      "ts-levelrank": {
+        "title": "PALIER D'HABILITATION",
+        "brief": "Faites correspondre un enum de chaînes à un rang numérique.",
+        "hint": "Comparez l à Level.Low / Level.Med avec ===, sinon renvoyez 2.",
+        "prompt": "Un **enum de chaînes** épingle chaque nom à une valeur textuelle explicite.\nAvec `enum Level { Low = 'LOW', Med = 'MED', High = 'HIGH' }`, définissez **rank(l: Level): number** qui renvoie :\n- Low -> 0\n- Med -> 1\n- High -> 2\n~~~ts\nrank(Level.High) // 2\n~~~"
+      },
+      "ts-valueof": {
+        "title": "COMPTEUR DE PIÈCES",
+        "brief": "Lisez le nombre que l'enum de pièces porte déjà.",
+        "hint": "return c;",
+        "prompt": "Les membres d'un enum peuvent porter des **nombres explicites**.\nAvec `enum Coin { Penny = 1, Nickel = 5, Dime = 10 }`, définissez **valueOf(c: Coin): number** qui renvoie la valeur propre de la pièce.\n~~~ts\nvalueOf(Coin.Nickel) // 5\n~~~"
+      },
+      "ts-opposite": {
+        "title": "DEMI-TOUR",
+        "brief": "Trouvez le cap à 180 degrés de l'entrée.",
+        "hint": "return (d + 2) % 4;",
+        "prompt": "Réutilisez la boussole. Avec `enum Dir { N, E, S, W }` (0..3), définissez **opposite(d: Dir): Dir** qui renvoie le cap directement derrière vous, en bouclant autour de 4.\n~~~ts\nopposite(Dir.N) // Dir.S (2)\nopposite(Dir.E) // Dir.W (3)\n~~~"
+      },
+      "ts-issevere": {
+        "title": "SEUIL D'ALERTE",
+        "brief": "Comparez à un membre d'enum nommé.",
+        "hint": "return s >= Sev.Warn;",
+        "prompt": "Les membres d'un enum se comparent comme les nombres qu'ils sont.\nAvec `enum Sev { Info, Warn, Error }` (0..2), définissez **isSevere(s: Sev): boolean** qui renvoie `true` quand le niveau est **Warn ou supérieur**. Comparez à `Sev.Warn` plutôt qu'à un nombre brut.\n~~~ts\nisSevere(Sev.Info) // false\nisSevere(Sev.Warn) // true\n~~~"
+      },
       "ts-describe": {
         "title": "RENIFLEUR DE TYPE",
-        "brief": "Indiquez quel genre de signal est arrivé.",
+        "brief": "Signalez quel genre de signal est arrivé.",
         "hint": "if (typeof x === 'string') return 'text:' + x; else return 'num:' + x;",
-        "prompt": "Définissez **describe(x: string | number): string** qui renvoie `'text:' + x` pour une chaîne et `'num:' + x`\npour un nombre. Affinez avec `typeof`.\n~~~ts\ndescribe('hi')  // 'text:hi'\ndescribe(42)    // 'num:42'\n~~~"
+        "prompt": "Définissez **describe(x: string | number): string** qui renvoie `'text:' + x` pour une chaîne et `'num:' + x`\npour un nombre. Réduisez avec `typeof`.\n~~~ts\ndescribe('hi')  // 'text:hi'\ndescribe(42)    // 'num:42'\n~~~"
       },
       "ts-measure": {
         "title": "SONDE DE LONGUEUR",
         "brief": "Une seule sonde, deux formes d'entrée.",
         "hint": "return x.length;",
-        "prompt": "Définissez **measure(x: string | number[]): number** qui renvoie la longueur — `.length` fonctionne aussi bien pour une\nchaîne que pour un tableau, donc aucun affinage n'est nécessaire.\n~~~ts\nmeasure('wired')    // 5\nmeasure([1, 2, 3])  // 3\n~~~"
+        "prompt": "Définissez **measure(x: string | number[]): number** qui renvoie la longueur — `.length` fonctionne aussi bien pour une\nchaîne que pour un tableau, donc aucune réduction n'est nécessaire.\n~~~ts\nmeasure('wired')    // 5\nmeasure([1, 2, 3])  // 3\n~~~"
       },
       "ts-area": {
         "title": "RÉPARTITION DE FORME",
-        "brief": "Calculez l'aire à partir d'une union taggée.",
+        "brief": "Calculez l'aire à partir d'une union marquée.",
         "hint": "if (sh.kind === 'circle') return Math.PI * sh.r * sh.r; else return sh.s * sh.s;",
-        "prompt": "Avec **type Shape = { kind: 'circle'; r: number } | { kind: 'square'; s: number }**, définissez\n**area(sh: Shape): number** — cercle = π·r², carré = s². Faites un switch sur `sh.kind`.\n~~~ts\narea({ kind: 'square', s: 3 })  // 9\n~~~"
+        "prompt": "Avec **type Shape = { kind: 'circle'; r: number } | { kind: 'square'; s: number }**, définissez\n**area(sh: Shape): number** — cercle = π·r², carré = s². Branchez sur `sh.kind`.\n~~~ts\narea({ kind: 'square', s: 3 })  // 9\n~~~"
+      },
+      "ts-render": {
+        "title": "FORMAT DE SIGNAL",
+        "brief": "Deux types de charge utile, un seul formateur.",
+        "hint": "if (typeof x === 'number') return '#' + x; else return x.toUpperCase();",
+        "prompt": "Un `string | number` arrive. Définissez **render(x: string | number): string**. Si `x` est un nombre, renvoyez `'#' + x` ; si c'est une chaîne, renvoyez-la **en majuscules**. Utilisez une garde `typeof` pour réduire l'union.\n~~~ts\nrender(7) // '#7'\nrender('hi') // 'HI'\n~~~"
+      },
+      "ts-sizeof": {
+        "title": "TAILLE DE CHARGE UTILE",
+        "brief": "Une seule sonde de longueur, deux formes.",
+        "hint": "return x.length;",
+        "prompt": "Définissez **sizeOf(x: string | unknown[]): number** qui renvoie son `.length`. Une chaîne comme un tableau exposent `.length`, donc l'union se résout en une seule expression.\n~~~ts\nsizeOf('neon') // 4\nsizeOf([1, 2, 3]) // 3\n~~~"
+      },
+      "ts-legs": {
+        "title": "COMPTE DE PATTES",
+        "brief": "Comptez les membres à partir d'une union marquée.",
+        "hint": "if (a.kind === 'dog') return a.legs; else return 0;",
+        "prompt": "Une **union discriminée** marque chaque membre avec `kind`. Définissez **legsOf(a: { kind: 'dog'; legs: number } | { kind: 'snake' }): number**.\nBranchez sur `a.kind` : un `'dog'` renvoie `a.legs` ; un `'snake'` renvoie `0`.\n~~~ts\nlegsOf({ kind: 'dog', legs: 4 }) // 4\nlegsOf({ kind: 'snake' }) // 0\n~~~"
+      },
+      "ts-idtext": {
+        "title": "RÉSOLVEUR D'ID",
+        "brief": "Un id nu ou un conteneur qui en porte un.",
+        "hint": "if (typeof x === 'number') return 'ID:' + x; else return 'ID:' + x.id;",
+        "prompt": "Définissez **idText(x: number | { id: number }): string** qui renvoie `'ID:'` suivi de l'id. Si `x` est un nombre, utilisez-le directement ; sinon, lisez `x.id`. Réduisez avec une garde `typeof`.\n~~~ts\nidText(5) // 'ID:5'\nidText({ id: 9 }) // 'ID:9'\n~~~"
+      },
+      "ts-toarray": {
+        "title": "COERCITION EN LISTE",
+        "brief": "Normalisez un-ou-plusieurs en un tableau.",
+        "hint": "if (Array.isArray(x)) return x; else return [x];",
+        "prompt": "Définissez un **toArray<T>(x: T | T[]): T[]** générique. Si `x` est déjà un tableau, laissez-le passer tel quel ; sinon, emballez la valeur unique dans `[x]`. Utilisez une garde `Array.isArray` pour réduire.\n~~~ts\ntoArray(3) // [3]\ntoArray([1, 2]) // [1, 2]\n~~~"
       },
       "ts-tally": {
         "title": "RELEVÉ DE FRÉQUENCE",
@@ -1929,63 +2079,183 @@ window.CONTENT_FR = {
         "hint": "let sum = 0; for (const k in rec) sum += rec[k]; return sum;",
         "prompt": "Définissez **totalValues(rec: Record<string, number>): number** qui renvoie la somme de toutes les valeurs.\n~~~ts\ntotalValues({ a: 1, b: 2, c: 3 })  // 6\n~~~"
       },
+      "ts-getor": {
+        "title": "SAFE INDEX",
+        "brief": "Lisez une clé, ou repliez-vous.",
+        "hint": "k in r ? r[k] : d",
+        "prompt": "Définissez **getOr(r: Record<string, number>, k: string, d: number): number** qui renvoie `r[k]` quand la clé est présente, sinon `d`.\n~~~ts\ngetOr({ a: 1 }, 'a', 0) // 1\ngetOr({ a: 1 }, 'z', 0) // 0\n~~~"
+      },
+      "ts-maxkey": {
+        "title": "PEAK SIGNAL",
+        "brief": "Trouvez la clé détenant la plus grande valeur.",
+        "hint": "Track the best key so far; replace it only when r[k] is strictly greater.",
+        "prompt": "Définissez **maxKey(r: Record<string, number>): string** qui renvoie la clé dont la valeur est la **plus élevée**.\nSur un record **vide**, renvoyez `''`. En cas d'égalité, renvoyez la **première** clé vue avec ce max.\n~~~ts\nmaxKey({ a: 1, b: 5, c: 3 }) // 'b'\nmaxKey({}) // ''\n~~~"
+      },
+      "ts-counttrue": {
+        "title": "LIVE COUNT",
+        "brief": "Comptez combien de drapeaux sont levés.",
+        "hint": "Loop the keys and add 1 for every truthy value.",
+        "prompt": "Définissez **countTrue(r: Record<string, boolean>): number** qui renvoie **combien de valeurs valent `true`**.\n~~~ts\ncountTrue({ a: true, b: false, c: true }) // 2\ncountTrue({}) // 0\n~~~"
+      },
+      "ts-invert": {
+        "title": "MIRROR MAP",
+        "brief": "Échangez chaque clé avec sa valeur.",
+        "hint": "const out = {}; for (const k in r) out[r[k]] = k; return out;",
+        "prompt": "Définissez **invert(r: Record<string, string>): Record<string, string>** qui renvoie un **nouveau** record où chaque valeur devient une clé et chaque clé devient sa valeur.\n~~~ts\ninvert({ a: 'x', b: 'y' }) // { x: 'a', y: 'b' }\ninvert({}) // {}\n~~~"
+      },
+      "ts-addbucket": {
+        "title": "BUCKET PUSH",
+        "brief": "Ajoutez à un décompte sans toucher à l'original.",
+        "hint": "Copy r into a new object first, then set out[k] = (k in out ? out[k] : 0) + n.",
+        "prompt": "Définissez **addToBucket(r: Record<string, number>, k: string, n: number): Record<string, number>** qui renvoie un **nouveau** record où `r[k]` est augmenté de `n`. Une clé absente démarre à **0**. Ne mutez **pas** l'entrée.\n~~~ts\naddToBucket({ a: 1 }, 'a', 5) // { a: 6 }\naddToBucket({ a: 1 }, 'b', 3) // { a: 1, b: 3 }\n~~~"
+      },
       "ts-account": {
         "title": "LA CHAMBRE FORTE",
         "brief": "Un solde que personne ne peut corrompre directement.",
-        "hint": "Stockez this.balance ; withdraw renvoie false quand n > this.balance avant de changer quoi que ce soit.",
-        "prompt": "Définissez une classe **Account** avec un solde **private** (le constructeur prend un montant de départ, par défaut 0),\n**deposit(n)**, **withdraw(n)** (renvoie `false` et ne change rien si `n` dépasse le solde, sinon\nsoustrait et renvoie `true`), et **getBalance()**.\n~~~ts\nconst a = new Account(100);\na.deposit(50);     // balance 150\na.withdraw(200);   // false (insufficient)\n~~~"
+        "hint": "Stockez this.balance ; withdraw retourne false quand n > this.balance avant de changer quoi que ce soit.",
+        "prompt": "Définissez une classe **Account** avec un solde **private** (le constructeur prend un montant de départ, par défaut 0),\n**deposit(n)**, **withdraw(n)** (retourne `false` et ne change rien si `n` dépasse le solde, sinon\nsoustrait et retourne `true`), et **getBalance()**.\n~~~ts\nconst a = new Account(100);\na.deposit(50);     // balance 150\na.withdraw(200);   // false (insufficient)\n~~~"
       },
       "ts-vec2": {
         "title": "ADDITION VECTORIELLE",
         "brief": "Raccourci de constructeur, addition immuable.",
         "hint": "return new Vec2(this.x + o.x, this.y + o.y);",
-        "prompt": "Définissez une classe **Vec2** en utilisant le raccourci de constructeur `(public x: number, public y: number)`, avec\n**add(o: Vec2): Vec2** qui renvoie un **nouveau** Vec2 formé de la somme des composantes.\n~~~ts\nnew Vec2(1, 2).add(new Vec2(3, 4))  // Vec2(4, 6)\n~~~"
+        "prompt": "Définissez une classe **Vec2** en utilisant le raccourci de constructeur `(public x: number, public y: number)`, avec\n**add(o: Vec2): Vec2** retournant un **nouveau** Vec2 composé des sommes des composantes.\n~~~ts\nnew Vec2(1, 2).add(new Vec2(3, 4))  // Vec2(4, 6)\n~~~"
       },
       "ts-genstack": {
         "title": "PILE TYPÉE",
-        "brief": "Une pile LIFO générique qui conserve son type d'élément.",
-        "hint": "Appuyez-vous sur un T[] privé ; push/pop/size délèguent au tableau.",
+        "brief": "Une LIFO générique qui conserve le type de ses éléments.",
+        "hint": "Appuyez-la sur un T[] privé ; push/pop/size délèguent au tableau.",
         "prompt": "Définissez une classe générique **Stack<T>** avec **push(x: T): void**, **pop(): T | undefined**, et\n**size(): number**.\n~~~ts\nconst s = new Stack<number>();\ns.push(1); s.push(2);\ns.pop();   // 2\n~~~"
+      },
+      "ts-counter": {
+        "title": "COMPTEUR D'IMPULSIONS",
+        "brief": "Un décompte privé qui ne fait que monter.",
+        "hint": "private count: number = 0; puis this.count += 1 dans tick et return this.count dans value.",
+        "prompt": "Définissez une classe **Counter** avec un champ numérique **private** qui **démarre à 0**, une méthode **tick(): void** qui ajoute 1, et une méthode **value(): number** retournant le compte actuel.\n~~~ts\nconst c = new Counter();\nc.tick(); c.tick();\nc.value() // 2\n~~~"
+      },
+      "ts-box": {
+        "title": "CAISSE TYPÉE",
+        "brief": "Scellez n'importe quel contenu dans une caisse typée.",
+        "hint": "constructor(private value: T) {} puis return this.value;",
+        "prompt": "Définissez une classe générique **Box<T>** en utilisant le raccourci de constructeur `constructor(private value: T)` et une méthode **get(): T** retournant la valeur stockée.\n~~~ts\nnew Box(42).get() // 42\nnew Box('x').get() // 'x'\n~~~"
+      },
+      "ts-range": {
+        "title": "CONTRÔLE DE ZONE",
+        "brief": "La cible est-elle à l'intérieur du périmètre ?",
+        "hint": "return x >= this.lo && x <= this.hi;",
+        "prompt": "Définissez une classe **Range** en utilisant le raccourci de constructeur `constructor(private lo: number, private hi: number)` et une méthode **contains(x: number): boolean** qui vaut `true` quand `x` est compris entre `lo` et `hi` **inclus**.\n~~~ts\nconst r = new Range(1, 10);\nr.contains(1)  // true\nr.contains(11) // false\n~~~"
+      },
+      "ts-wallet": {
+        "title": "PORTEFEUILLE DE CRÉDITS",
+        "brief": "Ne dépensez que ce que vous détenez.",
+        "hint": "Stockez this.bal ; withdraw vérifie n > this.bal et retourne false avant de changer quoi que ce soit.",
+        "prompt": "Définissez une classe **Wallet** avec un solde **private**. Le constructeur prend un montant de départ (par défaut 0). Ajoutez **deposit(n: number): void**, **withdraw(n: number): boolean** (retourne `false` et ne change rien si `n` dépasse le solde, sinon soustrait et retourne `true`), et **balance(): number**.\n~~~ts\nconst w = new Wallet(100);\nw.deposit(50);   // balance 150\nw.withdraw(200); // false (insufficient)\n~~~"
+      },
+      "ts-accumulator": {
+        "title": "SOMME GLISSANTE",
+        "brief": "Repliez un flux de nombres en un seul total.",
+        "hint": "private sum = 0; dans add, faites this.sum += n puis return this.sum.",
+        "prompt": "Définissez une classe **Accumulator** avec un total **private** qui **démarre à 0**. Ajoutez **add(n: number): number** qui ajoute `n` au total et **retourne le nouveau total courant**, et **total(): number** retournant le total actuel.\n~~~ts\nconst acc = new Accumulator();\nacc.add(3) // 3\nacc.add(4) // 7\nacc.total() // 7\n~~~"
       },
       "ts-applytwice": {
         "title": "DOUBLE FRAPPE",
         "brief": "Faites passer une transformation à travers elle-même.",
         "hint": "return f(f(x));",
-        "prompt": "Définissez **applyTwice(f: (n: number) => number, x: number): number** qui renvoie `f(f(x))`.\n~~~ts\napplyTwice((n) => n + 1, 5)  // 7\n~~~"
+        "prompt": "Définissez **applyTwice(f: (n: number) => number, x: number): number** renvoyant `f(f(x))`.\n~~~ts\napplyTwice((n) => n + 1, 5)  // 7\n~~~"
       },
       "ts-mapnums": {
         "title": "MAP TYPÉE",
         "brief": "Transformez un tableau de nombres avec un callback.",
         "hint": "return xs.map(f);",
-        "prompt": "Définissez **mapNums(xs: number[], f: (n: number) => number): number[]** qui applique `f` à chaque élément.\n~~~ts\nmapNums([1, 2, 3], (x) => x * x)  // [1, 4, 9]\n~~~"
+        "prompt": "Définissez **mapNums(xs: number[], f: (n: number) => number): number[]** appliquant `f` à chaque élément.\n~~~ts\nmapNums([1, 2, 3], (x) => x * x)  // [1, 4, 9]\n~~~"
       },
       "ts-sumall": {
         "title": "SOMME VARIADIQUE",
         "brief": "Additionnez autant de signaux qu'il en arrive.",
         "hint": "nums.reduce((a, b) => a + b, 0)",
-        "prompt": "Définissez **sumAll(...nums: number[]): number** qui renvoie la somme de tous les arguments (0 s'il n'y en a aucun).\n~~~ts\nsumAll(1, 2, 3)  // 6\nsumAll()         // 0\n~~~"
+        "prompt": "Définissez **sumAll(...nums: number[]): number** renvoyant la somme de tous les arguments (0 si aucun).\n~~~ts\nsumAll(1, 2, 3)  // 6\nsumAll()         // 0\n~~~"
+      },
+      "ts-makemult": {
+        "title": "GAIN FORGE",
+        "brief": "Forgez un amplificateur avec le facteur intégré.",
+        "hint": "return (x) => x * factor;",
+        "prompt": "Définissez **makeMultiplier(factor: number): (x: number) => number** renvoyant une fonction qui multiplie son entrée par `factor`.\n~~~ts\nconst double = makeMultiplier(2);\ndouble(21) // 42\n~~~"
+      },
+      "ts-countmatch": {
+        "title": "PASS FILTER",
+        "brief": "Comptez combien d'éléments franchissent le prédicat.",
+        "hint": "Parcourez xs, faites n++ chaque fois que pred(x) est true, puis renvoyez n.",
+        "prompt": "Un **prédicat** est un type de fonction `(x: T) => boolean`. Définissez **countMatching<T>(xs: T[], pred: (x: T) => boolean): number** renvoyant combien d'éléments de `xs` font renvoyer `true` à `pred`.\n~~~ts\ncountMatching([1, 2, 3, 4], (n: number) => n % 2 === 0) // 2\ncountMatching([], (n: number) => true) // 0\n~~~"
+      },
+      "ts-joinnums": {
+        "title": "SPLICE STREAM",
+        "brief": "Rassemblez un nombre quelconque de nombres et soudez-les avec un séparateur.",
+        "hint": "return ns.join(sep);",
+        "prompt": "Les **paramètres rest** `...ns: number[]` collectent chaque argument supplémentaire dans un tableau. Définissez **joinNums(sep: string, ...ns: number[]): string** renvoyant les nombres joints par `sep` (utilisez `ns.join(sep)`).\n~~~ts\njoinNums('-', 1, 2, 3) // '1-2-3'\njoinNums(',') // ''\n~~~"
+      },
+      "ts-applyall": {
+        "title": "PIPE ARRAY",
+        "brief": "Faites passer une valeur à travers tout un rack de transformations.",
+        "hint": "return fns.map((f) => f(x));",
+        "prompt": "Un **tableau de types de fonctions** `Array<(n: number) => number>` est un rack de transformations. Définissez **applyAll(fns: Array<(n: number) => number>, x: number): number[]** renvoyant le résultat de l'application de chaque fonction à `x`, dans l'ordre.\n~~~ts\napplyAll([(n: number) => n + 1, (n: number) => n * 2], 10) // [11, 20]\napplyAll([], 5) // []\n~~~"
+      },
+      "ts-repeatcall": {
+        "title": "ECHO LOOP",
+        "brief": "Déclenchez un producteur sans argument n fois et récoltez les échos.",
+        "hint": "Construisez un tableau vide, bouclez i de 0 à n en poussant fn(), renvoyez-le.",
+        "prompt": "Un producteur est un type de fonction `() => T` ne prenant aucun argument. Définissez **repeatCall<T>(fn: () => T, n: number): T[]** qui appelle `fn` exactement `n` fois et collecte les résultats dans un tableau. Quand `n` vaut `0`, renvoyez `[]`.\n~~~ts\nlet i = 0;\nrepeatCall(() => i++, 3) // [0, 1, 2]\nrepeatCall(() => 9, 0) // []\n~~~"
       },
       "ts-getprop": {
         "title": "ACCESSEUR SÛR",
-        "brief": "Lisez n'importe quel champ, en conservant son type.",
+        "brief": "Lisez n'importe quel champ, conservez son type.",
         "hint": "return obj[key];",
-        "prompt": "Définissez **getProp<T, K extends keyof T>(obj: T, key: K): T[K]** qui renvoie `obj[key]`.\n~~~ts\ngetProp({ name: 'Rei', age: 14 }, 'name')  // 'Rei'\n~~~"
+        "prompt": "Définissez **getProp<T, K extends keyof T>(obj: T, key: K): T[K]** renvoyant `obj[key]`.\n~~~ts\ngetProp({ name: 'Rei', age: 14 }, 'name')  // 'Rei'\n~~~"
       },
       "ts-longest": {
         "title": "LE PLUS LONG GAGNE",
         "brief": "Choisissez le plus long des deux — chaînes ou tableaux.",
         "hint": "return a.length >= b.length ? a : b;",
-        "prompt": "Définissez **longest<T extends { length: number }>(a: T, b: T): T** qui renvoie celui dont la\n`length` est la plus grande (en cas d'égalité -> `a`).\n~~~ts\nlongest('hi', 'hello')     // 'hello'\nlongest([1, 2], [1, 2, 3]) // [1, 2, 3]\n~~~"
+        "prompt": "Définissez **longest<T extends { length: number }>(a: T, b: T): T** renvoyant celui qui a la plus grande\n`length` (égalité -> `a`).\n~~~ts\nlongest('hi', 'hello')     // 'hello'\nlongest([1, 2], [1, 2, 3]) // [1, 2, 3]\n~~~"
       },
       "ts-pluckgen": {
         "title": "PLUCK GÉNÉRIQUE",
         "brief": "Extrayez un champ typé de chaque enregistrement.",
         "hint": "return xs.map((x) => x[key]);",
-        "prompt": "Définissez **pluck<T, K extends keyof T>(xs: T[], key: K): T[K][]** qui renvoie ce champ pour chaque élément.\n~~~ts\npluck([{ id: 1 }, { id: 2 }], 'id')  // [1, 2]\n~~~"
+        "prompt": "Définissez **pluck<T, K extends keyof T>(xs: T[], key: K): T[K][]** renvoyant ce champ pour chaque élément.\n~~~ts\npluck([{ id: 1 }, { id: 2 }], 'id')  // [1, 2]\n~~~"
+      },
+      "ts-keysof": {
+        "title": "RÉCOLTE DE CLÉS",
+        "brief": "Listez chaque nom de champ porté par un enregistrement.",
+        "hint": "return Object.keys(obj);",
+        "prompt": "Définissez **keysOf<T extends object>(obj: T): string[]** renvoyant un tableau des noms de clés propres à `obj`.\nUn objet vide produit `[]`.\n~~~ts\nkeysOf({ a: 1, b: 2 }) // ['a', 'b']\nkeysOf({})            // []\n~~~"
+      },
+      "ts-haskey": {
+        "title": "SONDE DE CLÉ",
+        "brief": "L'enregistrement porte-t-il ce champ ?",
+        "hint": "return k in obj;",
+        "prompt": "Définissez **hasKey<T extends object>(obj: T, k: string): boolean** renvoyant si `k` est une clé de `obj`.\n~~~ts\nhasKey({ a: 1 }, 'a') // true\nhasKey({ a: 1 }, 'z') // false\n~~~"
+      },
+      "ts-propeq": {
+        "title": "CORRESPONDANCE DE CHAMP",
+        "brief": "Comparez un champ typé à une valeur attendue.",
+        "hint": "return obj[k] === v;",
+        "prompt": "Définissez **propEquals<T, K extends keyof T>(obj: T, k: K, v: T[K]): boolean** renvoyant si `obj[k]` est strictement égal à `v`.\n`K extends keyof T` lie `k` à une vraie clé, et `v: T[K]` force la valeur comparée à correspondre au type de ce champ.\n~~~ts\npropEquals({ id: 7, on: true }, 'id', 7) // true\npropEquals({ id: 7, on: true }, 'id', 9) // false\n~~~"
+      },
+      "ts-propor": {
+        "title": "REPLI DE CHAMP",
+        "brief": "Lisez un champ typé, ou repliez-vous sur une valeur par défaut de son type.",
+        "hint": "return k in obj ? obj[k] : d;",
+        "prompt": "Définissez **propOr<T, K extends keyof T>(obj: T, k: K, d: T[K]): T[K]** renvoyant `obj[k]` lorsque `k` est présent, sinon la valeur par défaut `d`.\nLe résultat comme la valeur par défaut sont typés `T[K]`, donc le repli correspond toujours au champ qu'il remplace.\n~~~ts\npropOr({ a: 1, b: 2 }, 'a', 0) // 1\npropOr({ a: 1 } as { a: number; z?: number }, 'z', 9) // 9\n~~~"
+      },
+      "ts-valsof": {
+        "title": "DÉVERSEMENT DE VALEURS",
+        "brief": "Déversez chaque valeur stockée dans un tableau.",
+        "hint": "return Object.values(obj);",
+        "prompt": "Définissez **valuesOf<T extends object>(obj: T): Array<T[keyof T]>** renvoyant un tableau des valeurs propres à `obj`.\n`T[keyof T]` est l'union du type de chaque champ, donc le tableau porte exactement les valeurs que `obj` stocke.\nUn objet vide produit `[]`.\n~~~ts\nvaluesOf({ a: 1, b: 2 }) // [1, 2]\nvaluesOf({})            // []\n~~~"
       },
       "ts-evens": {
         "title": "PAQUETS PAIRS",
-        "brief": "Ne gardez que les trames de numéro pair.",
+        "brief": "Ne conservez que les trames de numéro pair.",
         "hint": "xs.filter((n) => n % 2 === 0)",
         "prompt": "Définissez **evens(xs: number[]): number[]** qui renvoie uniquement les nombres pairs, en préservant l'ordre.\n~~~ts\nevens([1, 2, 3, 4])  // [2, 4]\n~~~"
       },
@@ -2001,41 +2271,131 @@ window.CONTENT_FR = {
         "hint": "xs.filter(pred).length",
         "prompt": "Définissez une fonction générique **countWhere<T>(xs: T[], pred: (x: T) => boolean): number** qui renvoie le nombre\nd'éléments satisfaisant `pred`.\n~~~ts\ncountWhere([1, 2, 3, 4], (x) => x % 2 === 0)  // 2\n~~~"
       },
+      "ts-doubleall": {
+        "title": "ÉTAGE DE GAIN",
+        "brief": "Amplifiez chaque signal d'un facteur deux.",
+        "hint": "nums.map(n => n * 2)",
+        "prompt": "Définissez **doubleAll(nums: number[]): number[]** qui renvoie un NOUVEAU tableau avec chaque nombre multiplié par `2`.\nDégainez `map` — il transforme chaque élément et vous rend un tableau tout neuf.\n~~~ts\ndoubleAll([1, 2, 3]) // [2, 4, 6]\ndoubleAll([])        // []\n~~~"
+      },
+      "ts-reject": {
+        "title": "PORTE DE BRUIT",
+        "brief": "Jetez ce qui correspond ; gardez le reste.",
+        "hint": "xs.filter(x => !pred(x))",
+        "prompt": "Définissez **reject<T>(xs: T[], pred: (x: T) => boolean): T[]** qui renvoie les éléments pour lesquels `pred` est FAUX (l'inverse de filter).\n~~~ts\nreject([1,2,3,4], n => n % 2 === 0) // [1, 3]\n~~~"
+      },
+      "ts-takewhile": {
+        "title": "LONGUEUR DE SÉRIE",
+        "brief": "Prenez la série de tête qui satisfait le test, puis arrêtez.",
+        "hint": "Bouclez depuis l'index 0 ; interrompez au premier élément où !pred(x), en empilant le reste.",
+        "prompt": "Définissez **takeWhile<T>(xs: T[], pred: (x: T) => boolean): T[]** qui renvoie le plus long PRÉFIXE de `xs` dont tous les éléments satisfont `pred`.\nArrêtez-vous au PREMIER élément qui échoue — tout ce qui suit est jeté, même s'il passerait le test.\n~~~ts\ntakeWhile([2, 4, 5, 6], n => n % 2 === 0) // [2, 4]\ntakeWhile([1, 2, 3], n => n > 5)          // []\n~~~"
+      },
+      "ts-flatten": {
+        "title": "APLATIR LA GRILLE",
+        "brief": "Réduisez une liste de listes d'un seul niveau.",
+        "hint": "xss.reduce((acc, xs) => acc.concat(xs), [])",
+        "prompt": "Définissez une fonction générique **flatten<T>(xss: T[][]): T[]** qui concatène chaque tableau interne en UN seul tableau plat, dans l'ordre.\nAplatissez exactement un niveau — repliez les lignes ensemble avec `reduce`.\n~~~ts\nflatten([[1, 2], [3], [4, 5]]) // [1, 2, 3, 4, 5]\nflatten<number>([])            // []\n~~~"
+      },
+      "ts-sumof": {
+        "title": "DÉCOMPTE PONDÉRÉ",
+        "brief": "Projetez chaque élément vers un nombre, puis totalisez-les.",
+        "hint": "xs.reduce((acc, x) => acc + f(x), 0)",
+        "prompt": "Définissez une fonction générique **sumOf<T>(xs: T[], f: (x: T) => number): number** qui mappe chaque élément à travers `f` et renvoie la SOMME de ces nombres.\nUtilisez `reduce` avec un accumulateur de départ à `0`, pour qu'un tableau vide renvoie `0`.\n~~~ts\nsumOf([{ n: 1 }, { n: 2 }, { n: 3 }], item => item.n) // 6\nsumOf<string>([], s => s.length)                     // 0\n~~~"
+      },
       "ts-firstname": {
         "title": "REPLI ANONYME",
         "brief": "Nommez l'utilisateur, ou appelez-le ANON.",
         "hint": "return user.name ?? 'ANON';",
-        "prompt": "Définissez **firstName(user: { name?: string }): string** qui renvoie le nom, ou `'ANON'` quand il est absent.\n~~~ts\nfirstName({ name: 'Rei' })  // 'Rei'\nfirstName({})               // 'ANON'\n~~~"
+        "prompt": "Définissez **firstName(user: { name?: string }): string** renvoyant le nom, ou `'ANON'` quand il est absent.\n~~~ts\nfirstName({ name: 'Rei' })  // 'Rei'\nfirstName({})               // 'ANON'\n~~~"
       },
       "ts-cityof": {
         "title": "LECTURE PROFONDE",
-        "brief": "Atteignez un champ imbriqué potentiellement absent.",
+        "brief": "Atteignez un champ imbriqué peut-être absent.",
         "hint": "return u.address?.city ?? 'UNKNOWN';",
-        "prompt": "Définissez **cityOf(u: { address?: { city?: string } }): string** qui renvoie la ville, ou `'UNKNOWN'` si\nl'adresse ou la ville est absente. Utilisez le chaînage optionnel.\n~~~ts\ncityOf({ address: { city: 'Neo Kyoto' } })  // 'Neo Kyoto'\ncityOf({})                                  // 'UNKNOWN'\n~~~"
+        "prompt": "Définissez **cityOf(u: { address?: { city?: string } }): string** renvoyant la ville, ou `'UNKNOWN'` si\nl'adresse ou la ville est absente. Utilisez le chaînage optionnel.\n~~~ts\ncityOf({ address: { city: 'Neo Kyoto' } })  // 'Neo Kyoto'\ncityOf({})                                  // 'UNKNOWN'\n~~~"
       },
       "ts-orelse": {
         "title": "GARDE LE ZÉRO",
-        "brief": "Repli uniquement en cas d'absence réelle.",
+        "brief": "Valeur par défaut uniquement en cas d'absence réelle.",
         "hint": "return value === undefined ? fallback : value;  // not ||, which would eat 0 and ''",
-        "prompt": "Définissez une fonction générique **orElse<T>(value: T | undefined, fallback: T): T** qui renvoie `value` sauf si elle vaut\n`undefined` — auquel cas renvoyez `fallback`. Surtout, une valeur de **0** ou **''** doit être conservée.\n~~~ts\norElse(0, 5)          // 0  (kept!)\norElse(undefined, 5)  // 5\n~~~"
+        "prompt": "Définissez une fonction générique **orElse<T>(value: T | undefined, fallback: T): T** renvoyant `value` sauf si elle vaut\n`undefined` — auquel cas renvoyez `fallback`. Surtout, une valeur de **0** ou **''** doit être préservée.\n~~~ts\norElse(0, 5)          // 0  (kept!)\norElse(undefined, 5)  // 5\n~~~"
+      },
+      "ts-initial": {
+        "title": "ESTAMPILLE GLYPHE",
+        "brief": "Marquez un indicatif par son glyphe de tête.",
+        "hint": "name?.[0]?.toUpperCase() ?? '?'  — chain ?. so a missing name never throws.",
+        "prompt": "Définissez **initial(name?: string): string** renvoyant le **premier caractère en majuscule**, ou `'?'` quand le nom est **absent ou vide**. Utilisez `?.` et `??`.\n~~~ts\ninitial('neo')  // 'N'\ninitial('')     // '?'\ninitial()       // '?'\n~~~"
+      },
+      "ts-safelen": {
+        "title": "SONDE NULL",
+        "brief": "Mesurez un buffer peut-être absent.",
+        "hint": "xs?.length ?? 0",
+        "prompt": "Définissez **safeLen(xs?: unknown[]): number** renvoyant la longueur du tableau, ou `0` si l'argument est absent. Utilisez `?.` et `??`.\n~~~ts\nsafeLen([1,2,3]) // 3\nsafeLen() // 0\n~~~"
+      },
+      "ts-debugon": {
+        "title": "BALAYAGE DE FLAG",
+        "brief": "Lisez un flag de debug profondément optionnel.",
+        "hint": "cfg.opts?.debug ?? false  — ?. tunnels through a missing opts in one read.",
+        "prompt": "Définissez **debugOn(cfg: { opts?: { debug?: boolean } }): boolean** renvoyant si le debug est activé, avec `false` par défaut quand `opts` ou `debug` est absent. Utilisez `?.` et `??`.\n~~~ts\ndebugOn({ opts: { debug: true } })  // true\ndebugOn({})                         // false\n~~~"
+      },
+      "ts-priceor": {
+        "title": "ÉTIQUETTE DE PRIX",
+        "brief": "Valeur par défaut d'un prix uniquement quand il est réellement absent.",
+        "hint": "item.price ?? d  — ?? only fires on null/undefined, so a price of 0 survives.",
+        "prompt": "Définissez **priceOr(item: { price?: number }, d: number): number** renvoyant le prix de l'article, ou la valeur par défaut `d` quand `price` est **absent**. Un prix de **0** doit être **préservé**, jamais remplacé. Utilisez `??`.\n~~~ts\npriceOr({ price: 99 }, 10)  // 99\npriceOr({}, 10)            // 10\npriceOr({ price: 0 }, 10)  // 0  (kept!)\n~~~"
+      },
+      "ts-firstdef": {
+        "title": "PREMIER SIGNAL",
+        "brief": "Prenez la première valeur réellement arrivée.",
+        "hint": "a ?? b ?? c  — ?? chains left to right, stopping at the first non-undefined.",
+        "prompt": "Définissez une fonction générique **firstDefined<T>(a: T | undefined, b: T | undefined, c: T | undefined): T | undefined** renvoyant le **premier argument qui n'est pas `undefined`**, ou `undefined` si les trois le sont. Utilisez `??`. Une valeur de `0` ou `''` compte comme présente.\n~~~ts\nfirstDefined(undefined, 'B', 'C')          // 'B'\nfirstDefined(undefined, undefined, undefined) // undefined\n~~~"
       },
       "ts-safedivide": {
         "title": "GARDE-FOU DIV/0",
         "brief": "Refusez la division impossible.",
         "hint": "if (b === 0) throw new Error('...'); return a / b;",
-        "prompt": "Définissez **safeDivide(a: number, b: number): number** renvoyant `a / b`, mais **levez** une `Error` lorsque\n`b === 0`.\n~~~ts\nsafeDivide(10, 2)  // 5\nsafeDivide(1, 0)   // throws\n~~~"
+        "prompt": "Définissez **safeDivide(a: number, b: number): number** qui renvoie `a / b`, mais qui **lève** une `Error` lorsque\n`b === 0`.\n~~~ts\nsafeDivide(10, 2)  // 5\nsafeDivide(1, 0)   // throws\n~~~"
       },
       "ts-toint": {
         "title": "ANALYSE STRICTE",
         "brief": "Convertissez ou rejetez — pas de NaN silencieux.",
         "hint": "const n = Number(s); if (isNaN(n)) throw new Error(...); return n;",
-        "prompt": "Définissez **toInt(s: string): number** renvoyant `Number(s)`, mais **levez** une `Error` si le résultat est\n`NaN`.\n~~~ts\ntoInt('42')   // 42\ntoInt('x!')   // throws\n~~~"
+        "prompt": "Définissez **toInt(s: string): number** qui renvoie `Number(s)`, mais qui **lève** une `Error` si le résultat est\n`NaN`.\n~~~ts\ntoInt('42')   // 42\ntoInt('x!')   // throws\n~~~"
       },
       "ts-tryparse": {
         "title": "UNION RESULT",
         "brief": "Faites de l'échec une partie du type.",
         "hint": "const n = Number(s); return isNaN(n) ? { ok: false } : { ok: true, value: n };",
         "prompt": "Avec **type Result = { ok: true; value: number } | { ok: false }**, définissez **tryParse(s: string):\nResult** — `{ ok: true, value: n }` en cas de succès, `{ ok: false }` sinon. Sans lever d'erreur.\n~~~ts\ntryParse('42')  // { ok: true, value: 42 }\ntryParse('x')   // { ok: false }\n~~~"
+      },
+      "ts-requirepos": {
+        "title": "GARDIEN",
+        "brief": "Rejetez toute puissance non positive.",
+        "hint": "if (n <= 0) throw new Error(...); return n;",
+        "prompt": "Définissez **requirePositive(n: number): number** qui renvoie `n` lorsque `n > 0`, et qui **lève** une Error dans le cas contraire.\n~~~ts\nrequirePositive(5) // 5\nrequirePositive(0) // throws\n~~~"
+      },
+      "ts-validatetag": {
+        "title": "POINT DE CONTRÔLE",
+        "brief": "Exigez un tag réel, proprement nettoyé.",
+        "hint": "const t = s.trim(); if (t === '') throw new Error(...); return t;",
+        "prompt": "Définissez **validateTag(s: string): string** qui **supprime** les espaces environnants (trim) et renvoie le résultat.\nSi le tag, une fois nettoyé, est vide (vide ou uniquement des espaces), **levez** plutôt une Error.\n~~~ts\nvalidateTag('  neo ') // 'neo'\nvalidateTag('   ')    // throws\n~~~"
+      },
+      "ts-getorelse": {
+        "title": "CACHE DE SECOURS",
+        "brief": "Faites confiance à la fonction, gardez une sauvegarde prête.",
+        "hint": "try { return fn(); } catch (e) { return fallback; }",
+        "prompt": "Définissez une fonction générique **getOrElse<T>(fn: () => T, fallback: T): T** qui appelle `fn()` et renvoie sa valeur.\nSi `fn()` **lève** une erreur, avalez-la avec `try` / `catch` et renvoyez plutôt `fallback`. Elle ne doit jamais lever d'erreur.\n~~~ts\ngetOrElse(() => 42, 0)                       // 42\ngetOrElse(() => { throw new Error('x'); }, 0) // 0\n~~~"
+      },
+      "ts-safesqrt": {
+        "title": "RACINE RESULT",
+        "brief": "Une racine carrée qui renvoie un Result typé.",
+        "hint": "if (n < 0) return { ok: false, error: 'negative' }; return { ok: true, value: Math.sqrt(n) };",
+        "prompt": "Une **union Result** porte soit une valeur, soit une erreur, jamais les deux :\n~~~ts\ntype Result<T> = { ok: true; value: T } | { ok: false; error: string };\n~~~\nDéfinissez **safeSqrt(n: number): Result<number>**. Pour `n` négatif, renvoyez `{ ok: false, error: 'negative' }` ; sinon, renvoyez `{ ok: true, value: Math.sqrt(n) }`.\n~~~ts\nsafeSqrt(9)  // { ok: true, value: 3 }\nsafeSqrt(-4) // { ok: false, error: 'negative' }\n~~~"
+      },
+      "ts-firstok": {
+        "title": "PREMIER CONTACT",
+        "brief": "Renvoyez la première tentative qui survit.",
+        "hint": "loop the array, try { return fns[i](); } catch (e) {}; after the loop throw new Error(...)",
+        "prompt": "Définissez une fonction générique **firstOk<T>(fns: Array<() => T>): T** qui essaie chaque fonction dans l'ordre et renvoie la valeur de la **première qui ne lève pas d'erreur**.\nEnveloppez chaque appel dans `try` / `catch` ; si **toutes** les fonctions lèvent une erreur, **levez** une Error.\n~~~ts\nfirstOk([() => { throw new Error('x'); }, () => 7]) // 7\nfirstOk([() => { throw new Error('x'); }])          // throws\n~~~"
       },
       "ts-reverse": {
         "title": "FLUX INVERSÉ",
@@ -2051,9 +2411,39 @@ window.CONTENT_FR = {
       },
       "ts-wordcount": {
         "title": "COMPTE DE MOTS",
-        "brief": "Comptez les mots de la transmission.",
+        "brief": "Dénombrez les mots de la transmission.",
         "hint": "const t = s.trim(); return t === '' ? 0 : t.split(/\\s+/).length;",
         "prompt": "Définissez **wordCount(s: string): number** qui compte les mots séparés par des espaces. Les espaces en trop ne comptent pas ;\nune chaîne vide ou blanche vaut **0**.\n~~~ts\nwordCount('ghost in the shell')  // 4\n~~~"
+      },
+      "ts-capitalize": {
+        "title": "CASSE PROPRE",
+        "brief": "Redressez le mot bien droit.",
+        "hint": "s[0].toUpperCase() + s.slice(1).toLowerCase()",
+        "prompt": "Définissez **capitalize(s: string): string** avec le premier caractère en majuscule et le reste en minuscules. Chaîne vide -> ''.\n~~~ts\ncapitalize('lAIN') // 'Lain'\n~~~"
+      },
+      "ts-countchar": {
+        "title": "DÉNOMBRER LE GLYPHE",
+        "brief": "Comptez combien de fois un glyphe apparaît.",
+        "hint": "Parcourez les caractères de s et faites n++ chaque fois que c === ch.",
+        "prompt": "Définissez **countChar(s: string, ch: string): number** qui renvoie combien de fois `ch` apparaît dans `s`. Respectez la casse exactement.\n~~~ts\ncountChar('banana', 'a') // 3\ncountChar('abc', 'z')    // 0\n~~~"
+      },
+      "ts-isanagram": {
+        "title": "MIROIR DE LETTRES",
+        "brief": "Deux chaînes contiennent-elles exactement les mêmes lettres ?",
+        "hint": "Triez les caractères de chaque chaîne et comparez : x.split('').sort().join('').",
+        "prompt": "Définissez **isAnagram(a: string, b: string): boolean** qui vaut `true` quand les deux chaînes contiennent exactement les mêmes caractères (les mêmes effectifs), peu importe l'ordre. Comparez en respectant la casse. Trier les caractères de chaque chaîne puis comparer les résultats est la voie la plus simple.\n~~~ts\nisAnagram('listen', 'silent') // true\nisAnagram('abc', 'abd')       // false\n~~~"
+      },
+      "ts-mostfrequentchar": {
+        "title": "SIGNAL DOMINANT",
+        "brief": "Trouvez le caractère qui revient le plus.",
+        "hint": "Dénombrez chaque caractère non-espace dans une map ; ne mettez à jour le meilleur que lorsqu'un effectif dépasse strictement le maximum actuel.",
+        "prompt": "Définissez **mostFrequentChar(s: string): string** qui renvoie le caractère unique qui apparaît le plus souvent, en ignorant les espaces. En cas d'égalité, renvoyez le caractère qui atteint *en premier* ce nombre maximal. Supposez que `s` possède au moins un caractère non-espace.\n~~~ts\nmostFrequentChar('hello')  // 'l'\nmostFrequentChar('a b a')  // 'a'\n~~~"
+      },
+      "ts-caesar": {
+        "title": "CHIFFRE À DÉCALAGE",
+        "brief": "Faites tourner l'alphabet minuscule vers l'avant, en repassant après z.",
+        "hint": "Parcourez les caractères ; uniquement quand code vaut 97..122, reconstruisez-le en ((code - 97 + n) % 26) + 97, sinon gardez c.",
+        "prompt": "Définissez **caesar(s: string, n: number): string** qui décale chaque lettre minuscule `a`-`z` vers l'avant de `n` positions, en ramenant `z` jusqu'à `a`. Laissez tous les autres caractères (majuscules, espaces, ponctuation) inchangés.\nUtilisez les codes de caractères : `'a'` vaut 97. Pour une lettre, `((code - 97 + n) % 26) + 97` donne le code décalé.\n~~~ts\ncaesar('abc', 1) // 'bcd'\ncaesar('xyz', 3) // 'abc'\n~~~"
       },
       "ts-clamp": {
         "title": "BORNAGE D'INTERVALLE",
@@ -2073,6 +2463,36 @@ window.CONTENT_FR = {
         "hint": "if (n < 2) return false; for (let i = 2; i*i <= n; i++) if (n % i === 0) return false; return true;",
         "prompt": "Définissez **isPrime(n: number): boolean**. Les nombres inférieurs à 2 ne sont pas premiers.\n~~~ts\nisPrime(13)  // true\n~~~"
       },
+      "ts-digitalroot": {
+        "title": "EFFONDREMENT DE CHIFFRES",
+        "brief": "Écrasez un nombre jusqu'à un unique chiffre incandescent.",
+        "hint": "Boucle externe tant que n >= 10 ; la boucle interne ajoute n % 10 et fait n = Math.floor(n / 10).",
+        "prompt": "Définissez **digitalRoot(n: number): number** — remplacez sans cesse `n` par la somme de ses chiffres jusqu'à ce qu'il ne reste qu'un seul chiffre. Supposez `n >= 0`.\n~~~ts\ndigitalRoot(38)  // 3 + 8 = 11 -> 1 + 1 = 2\ndigitalRoot(9)   // 9\n~~~"
+      },
+      "ts-lcm": {
+        "title": "CYCLE DE SYNCHRO",
+        "brief": "Quand les deux cycles se réalignent-ils ?",
+        "hint": "a / gcd(a,b) * b",
+        "prompt": "Définissez **lcm(a: number, b: number): number** — le plus petit commun multiple de deux entiers positifs (a*b divisé par leur pgcd).\n~~~ts\nlcm(4, 6) // 12\n~~~"
+      },
+      "ts-ispoweroftwo": {
+        "title": "BALISE BINAIRE",
+        "brief": "Ce nombre tombe-t-il pile sur une frontière de puissance de deux ?",
+        "hint": "Une puissance de deux n'a qu'un seul bit à 1 : n > 0 && (n & (n - 1)) === 0.",
+        "prompt": "Définissez **isPowerOfTwo(n: number): boolean** — `true` quand `n` vaut `1, 2, 4, 8, 16, ...`, et `false` pour `0`, les négatifs et tout ce qui se trouve entre les deux.\n~~~ts\nisPowerOfTwo(16) // true\nisPowerOfTwo(6)  // false\nisPowerOfTwo(0)  // false\n~~~"
+      },
+      "ts-roundto": {
+        "title": "PORTE DE PRÉCISION",
+        "brief": "Calez une valeur sur un nombre fixe de décimales.",
+        "hint": "return Math.round(n * 10 ** places) / 10 ** places;",
+        "prompt": "Définissez **roundTo(n: number, places: number): number** — arrondissez `n` à `places` décimales.\nMontez l'échelle, arrondissez, redescendez : `Math.round(n * 10 ** places) / 10 ** places`.\n~~~ts\nroundTo(3.14159, 2) // 3.14\nroundTo(1.5, 0)     // 2\n~~~"
+      },
+      "ts-sumdivisors": {
+        "title": "RÉCOLTE DE FACTEURS",
+        "brief": "Additionnez chaque diviseur qu'un nombre admettra.",
+        "hint": "Bouclez d de 1 à n ; dès que n % d === 0, ajoutez d à un total courant.",
+        "prompt": "Définissez **sumDivisors(n: number): number** — la somme de tous les diviseurs positifs de `n`, y compris `1` et `n` lui-même. Supposez `n >= 1`.\n~~~ts\nsumDivisors(6)  // 1 + 2 + 3 + 6 = 12\nsumDivisors(7)  // 1 + 7 = 8\n~~~"
+      },
       "ts-rename": {
         "title": "RENOMMAGE IMMUABLE",
         "brief": "Changez un champ, copiez le reste, ne touchez à rien.",
@@ -2091,6 +2511,36 @@ window.CONTENT_FR = {
         "hint": "return { ...base, ...over } as T;",
         "prompt": "Définissez **withDefaults<T>(over: Partial<T>, base: T): T** qui renvoie `base` avec tous les champs de `over`\nappliqués par-dessus.\n~~~ts\nwithDefaults({ timeout: 5 }, { timeout: 30, retries: 3 })  // { timeout: 5, retries: 3 }\n~~~"
       },
+      "ts-setfield": {
+        "title": "ÉCRITURE IMMUABLE",
+        "brief": "Changez un champ sans toucher à l'original.",
+        "hint": "Object.assign({}, obj, { [key]: value }) — un objet neuf, puis la seule surcharge.",
+        "prompt": "Définissez **setField<T, K extends keyof T>(obj: T, key: K, value: T[K]): T** qui renvoie un **nouvel** objet avec `key` fixé à `value`. **Ne** mutez **pas** l'entrée.\nLa borne `K extends keyof T` signifie que `key` doit être l'une des vraies clés de l'objet, et que `value` doit correspondre au type de ce champ.\n~~~ts\nsetField({ hp: 10, mp: 5 }, 'hp', 99) // { hp: 99, mp: 5 }\n~~~"
+      },
+      "ts-combine": {
+        "title": "GREFFE DE COQUILLES",
+        "brief": "Greffez deux coquilles en une seule qui porte les deux.",
+        "hint": "Object.assign({}, a, b) — les sources ultérieures écrasent les précédentes, donc b l'emporte.",
+        "prompt": "Définissez **combine<A, B>(a: A, b: B): A & B** qui fusionne en surface `a` et `b` en un seul objet contenant **toutes** les clés des deux.\nLe type de retour `A & B` est une **intersection** : le résultat satisfait *les deux* formes. En cas de collision de clé, **`b` l'emporte**.\n~~~ts\ncombine({ id: 1 }, { name: 'Neo' }) // { id: 1, name: 'Neo' }\ncombine({ x: 1 }, { x: 9 })         // { x: 9 }\n~~~"
+      },
+      "ts-incfield": {
+        "title": "TIC DU COMPTEUR",
+        "brief": "Incrémentez un champ numérique de un, de façon immuable.",
+        "hint": "Object.assign({}, obj, { [key]: obj[key] + 1 }) — spread, puis surcharge du seul champ.",
+        "prompt": "Définissez **incField<T, K extends keyof T>(obj: T, key: K): T** qui renvoie un **nouvel** objet où le nombre situé à `key` est augmenté de **1**. **Ne** mutez **pas** l'entrée.\n`keyof T` permet à l'appelant de pointer n'importe quel champ par son nom ; ici on suppose que ce champ contient un nombre.\n~~~ts\nincField({ hits: 3, miss: 0 }, 'hits') // { hits: 4, miss: 0 }\n~~~"
+      },
+      "ts-without": {
+        "title": "PURGE DE CHAMP",
+        "brief": "Retirez une clé, gardez le reste, laissez l'original intact.",
+        "hint": "Copiez avec Object.assign({}, obj), puis supprimez out[key] de la copie — jamais de l'original.",
+        "prompt": "Définissez **without<T, K extends keyof T>(obj: T, key: K): T** qui renvoie un **nouvel** objet copie de `obj` avec `key` **retirée**. **Ne** mutez **pas** l'entrée.\n`K extends keyof T` garantit que vous ne pouvez purger qu'une clé qui existe réellement.\n~~~ts\nwithout({ a: 1, b: 2 }, 'b') // { a: 1 }\n~~~"
+      },
+      "ts-mergeall": {
+        "title": "PLIAGE DE PATCHS",
+        "brief": "Pliez une pile de patchs partiels en un seul enregistrement.",
+        "hint": "Partez de {} et Object.assign chaque objet tour à tour pour que les patchs ultérieurs écrasent les précédents.",
+        "prompt": "Définissez **mergeAll<T>(objs: T[]): T** qui plie une liste d'enregistrements **partiels** en un seul objet via spread/merge.\nTraitez de gauche à droite pour que **les entrées ultérieures l'emportent** en cas de conflit. Une liste **vide** donne `{}`.\n~~~ts\nmergeAll([{ a: 1 }, { b: 2 }, { a: 9 }]) // { a: 9, b: 2 }\nmergeAll([])                             // {}\n~~~"
+      },
       "ts-binsearch": {
         "title": "BALAYAGE BINAIRE",
         "brief": "Trouvez l'indice en temps logarithmique.",
@@ -2108,6 +2558,36 @@ window.CONTENT_FR = {
         "brief": "Découpez le flux en trames de taille fixe.",
         "hint": "for (let i = 0; i < xs.length; i += size) out.push(xs.slice(i, i + size));",
         "prompt": "Définissez une fonction générique **chunk<T>(xs: T[], size: number): T[][]** qui découpe `xs` en groupes de `size` (le\ndernier groupe peut être plus court).\n~~~ts\nchunk([1, 2, 3, 4, 5], 2)  // [[1, 2], [3, 4], [5]]\n~~~"
+      },
+      "ts-contains": {
+        "title": "SONDE ICE",
+        "brief": "La clé est-elle dans le coffre trié ?",
+        "hint": "Boucle lo<=hi ; comparez le milieu ; déplacez lo ou hi.",
+        "prompt": "`sorted` est croissant. Définissez **contains(sorted: number[], x: number): boolean** à l'aide d'une recherche BINAIRE.\n~~~ts\ncontains([1, 3, 5, 7], 5)  // true\ncontains([1, 3, 5, 7], 4)  // false\n~~~"
+      },
+      "ts-dedupesorted": {
+        "title": "SILENCIEUX DE SIGNAL",
+        "brief": "Fusionnez les octets répétés dans un flux ordonné.",
+        "hint": "Empilez xs[i] uniquement quand i===0 ou xs[i] !== xs[i-1].",
+        "prompt": "`xs` est déjà trié, donc les doublons se trouvent côte à côte. Définissez une fonction générique **dedupeSorted<T>(xs: T[]): T[]**\nqui renvoie un nouveau tableau où chaque série d'éléments égaux et *adjacents* est réduite à un seul.\n~~~ts\ndedupeSorted([1, 1, 2, 3, 3, 3])  // [1, 2, 3]\ndedupeSorted<number>([])          // []\n~~~"
+      },
+      "ts-rotateleft": {
+        "title": "DÉPHASAGE",
+        "brief": "Faites tourner le tampon vers la gauche, en rebouclant le débordement.",
+        "hint": "s = k % length ; return xs.slice(s).concat(xs.slice(0, s)). Gérez le cas length 0.",
+        "prompt": "Définissez une fonction générique **rotateLeft<T>(xs: T[], k: number): T[]** qui renvoie un nouveau tableau décalé vers la gauche de `k` — les\n`k` premiers éléments rebouclent vers la fin. `k` peut dépasser la longueur (rotation modulo la longueur) ; un tableau vide donne `[]`.\n~~~ts\nrotateLeft([1, 2, 3, 4, 5], 2)  // [3, 4, 5, 1, 2]\nrotateLeft([1, 2, 3], 4)        // [2, 3, 1]\n~~~"
+      },
+      "ts-windows": {
+        "title": "OUVERTURE GLISSANTE",
+        "brief": "Balayez chaque trame contiguë d'une largeur fixe.",
+        "hint": "Bouclez tant que i + size <= xs.length ; empilez xs.slice(i, i + size).",
+        "prompt": "Définissez une fonction générique **windows<T>(xs: T[], size: number): T[][]** qui renvoie chaque tranche contiguë de longueur `size`,\ndans l'ordre. Si `size` est plus grand que le tableau, renvoyez `[]`.\n~~~ts\nwindows([1, 2, 3, 4], 2)  // [[1, 2], [2, 3], [3, 4]]\nwindows([1, 2], 3)        // []\n~~~"
+      },
+      "ts-countoccurrences": {
+        "title": "BALAYAGE DE COMPTAGE",
+        "brief": "Comptez combien de fois la clé apparaît.",
+        "hint": "Parcourez le tableau ; incrémentez un compteur chaque fois que sorted[i] === x.",
+        "prompt": "`sorted` est croissant. Définissez **countOccurrences(sorted: number[], x: number): number** qui renvoie combien de fois\n`x` apparaît. Un balayage linéaire convient. Absent ou vide donne `0`.\n~~~ts\ncountOccurrences([1, 2, 2, 2, 3], 2)  // 3\ncountOccurrences([1, 2, 3], 9)        // 0\n~~~"
       }
     }
   },
