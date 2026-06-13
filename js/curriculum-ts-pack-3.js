@@ -18,22 +18,26 @@
       subtitle: "callback signatures · higher-order · rest params",
       theory: J(
         "## Typing a function value",
-        "A function type is written `(arg: A) => R`. Use it to type a **callback** parameter.",
+        "In TypeScript, **functions are values** — you can pass one into another function, just like a number or a string. To do that safely you need to describe its *shape*: what arguments it takes and what it returns. That shape is a **function type**, written `(arg: A) => R` — read it as 'takes an `A`, returns an `R`'.",
+        "Why bother? Because the compiler can then guarantee that whatever function you hand over actually fits. No surprises at runtime.",
         "~~~ts",
         "function twice(f: (n: number) => number, x: number): number {",
         "  return f(f(x));",
         "}",
         "~~~",
+        "Here `f` is typed as `(n: number) => number`: a function eating one number and spitting out one number. `twice` is a **higher-order function** — a function that takes another function as input (or returns one).",
         "## Passing functions",
-        "The callback must match the signature — the compiler checks arguments and return type at the call site.",
+        "When you call `twice`, the function you pass **must match the declared signature** exactly. The compiler checks both the parameter types and the return type at the call site — pass `(s: string) => string` where a `(n: number) => number` is expected and it refuses to compile.",
+        "> WARNING — A callback's parameter and return types must line up with the signature it's plugged into. A common slip: returning the wrong type (e.g. a `string` from a function declared `=> number`). The function body has to honour the contract, not just the arguments.",
         "## Rest parameters",
-        "`...args: number[]` collects any number of trailing arguments into a typed array.",
+        "Sometimes you don't know *how many* arguments will arrive. A **rest parameter** `...args: number[]` scoops up every remaining argument into a single typed array — so the caller can pass zero, one, or fifty values and inside the function it's just one tidy `number[]`.",
         "~~~ts",
         "function sum(...nums: number[]): number {",
         "  return nums.reduce((a, b) => a + b, 0);",
         "}",
         "~~~",
-        "> INTEL — A function type alias keeps signatures readable: `type NumFn = (n: number) => number;`"
+        "Inside `sum`, `nums` really is a `number[]` — array methods like `reduce`, `map`, and `filter` all work on it.",
+        "> INTEL — A function **type alias** keeps signatures short and readable when you reuse them: `type NumFn = (n: number) => number;` Now you can write `f: NumFn` instead of repeating the whole arrow each time."
       ),
       exercises: [
         {
@@ -128,21 +132,25 @@
       subtitle: "T extends · keyof T · indexed access T[K]",
       theory: J(
         "## Constraining a type parameter",
-        "`<T extends Shape>` promises `T` has at least `Shape`'s members — so you can use them safely.",
+        "A plain generic `<T>` accepts *literally anything*, which means inside the function you can't assume `T` has any particular feature. A **constraint** narrows that down: `<T extends Shape>` is a promise that `T` has *at least* everything in `Shape`. In exchange, the compiler lets you safely touch those members.",
+        "Think of `extends` here as 'must be assignable to' — not inheritance, but a minimum requirement the caller has to meet.",
         "~~~ts",
         "function longer<T extends { length: number }>(a: T, b: T): T {",
         "  return a.length >= b.length ? a : b;",
         "}",
         "~~~",
+        "Because of `extends { length: number }`, reading `a.length` is allowed — yet `T` stays flexible, so this works for strings, arrays, or any object that has a `length`.",
         "## keyof & indexed access",
-        "`keyof T` is the union of `T`'s keys; `T[K]` is the type of the value at key `K`. Together they type a",
-        "perfectly safe property getter.",
+        "Two operators unlock type-safe property work. `keyof T` is the **union of `T`'s property names** as a type — for `{ name: string; age: number }` it's `'name' | 'age'`. And `T[K]` is **indexed access**: the type of the value stored at key `K` — `T['age']` is `number`.",
+        "Combine them and you get a getter that can't be fooled: the key must really exist, and the return type tracks whichever field you asked for.",
         "~~~ts",
         "function getProp<T, K extends keyof T>(obj: T, key: K): T[K] {",
         "  return obj[key];",
         "}",
         "~~~",
-        "> INTEL — `K extends keyof T` makes the compiler reject any key that isn't actually on the object."
+        "Calling `getProp(person, 'name')` returns a `string`; `getProp(person, 'age')` returns a `number` — the type follows the key automatically, no casting needed.",
+        "> WARNING — `keyof T` is the **union of property NAMES**, not the values. And `T[K]` is the **type AT** that key, not the key itself. Mixing these up is the classic beginner trap — `keyof` gives you `'name' | 'age'`, while `T['name']` gives you the value type `string`.",
+        "> INTEL — The constraint `K extends keyof T` is what keeps the key honest: it forces `K` to be one of `T`'s real keys, so the compiler rejects any name that isn't actually on the object — caught at compile time, never at runtime."
       ),
       exercises: [
         {

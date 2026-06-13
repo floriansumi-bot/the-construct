@@ -21,12 +21,22 @@
       subtitle: "clamp · gcd · primality",
       theory: J(
         "## Clamp",
-        "Pin a value into a range: `Math.max(lo, Math.min(x, hi))`.",
+        "**Clamping** forces a number to stay inside a range `[lo, hi]`. **Why:** sliders, health bars, and throttles must never drift past their limits. Take the smaller of `x` and `hi`, then the larger of that and `lo`.",
+        "~~~ts",
+        "const safe = Math.max(lo, Math.min(x, hi));",
+        "~~~",
+        "> WARNING — Decimal math is fuzzy: `0.1 + 0.2` is `0.30000000000000004`, not `0.3`. Never test floats with `===`; compare with a small tolerance or clamp to integers.",
         "## Euclid's GCD",
-        "Replace `(a, b)` with `(b, a % b)` until `b` is 0 — then `a` is the greatest common divisor.",
+        "The **greatest common divisor** is the biggest number that divides two values evenly. **Why:** it reduces fractions and finds shared rhythms. Euclid's trick: keep replacing `(a, b)` with `(b, a % b)` until `b` hits 0 — then `a` is the answer.",
+        "~~~ts",
+        "while (b !== 0) { const r = a % b; a = b; b = r; }",
+        "~~~",
         "## Primality to √n",
-        "Test divisors only up to the square root; `i * i <= n` avoids floating-point error.",
-        "> INTEL — Integer comparisons (`i * i <= n`) beat `Math.sqrt` for exactness."
+        "A **prime** has no divisors except 1 and itself. **Why check only to √n:** if `n` had a factor bigger than its square root, the matching co-factor would be smaller — and you'd have caught it already. So `i * i <= n` is the full scan.",
+        "~~~ts",
+        "for (let i = 2; i * i <= n; i++) { if (n % i === 0) return false; }",
+        "~~~",
+        "> INTEL — Looping all the way to `n` still works but wastes most of the effort; stopping at √n is the same answer, far faster. Integer `i * i <= n` also dodges `Math.sqrt` rounding."
       ),
       exercises: [
         {
@@ -84,20 +94,25 @@
       subtitle: "immutable update · intersection (A & B) · Partial<T> defaults",
       theory: J(
         "## Immutable update",
-        "Copy and override with object spread — never mutate the caller's object.",
+        "An **immutable update** makes a fresh copy with one field changed instead of editing the original. **Why:** mutating a shared object causes ghost bugs elsewhere. The **spread** `...item` copies every existing field, and any key you add afterward overrides it.",
         "~~~ts",
-        "const updated = { ...item, name: 'new' };",
+        "const updated = { ...item, name: 'new' };  // item is untouched",
         "~~~",
+        "> WARNING — `item.name = 'new'` edits the caller's object in place. SPREAD into a new object instead — copy, don't mutate.",
         "## Intersection types",
-        "Merging two objects yields **A & B** — a value with the members of both.",
+        "An **intersection** `A & B` is a value that satisfies **both** shapes at once — it has every field from `A` and every field from `B`. **Why:** combining two records (settings + metadata) produces exactly this.",
+        "~~~ts",
+        "type Merged = { x: number } & { y: number };  // needs x AND y",
+        "~~~",
+        "> WARNING — `A & B` is not 'either one'. A value missing a field from `A` or from `B` does not fit — it must carry both.",
         "## Partial<T>",
-        "`Partial<T>` makes every field optional — perfect for an 'overrides' object layered over full defaults.",
+        "`Partial<T>` is a built-in type that copies `T` but makes **every field optional**. **Why:** an 'overrides' object should be allowed to set just one or two keys, then layer over a complete set of defaults.",
         "~~~ts",
         "function withDefaults<T>(over: Partial<T>, base: T): T {",
-        "  return { ...base, ...over } as T;",
+        "  return { ...base, ...over } as T;  // over wins on overlap",
         "}",
         "~~~",
-        "> INTEL — Later spreads win: `{ ...base, ...over }` lets `over` override `base`."
+        "> INTEL — Later spreads win: in `{ ...base, ...over }`, any key in `over` overrides the same key in `base`. Flip the order and the defaults would clobber your overrides instead."
       ),
       exercises: [
         {
@@ -166,10 +181,22 @@
       subtitle: "binary search · is-sorted · generic chunk",
       theory: J(
         "## Binary search",
-        "Halve a **sorted** array each step: compare the middle, then go left or right. ~20 steps for a million items.",
+        "**Binary search** finds a value by halving the search window each step: check the middle, then keep only the left or right half. **Why:** doubling the data adds just one step — ~20 hops to find one item among a million.",
+        "~~~ts",
+        "const mid = (lo + hi) >> 1;  // midpoint, floored",
+        "~~~",
+        "> WARNING — Binary search ONLY works on a **sorted** array. On unsorted data it silently returns wrong answers — sort first, or use a linear scan.",
+        "## Is-sorted",
+        "**isSorted** confirms a sequence never goes backward (non-decreasing). **Why:** it guards inputs to algorithms like binary search. Walk the array and bail the instant one element is smaller than the one before it.",
+        "~~~ts",
+        "for (let i = 1; i < xs.length; i++) if (xs[i] < xs[i - 1]) return false;",
+        "~~~",
         "## Chunking",
-        "Slice an array into fixed-size groups by stepping the index by `size` and `slice(i, i + size)`.",
-        "> INTEL — A generic `<T>` chunker keeps the element type all the way through to `T[][]`."
+        "**Chunking** slices one array into fixed-size groups (the last may be short). **Why:** pagination and batching. Step the index by `size` and grab `slice(i, i + size)` each time.",
+        "~~~ts",
+        "for (let i = 0; i < xs.length; i += size) out.push(xs.slice(i, i + size));",
+        "~~~",
+        "> INTEL — A generic `<T>` chunker carries the element type straight through to `T[][]`, so numbers stay `number[][]` and strings stay `string[][]` — no casting on the way out."
       ),
       exercises: [
         {
