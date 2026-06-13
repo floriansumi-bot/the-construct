@@ -883,94 +883,95 @@ window.CONTENT_FR = {
     "modules": {
       "jsm01-boot": {
         "title": "BOOTLOADER",
-        "subtitle": "console.log · let/const · template literals · types",
-        "theory": "## Connexion au système\nJavaScript s'exécute partout — navigateurs, serveurs, et même vaisseaux spatiaux. Envoyez une sortie vers la console avec **console.log()**.\n~~~js\nconsole.log('Wake up, Neo...');\n~~~\n## Variables\nDéclarez avec **let** (réaffectable) ou **const** (verrouillé). Privilégiez `const` sauf si vous devez réaffecter.\n~~~js\nconst codename = 'Lain';\nlet clearance = 7;\n~~~\n## Littéraux de gabarit\nLes chaînes entre backticks s'interpolent avec ${...} — bien plus propre que la concaténation avec +.\n~~~js\nconst name = 'Faye';\nconsole.log(`${name} :: clearance L${clearance}`);\n~~~\n## Types et égalité\n**typeof x** renvoie 'string', 'number', 'boolean', 'object', 'function', 'undefined'.\n> WARNING — Utilisez toujours === (strict), jamais == . L'égalité lâche == convertit les types et provoque des fantômes dans la machine."
+        "subtitle": "console.log · let/const · littéraux de gabarit · types",
+        "theory": "## Connexion au système\n**console.log()** affiche une valeur dans la console — votre fenêtre sur ce que fait le code. C'est ainsi que vous vérifiez votre travail et traquez les bugs, le jumeau JS du `print()` de Python.\n~~~js\nconsole.log('Wake up, Neo...');\n~~~\n> INTEL — Les instructions se terminent par un point-virgule `;`. JS pardonne souvent un oubli, mais les ajouter garde la machine prévisible.\n## Variables\nUne variable est une boîte nommée qui contient une valeur pour que vous puissiez la réutiliser. Déclarez avec **let** quand la valeur changera, ou **const** quand elle ne doit jamais être réassignée. Privilégiez `const` par défaut — cela vous empêche d'écraser des données par accident.\n~~~js\nconst codename = 'Lain';  // locked\nlet clearance = 7;        // can change later\nclearance = 8;\n~~~\n> WARNING — Réassigner une `const` déclenche une erreur. Ne sortez `let` que lorsque vous avez vraiment besoin d'écraser la valeur.\n## Littéraux de gabarit\nUn littéral de gabarit est une chaîne entre accents graves `` ` `` qui peut y insérer directement des valeurs avec `${...}`. Plus propre que de coller des chaînes avec `+`, et il gère les nombres sans conversion manuelle.\n~~~js\nconst name = 'Faye';\nconsole.log(`${name} :: clearance L${clearance}`);\n~~~\n> WARNING — `${...}` ne se déclenche qu'à l'intérieur des accents graves. Dans des guillemets ordinaires `'...'`, il reste du texte littéral inerte.\n## Types & égalité\nChaque valeur a un type. **typeof x** vous indique lequel — 'string', 'number', 'boolean', 'object', 'function' ou 'undefined' — pratique quand une valeur ne se comporte pas comme prévu.\n~~~js\ntypeof 'Neo';   // 'string'\ntypeof 42;      // 'number'\n~~~\n> WARNING — Comparez avec === (stricte), jamais == . Le == lâche convertit silencieusement les types, donc `0 == ''` et `1 == true` ressortent vrais — des fantômes dans la machine. Le === strict vérifie la valeur ET le type, sans surprises."
       },
       "jsm02-logic": {
         "title": "OPÉRATEURS & LOGIQUE",
-        "subtitle": "math · % · === · && || ! · branching",
-        "theory": "## Arithmétique\n`+ - * /` plus **%** (reste) et **\\*\\*** (puissance). `n % 2` teste pair/impair.\n## Comparaison & booléens\nLes comparaisons strictes `=== !== < <= > >=` renvoient des booléens. Combinez-les avec **&&** (et), **||** (ou), **!** (non).\n~~~js\nconst ok = level >= 0 && level <= 100;\n~~~\n## Branchements\n**if / else if / else**. Un `return` anticipé dans une branche quitte immédiatement la fonction.\n~~~js\nif (n % 15 === 0) return 'SYNCHRONIZED';\nelse if (n % 3 === 0) return 'MELCHIOR';\n~~~\n> INTEL — Vérifiez la condition la plus spécifique en premier (divisible par 15 avant 3 ou 5)."
+        "subtitle": "math · % · === · && || ! · branchement",
+        "theory": "## Arithmétique\nLes opérateurs mathématiques habituels font exactement ce à quoi vous vous attendez : `+ - * /`. Deux extras gagnent leur place — **%** donne le reste après division, et **\\*\\*** élève à une puissance. Le reste est le test pair/impair de référence : `n % 2` vaut `0` pour les pairs.\n~~~js\n17 % 5;   // 2  (remainder)\n2 ** 8;   // 256 (2 to the 8th)\n~~~\n> WARNING — `/` donne toujours un décimal : `7 / 2` vaut `3.5`, pas `3`. JS n'a pas de division entière distincte comme le `//` de Python.\n## Comparaison & booléens\nUne comparaison pose une question oui/non et répond par un **booléen** — `true` ou `false`. Utilisez `=== !== < <= > >=`, puis enchaînez les conditions avec **&&** (ET — exige les deux), **||** (OU — exige l'un ou l'autre) et **!** (NON — l'inverse).\n~~~js\nconst ok = level >= 0 && level <= 100;  // true only if in range\n~~~\n> WARNING — `=` assigne une valeur, `===` compare. Écrire `if (x = 5)` écrase x au lieu de le tester — un bug classique d'un seul caractère.\n## Branchement\n**if / else if / else** laisse votre code choisir un chemin selon une condition. À l'intérieur d'une fonction, un `return` dans une branche renvoie une valeur et sort immédiatement, donc les branches suivantes ne s'exécutent jamais.\n~~~js\nif (n % 15 === 0) return 'SYNCHRONIZED';\nelse if (n % 3 === 0) return 'MELCHIOR';\n~~~\n> INTEL — L'ordre compte : vérifiez d'abord la condition la plus spécifique. Testez divisible-par-15 avant 3 ou 5, sinon la règle plus large rafle la correspondance et la spécifique ne se déclenche jamais."
       },
       "jsm03-strings": {
         "title": "CHAÎNES & TABLEAUX",
         "subtitle": "méthodes · split/join · map · filter",
-        "theory": "## Chaînes\nLes chaînes sont immuables. Méthodes utiles : `.toUpperCase()`, `.toLowerCase()`, `.includes(x)`, `.split(sep)`, `.slice(a,b)`.\n## Tableaux\nListes ordonnées et modifiables. Transformez sans boucles grâce à **.map()**, **.filter()**, **.reduce()**.\n~~~js\n[1,2,3,4].filter(function (n) { return n % 2 === 0; });  // [2, 4]\n['a','b'].join('-');                                     // 'a-b'\n~~~\n## Split / reverse / join\nTransformez une chaîne en tableau, transformez-la, puis rejoignez-la.\n~~~js\n'LAIN'.split('').reverse().join('');  // 'NIAL'\n~~~\n> INTEL — `str.split('')` éclate une chaîne en un tableau de caractères que vous pouvez parcourir avec map/filter."
+        "theory": "## Chaînes\nUne chaîne, c'est du texte. Ses méthodes ne modifient jamais l'original — elles renvoient une chaîne toute neuve, car les chaînes sont **immuables**. Dégainez `.toUpperCase()`, `.toLowerCase()`, `.includes(x)` (contient-elle x ?), `.split(sep)` et `.slice(a,b)` (chopez un morceau).\n~~~js\nconst s = 'WIRED';\ns.toLowerCase();    // 'wired'\ns.includes('IR');   // true\n~~~\n> WARNING — `s.toLowerCase()` ne modifie pas `s` — elle vous rend une nouvelle chaîne. Pour la garder, stockez-la : `s = s.toLowerCase()`.\n## Tableaux\nUn tableau est une liste ordonnée de valeurs. Au lieu d'écrire des boucles, transformez-le avec trois bêtes de somme : **.map()** modifie chaque élément, **.filter()** garde les éléments qui passent un test, et **.reduce()** replie toute la liste en une seule valeur. Chacune renvoie un NOUVEAU tableau (reduce renvoie une seule valeur), laissant l'original intact.\n~~~js\n[1,2,3,4].filter(function (n) { return n % 2 === 0; });  // [2, 4]\n[1,2,3].map(function (n) { return n * 10; });            // [10, 20, 30]\n['a','b'].join('-');                                     // 'a-b'\n~~~\n> WARNING — La fonction dans `.map()`/`.filter()` doit **retourner** quelque chose. Oubliez le `return` et chaque élément revient en `undefined`.\n## Split / reverse / join\nEnchaînez les méthodes pour remodeler une chaîne : **split** la découpe en tableau, transformez ce tableau, puis **join** le recolle en chaîne. Chaque étape alimente la suivante.\n~~~js\n'LAIN'.split('').reverse().join('');  // 'NIAL'\n~~~\n> INTEL — `str.split('')` fait exploser une chaîne en un tableau d'un caractère par case, que vous pouvez map ou filter. `join('')` recolle les morceaux sans rien entre eux."
       },
       "jsm04-objects": {
         "title": "FONCTIONS & OBJETS",
         "subtitle": "fonctions fléchées · reduce · objets · recherches",
-        "theory": "## Fonctions fléchées\nUne syntaxe de fonction compacte. Ces deux écritures sont équivalentes :\n~~~js\nconst dbl = function (x) { return x * 2; };\nconst dbl2 = (x) => x * 2;\n~~~\n## reduce\nRéduisez un tableau en une seule valeur — le motif de l'accumulateur, intégré nativement.\n~~~js\n[10,20,12].reduce((a, c) => a + c, 0);  // 42\n~~~\n## Objets\nDes tables clé/valeur. Lisez avec `obj[key]` ; testez une clé avec `key in obj`.\n~~~js\nconst freq = {};\nfreq['a'] = (freq['a'] || 0) + 1;\n~~~\n> INTEL — `(freq[k] || 0) + 1` est le grand classique en une ligne pour construire une table de fréquences."
+        "theory": "## Fonctions fléchées\nUne fonction fléchée est une façon plus courte d'écrire une fonction — parfaite pour les petits one-liners que vous passez à `.map()` ou `.filter()`. Quand le corps est une seule expression, vous pouvez lâcher à la fois les accolades et le mot `return` ; la valeur revient automatiquement. Ces deux-là sont identiques :\n~~~js\nconst dbl = function (x) { return x * 2; };\nconst dbl2 = (x) => x * 2;  // implicit return\n~~~\n> WARNING — Dès l'instant où vous ajoutez des accolades `=> { ... }`, le retour automatique se coupe. `(x) => { x * 2 }` renvoie `undefined` — vous devez écrire `return x * 2;`.\n## reduce\n**.reduce()** réduit un tableau à une seule valeur — une somme, un max, un décompte. Elle parcourt la liste en transportant un **accumulateur** (le total courant) ; votre fonction renvoie l'accumulateur suivant à chaque étape. Le second argument est sa valeur de départ.\n~~~js\n[10,20,12].reduce((a, c) => a + c, 0);  // 42  (a=running total, c=current)\n~~~\n> WARNING — Ne sautez pas la valeur de départ. `reduce((a,c)=>a+c)` sans le `0` casse sur un tableau vide — passez l'accumulateur initial.\n## Objets\nUn objet est une collection de paires **clé/valeur** — comme un tiroir étiqueté, où chaque étiquette (clé) pointe vers une valeur. Lisez une valeur avec `obj[key]`, et vérifiez si une clé existe avec `key in obj` avant de lui faire confiance.\n~~~js\nconst freq = {};\nfreq['a'] = (freq['a'] || 0) + 1;  // 1, then 2, then 3...\n~~~\n> INTEL — `(freq[k] || 0) + 1` est l'astuce classique de la table de fréquences : une clé absente se lit comme `undefined`, le `|| 0` la transforme en 0, donc le premier décompte démarre à 1 au lieu de planter."
       },
       "jsm05-loops": {
         "title": "BOUCLES & ITÉRATION",
-        "subtitle": "for · while · for...of · ranges · accumulation",
-        "theory": "## La boucle for\nExécute un bloc un nombre fixe de fois. Trois parties : init, condition, pas.\n~~~js\nfor (let i = 0; i < 3; i++) {\n  console.log(i);   // 0, 1, 2\n}\n~~~\n## while\nBoucle tant qu'une condition tient — utilisez-la quand vous ignorez le nombre de tours à l'avance.\n~~~js\nlet n = 8;\nwhile (n > 1) { n = n / 2; }   // 8 -> 4 -> 2 -> 1\n~~~\n## for...of\nParcourez directement les valeurs d'un tableau.\n~~~js\nlet total = 0;\nfor (const x of [10, 20, 12]) { total += x; }   // 42\n~~~\n## Construire des résultats\nPartez d'un tableau/accumulateur vide et faites `push` ou `+=` à l'intérieur de la boucle.\n> INTEL — `break` sort d'une boucle prématurément ; `continue` saute au tour suivant."
+        "subtitle": "for · while · for...of · plages · accumulation",
+        "theory": "Une **boucle** exécute le même bloc de code encore et encore. Au lieu de copier-coller une ligne 100 fois, vous l'écrivez une seule fois et laissez la machine la répéter. Les boucles, c'est ainsi que vous traitez chaque élément d'une liste, comptez des choses, ou continuez jusqu'à atteindre un objectif.\n## La boucle for\nUtilisez `for` quand vous savez **combien de fois** répéter (ou que vous avez un début et une fin clairs). Elle regroupe trois contrôles sur une seule ligne : `init` (initialise un compteur), `condition` (continue tant que ceci est vrai), `step` (modifie le compteur à chaque passage).\n~~~js\nfor (let i = 0; i < 3; i++) {\n  console.log(i);   // prints 0, then 1, then 2\n}\n~~~\nLisez-la ainsi : démarre `i` à 0, exécute tant que `i < 3`, ajoute 1 après chaque passage. Elle s'arrête à 2 car `3 < 3` est faux.\n> WARNING — Les bugs de décalage d'un cran sont le piège classique. `i < 3` s'exécute 3 fois (0,1,2) ; `i <= 3` s'exécute 4 fois (0,1,2,3). Choisissez `<` ou `<=` délibérément.\n## while\nUtilisez `while` quand vous **ne connaissez pas le nombre à l'avance** — juste une condition sur laquelle continuer à boucler. Elle vérifie la condition, exécute le bloc, puis vérifie à nouveau.\n~~~js\nlet n = 8;\nwhile (n > 1) { n = n / 2; }   // 8 -> 4 -> 2 -> 1\n~~~\n> WARNING — Si rien à l'intérieur de la boucle ne rend jamais la condition fausse, vous obtenez une **boucle infinie** qui gèle le programme. Modifiez toujours une variable qui vous rapproche de la sortie (ici, `n` rétrécit à chaque passage).\n## for...of\nQuand vous voulez simplement chaque **valeur** d'un tableau, `for...of` vous les livre une à une — pas de compteur, pas d'indice, aucun risque de décalage d'un cran.\n~~~js\nlet total = 0;\nfor (const x of [10, 20, 12]) { total += x; }   // total becomes 42\n~~~\n## Construire des résultats\nLes boucles brillent dans l'**accumulation** : partez d'un conteneur vide, puis ajoutez-y quelque chose à chaque passage. Utilisez un tableau avec `.push(item)` pour collecter des valeurs, ou un nombre avec `+= x` pour tenir une somme courante.\n~~~js\nconst out = [];\nfor (let i = 1; i <= 3; i++) { out.push(i * i); }   // [1, 4, 9]\n~~~\n> WARNING — Déclarez l'accumulateur **en dehors** de la boucle. Mettez `const out = []` à l'intérieur et vous l'effacez à chaque passage, pour finir avec seulement le dernier élément.\n## break & continue\nDeux issues de secours : `break` quitte entièrement la boucle (arrêtez de chercher une fois que vous avez trouvé), et `continue` saute le reste de *ce* passage et bondit vers le suivant.\n> INTEL — `break` s'éjecte d'une boucle par anticipation ; `continue` saute au tour suivant."
       },
       "jsm06-closures": {
         "title": "CLÔTURES & ORDRE SUPÉRIEUR",
-        "subtitle": "des fonctions qui conservent un état · des fonctions qui fabriquent des fonctions",
-        "theory": "## Les fonctions sont des valeurs\nVous pouvez stocker une fonction dans une variable, la passer en argument et la **renvoyer** depuis une autre fonction.\n## Les closures\nUne fonction se souvient des variables vivantes là où elle a été créée — même après que l'appel externe a renvoyé.\n~~~js\nfunction makeAdder(step) {\n  return function (x) { return x + step; };  // 'step' stays captured\n}\nconst add5 = makeAdder(5);\nadd5(10);   // 15\n~~~\n## État privé\nComme la variable capturée est invisible à l'extérieur, les closures vous offrent un état privé et persistant.\n~~~js\nfunction tally() {\n  let n = 0;\n  return function () { n++; return n; };\n}\n~~~\n> INTEL — Chaque appel à la fonction externe crée une capture FRAÎCHE, donc deux compteurs ne partagent pas leur état."
+        "subtitle": "des fonctions qui retiennent un état · des fonctions qui fabriquent des fonctions",
+        "theory": "## Les fonctions sont des valeurs\nEn JavaScript, une fonction n'est qu'une **valeur** comme une autre, à l'image d'un nombre ou d'une chaîne. Cela signifie que vous pouvez la stocker dans une variable, la passer à une autre fonction en argument, et même la **renvoyer** depuis une fonction. Une fonction qui prend ou renvoie d'autres fonctions est appelée **fonction d'ordre supérieur** — c'est le fondement de tout le reste de ce secteur.\n~~~js\nconst shout = function (s) { return s.toUpperCase() + '!'; };\nconst fns = [shout];        // stored in an array\nfns[0]('wake up');          // 'WAKE UP!'\n~~~\n## Les fermetures\nQuand vous définissez une fonction **à l'intérieur** d'une autre fonction, la fonction interne se souvient des variables qui étaient vivantes là où elle est née — même après que la fonction externe a terminé et renvoyé son résultat. Cette mémoire capturée est une **fermeture** (closure). C'est pourquoi la fonction renvoyée ci-dessous sait toujours ce que valait `step`.\n~~~js\nfunction makeAdder(step) {\n  return function (x) { return x + step; };  // 'step' stays captured\n}\nconst add5 = makeAdder(5);\nadd5(10);   // 15  — add5 still remembers step was 5\n~~~\n## État privé\nLa variable capturée ne peut être ni vue ni touchée depuis l'extérieur de la fonction — il n'y a aucun moyen d'aller lire `n` ci-dessous. Cela rend les fermetures parfaites pour un **état privé et persistant** : des données qui survivent entre les appels mais restent scellées à l'écart.\n~~~js\nfunction tally() {\n  let n = 0;                                  // private — only the inner fn sees it\n  return function () { n++; return n; };      // n lives on between calls: 1, 2, 3...\n}\n~~~\n> WARNING — Chaque appel à la fonction externe crée une capture flambant neuve et distincte. `const a = tally()` et `const b = tally()` obtiennent chacun leur **propre** `n`, donc ils comptent indépendamment — `a` atteignant 3 ne fait pas bouger `b`. Les débutants s'attendent souvent à ce qu'ils partagent ; ce n'est pas le cas.\n> INTEL — Chaque appel à la fonction externe crée une capture FRAÎCHE, donc deux compteurs ne partagent pas d'état."
       },
       "jsm07-recursion": {
         "title": "RÉCURSION",
         "subtitle": "une fonction qui s'appelle elle-même · cas de base · la descente",
-        "theory": "## La descente\nUne fonction **récursive** s'appelle elle-même sur une entrée **plus petite** jusqu'à atteindre un **cas de base** qui arrête la chute.\n~~~js\nfunction factorial(n) {\n  if (n <= 1) return 1;          // base case\n  return n * factorial(n - 1);   // smaller subproblem\n}\n~~~\n## Deux règles, toujours\n1. Un **cas de base** qui renvoie sans récursion (sinon vous tombez à l'infini — débordement de pile).\n2. Chaque appel récursif doit se rapprocher de ce cas de base.\n## Tracez-le\n`factorial(3)` → `3 * factorial(2)` → `3 * 2 * factorial(1)` → `3 * 2 * 1` → **6**.\n> INTEL — Tout ce qu'une boucle peut faire, la récursion le peut aussi. Choisissez celle qui se lit le plus clairement."
+        "theory": "## La descente\n**La récursion**, c'est quand une fonction s'appelle **elle-même**. Au lieu de boucler, vous résolvez un gros problème en résolvant une version légèrement **plus petite** du même problème, puis la suivante encore plus petite, et ainsi de suite.\nChaque appel rétrécit l'entrée jusqu'à atteindre un **cas de base** — une valeur si simple que la réponse est connue d'emblée, sans plus aucune récursion. Le cas de base, c'est ce qui arrête la chute.\n~~~js\nfunction factorial(n) {\n  if (n <= 1) return 1;          // base case: stop here\n  return n * factorial(n - 1);   // smaller subproblem\n}\n~~~\n## Deux règles, toujours\n1. Un **cas de base** qui renvoie une valeur **sans** s'appeler à nouveau.\n2. Chaque appel récursif doit se rapprocher **vers** ce cas de base (ici, `n` rétrécit à chaque fois).\n## Tracez la descente et la remontée\nLes appels s'empilent en **descendant**, puis se résolvent en **remontant** :\n`factorial(3)` → `3 * factorial(2)` → `3 * 2 * factorial(1)` → `3 * 2 * 1` → **6**.\n> INTEL — Tout ce qu'une boucle peut faire, la récursion le peut aussi. Tournez-vous vers la récursion quand le problème est naturellement auto-similaire — arbres, menus imbriqués, dossiers à l'intérieur de dossiers.\n> WARNING — Oubliez le cas de base (ou écrivez-en un que l'entrée n'atteint jamais) et la fonction s'appelle elle-même à l'infini : **débordement de pile** (stack overflow), le programme plante. Vérifiez toujours que le cas de base se déclenche en premier."
       },
       "jsm08-errors": {
         "title": "GESTION DES ERREURS",
-        "subtitle": "throw · try / catch · failing safe",
-        "theory": "## Lever une exception\nQuand une saisie est invalide, **levez** une Error au lieu de renvoyer une mauvaise réponse qui empoisonne tout en aval.\n~~~js\nfunction root(x) {\n  if (x < 0) throw new Error('negative');\n  return Math.sqrt(x);\n}\n~~~\n## Capturer\nEnveloppez le code à risque dans un **try / catch** pour récupérer au lieu de planter.\n~~~js\ntry {\n  risky();\n} catch (e) {\n  console.log('contained:', e.message);\n}\n~~~\n> INTEL — Levez une exception tôt sur une saisie incorrecte (une 'clause de garde') ; ne capturez que là où vous pouvez réellement récupérer."
+        "subtitle": "throw · try / catch · échouer sans casser",
+        "theory": "## Lever une exception\nQuand quelque chose tourne mal — une saisie invalide, une valeur manquante — vous pouvez **lever** (throw) une erreur. Lever une exception arrête la fonction immédiatement et signale « je ne peux pas continuer » au lieu de renvoyer une mauvaise réponse qui empoisonne silencieusement tout en aval.\nUtilisez `throw new Error('message')`. L'objet `Error` transporte un `.message` lisible et une trace de pile qui montre où ça a explosé.\n~~~js\nfunction root(x) {\n  if (x < 0) throw new Error('negative input');  // guard clause\n  return Math.sqrt(x);\n}\n~~~\n## Capturer\nUne erreur non capturée fait planter le programme. Enveloppez le code à risque dans un **try / catch** pour pouvoir récupérer et continuer à tourner. Le code du `try` s'exécute ; s'il lève une exception, le contrôle saute au `catch`, qui reçoit l'erreur.\n~~~js\ntry {\n  risky();\n} catch (e) {\n  console.log('contained:', e.message);  // fail safe: handle it\n}\n~~~\n## Échouer sans casser\nUne bonne solution de repli laisse le programme continuer avec une valeur par défaut sensée au lieu de mourir — renvoyer une valeur en cache, un zéro, une liste vide.\n> INTEL — Levez une exception **tôt** sur une saisie incorrecte (une « clause de garde ») ; ne capturez que là où vous pouvez réellement en faire quelque chose d'utile.\n> WARNING — Faites toujours `throw new Error(...)`, jamais une simple chaîne (`throw 'oops'`) — les chaînes ne transportent ni `.message` ni trace de pile. Et n'enveloppez pas d'énormes blocs dans un seul `catch` : capturer trop largement masque de vrais bugs que vous préféreriez voir."
       },
       "jsm09-sets": {
         "title": "SETS & MAPS",
         "subtitle": "Set · Map · unique · fréquence · appartenance",
-        "theory": "## Set — un sac de valeurs uniques\nUn **Set** conserve chaque valeur au plus une fois. Construisez-en un à partir d'un tableau pour le dédupliquer ; étalez-le ensuite dans un tableau.\n~~~js\nconst s = new Set([1, 1, 2, 3]);   // {1, 2, 3}\ns.has(2);                          // true\n[...new Set([1, 1, 2])];           // [1, 2]   (order preserved)\n~~~\n## Map — indexée par n'importe quoi\nUne **Map** est un stockage clé/valeur comme un objet, mais les clés peuvent être de n'importe quel type et elle mémorise l'ordre d'insertion.\n~~~js\nconst m = new Map();\nm.set('a', (m.get('a') || 0) + 1);\nm.get('a');   // 1\nm.size;       // 1\n~~~\n> INTEL — `new Set(b).has(x)` est le test d'appartenance rapide qui alimente les intersections et le 'est-ce dans la liste ?'."
+        "theory": "## Set — un sac de valeurs uniques\nUn **Set** est une collection où chaque valeur ne peut apparaître **qu'une seule fois**. Ajoutez deux fois la même valeur et le\nsecond ajout est silencieusement ignoré. **Pourquoi ?** Il répond vite à deux questions : *cette valeur est-elle déjà là ?* et\n*donne-moi ces valeurs débarrassées des doublons.*\nConstruisez un Set à partir d'un tableau pour le dédupliquer, puis répandez-le (`...`) dans un tableau ordinaire quand vous en avez besoin.\n~~~js\nconst s = new Set([1, 1, 2, 3]);   // holds {1, 2, 3} — the extra 1 is dropped\ns.add(2);                          // ignored, 2 is already in\ns.has(2);                          // true  — membership test\ns.size;                            // 3     — how many values\n[...new Set([1, 1, 2])];           // [1, 2]   spread back to an array (order kept)\n~~~\n> WARNING — Un Set stocke des **valeurs uniquement**, pas des paires clé/valeur. `s.add('a')` y place la valeur `'a'` ; il\nn'y a pas de `s.set(...)` ni de `s.get(...)`. Si vous devez retrouver quelque chose *par* une clé, c'est une Map qu'il vous faut.\n## Map — un magasin clé → valeur\nUne **Map** relie chaque **clé** à une **valeur**, comme une petite table de correspondance. Elle ressemble à un objet ordinaire, mais\navec deux super-pouvoirs : les clés peuvent être de **n'importe quel type** (nombres, objets, voire fonctions — pas seulement des chaînes), et elle\n**se souvient de l'ordre** dans lequel vous avez inséré les choses. Utilisez `.set(key, value)` pour stocker, `.get(key)` pour lire.\n~~~js\nconst m = new Map();\nm.set('a', 1);          // store: key 'a' -> value 1\nm.set('a', (m.get('a') || 0) + 1);   // read the old value, add 1, store again\nm.get('a');             // 2\nm.get('zzz');           // undefined  — missing key\nm.has('a');             // true\nm.size;                 // 1     — number of entries\n~~~\n> WARNING — Les méthodes de Map ne sont **pas** la syntaxe des tableaux/objets : c'est `m.set(k, v)` et `m.get(k)`, jamais `m[k] = v`.\nÉcrire `m['a'] = 1` pose une propriété ordinaire sur l'objet à la place — `m.get('a')` reste `undefined` et\n`m.size` ne change pas.\n## Lequel, et quand\nOptez pour un **Set** quand seule vous importe la *présence* d'une valeur (déduplication, appartenance, recouvrement). Optez pour\nune **Map** quand vous devez attacher des données *à* chaque clé (compter la fréquence d'apparition de quelque chose, retrouver des valeurs).\n> INTEL — `new Set(b).has(x)` est le test d'appartenance rapide qui alimente les intersections et le « est-ce dans la liste ? ».\nVérifier un Set est bien plus rapide que de parcourir tout un tableau avec `arr.includes(x)` à chaque fois."
       },
       "jsm0a-classes": {
         "title": "CLASSES & POO",
         "subtitle": "class · constructor · méthodes · état d'instance",
-        "theory": "## Une classe est un plan\n**class** regroupe l'état (dans le **constructor**) avec le comportement (les méthodes). **new** produit une instance.\n~~~js\nclass Drone {\n  constructor(name) { this.name = name; this.alt = 0; }\n  climb(n) { this.alt += n; }\n  status() { return `${this.name} @ ${this.alt}m`; }\n}\nconst d = new Drone('Tachikoma');\nd.climb(50);\nd.status();   // 'Tachikoma @ 50m'\n~~~\n## this\nDans une méthode, **this** est l'instance. Chaque objet créé avec `new` porte sa propre copie de l'état.\n> INTEL — Les paramètres par défaut fonctionnent aussi dans les constructeurs : `constructor(start = 0) { this.n = start; }`."
+        "theory": "## Une classe est un plan\nUne **classe** est un plan pour fabriquer des objets qui partagent la même forme et les mêmes capacités. Elle regroupe l'**état**\n(les données dont chaque objet se souvient) avec le **comportement** (ce qu'il sait faire, appelé **méthodes**). **Pourquoi ?** Quand\nvous avez besoin de nombreux objets du même genre — drones, joueurs, piles — vous écrivez le plan une seule fois et en estampez\nautant que vous voulez, chacun conservant ses propres données.\nDeux parties clés : le **constructor** s'exécute une fois à la naissance de l'objet et met en place son état de départ ; les autres\nfonctions à l'intérieur de la classe sont ses **méthodes**.\n~~~js\nclass Drone {\n  constructor(name) { this.name = name; this.alt = 0; }   // runs on `new`, sets up state\n  climb(n) { this.alt += n; }                             // a method\n  status() { return `${this.name} @ ${this.alt}m`; }\n}\nconst d = new Drone('Tachikoma');   // `new` builds one instance\nd.climb(50);                        // call a method on it\nd.status();   // 'Tachikoma @ 50m'\n~~~\n## new — construire une instance\n**new** est ce qui transforme le plan en un objet réel (une **instance**). Il crée un objet tout neuf, exécute le\nconstructor dessus, et vous le rend.\n> WARNING — Utilisez **toujours** new. Appeler `Drone('x')` *sans* `new` ne construit pas d'objet — dans une classe ça\nlève une erreur, et même là où ça ne le fait pas, `this` ne sera pas votre nouvelle instance. La correction est toujours `new Drone('x')`.\n## this — l'instance courante\nÀ l'intérieur d'une méthode, **this** désigne l'objet spécifique sur lequel la méthode a été appelée. Vous lisez et écrivez les\ndonnées propres à cet objet via `this.` — comme `this.name` ou `this.alt`. Chaque objet fabriqué avec `new` porte sa\n**propre** copie de l'état, donc modifier une instance ne touche jamais une autre.\n~~~js\nconst a = new Drone('A');\nconst b = new Drone('B');\na.climb(10);        // only a.alt changes; b.alt is still 0\n~~~\n> WARNING — À l'intérieur d'une méthode vous devez écrire `this.name`, pas seulement `name`. `name` tout seul cherche une variable\nséparée (et le plus souvent lève une erreur ou lit la mauvaise chose) ; seul `this.name` atteint les données propres à l'instance.\n> INTEL — Les paramètres par défaut fonctionnent aussi dans les constructors : `constructor(start = 0) { this.n = start; }` — alors\n`new Counter()` démarre à 0 tandis que `new Counter(10)` démarre à 10."
       },
       "jsm0b-regex": {
         "title": "MOTIFS & REGEX",
         "subtitle": "test · match · replace · classes de caractères",
-        "theory": "## Expressions régulières\nUne **regex** est un motif pour du texte. Écrivez-la entre slashs ; les drapeaux suivent (`g` global, `i` insensible à la casse).\n~~~js\n/cat/i.test('Cataphract');   // true\n~~~\n## Classes de caractères\n- `\\\\d` un chiffre, `\\\\D` un non-chiffre\n- `\\\\w` un caractère de mot, `\\\\s` un espace\n- `[a-z]` un intervalle, `+` un-ou-plus, `*` zéro-ou-plus, `{6}` exactement six\n- `^` début, `$` fin\n## Les trois pivots\n~~~js\n'a1b2'.replace(/\\\\d/g, '#');   // 'a#b#'   (replace all digits)\n'x42y7'.match(/\\\\d+/g);        // ['42', '7']   (all number runs)\n/^#[0-9a-f]{6}$/i.test('#FF8800');  // true\n~~~\n> INTEL — `str.match(/.../g)` renvoie un tableau de correspondances, ou **null** s'il n'y en a aucune. `(... || [])` le rend sûr."
+        "theory": "## Expressions régulières\nUne **regex** est un minuscule motif de recherche pour le texte — pas un mot unique à trouver, mais une *forme* à reconnaître : 'trois chiffres',\n'un mot finissant en -ing', 'commence par #'. Ça paraît cryptique au début, mais ce n'est qu'une poignée de symboles. Une fois que vous\nles connaissez, vous pouvez valider, chercher et réécrire du texte en une seule ligne au lieu d'une boucle pleine de `if`.\nÉcrivez le motif entre slashes ; les **drapeaux** optionnels viennent après le slash de fermeture (`g` = tout trouver, pas seulement le premier ; `i` = ignorer la casse).\n~~~js\n/cat/i.test('Cataphract');   // true  — 'cat' appears, case ignored\n~~~\n> INTEL — `/cat/` est un *littéral* regex, comme `'cat'` est un littéral chaîne. Pas de guillemets autour.\n## Classes de caractères — les briques de base\nUne **classe de caractères** reconnaît un caractère d'un certain type :\n- `\\\\d` n'importe quel chiffre `0-9` &nbsp;·&nbsp; `\\\\D` n'importe quel **non**-chiffre\n- `\\\\w` un caractère de mot (lettre, chiffre ou `_`) &nbsp;·&nbsp; `\\\\s` n'importe quel espace blanc\n- `[a-z]` votre propre plage — n'importe quelle minuscule &nbsp;·&nbsp; `[aeiou]` n'importe quelle voyelle\nLes **quantificateurs** disent *combien* de la chose qui les précède : `+` un-ou-plus, `*` zéro-ou-plus, `?` zéro-ou-un, `{6}` exactement six.\nDonc `\\\\d+` signifie 'un ou plusieurs chiffres à la suite'. Les **ancres** fixent la correspondance : `^` au début du texte, `$` à la fin.\n## Les trois bêtes de somme\n`.test` pose une question oui/non, `.match` extrait les occurrences, `.replace` les remplace :\n~~~js\n/\\\\d/.test('a1b2');             // true   — is there a digit anywhere?\n'x42y7'.match(/\\\\d+/g);         // ['42', '7']   — every run of digits\n'a1b2'.replace(/\\\\d/g, '#');    // 'a#b#'   — every digit becomes #\n/^#[0-9a-f]{6}$/i.test('#FF8800');  // true — # then exactly 6 hex digits, nothing else\n~~~\n> WARNING — oubliez le drapeau `g` et `.replace` ne change que la **première** correspondance, tandis que `.match` ne renvoie qu'une seule occurrence. Ajoutez `g` pour dire 'toutes'.\n> INTEL — `str.match(/.../g)` renvoie un tableau d'occurrences, ou **null** quand il n'y en a aucune — pas `[]`. Écrire `(str.match(re) || [])` empêche votre code de planter en cas d'absence de correspondance."
       },
       "jsm0c-json": {
         "title": "JSON & MISE EN FORME DES DONNÉES",
-        "subtitle": "JSON.parse · reduce over records · pick fields",
-        "theory": "## JSON\nLe JSON est du texte qui ressemble à des objets/tableaux JS. **JSON.parse** transforme du texte en données ; **JSON.stringify** transforme des données en texte.\n~~~js\nconst data = JSON.parse('[{\"price\": 10}, {\"price\": 5}]');\ndata[0].price;   // 10\n~~~\n## Mise en forme des enregistrements\nUne fois analysés, ce ne sont que des tableaux d'objets — reduce/map/filter comme d'habitude.\n~~~js\ndata.reduce((sum, r) => sum + r.price, 0);   // 15\n~~~\n## Sélection de champs\nCopiez un sous-ensemble de clés dans un nouvel objet :\n~~~js\nconst out = {};\nfor (const k of ['a', 'c']) if (k in obj) out[k] = obj[k];\n~~~\n> INTEL — `k in obj` est vrai même lorsque la valeur est 0 ou '' — plus sûr que `if (obj[k])`."
+        "subtitle": "JSON.parse · reduce sur des enregistrements · sélection de champs",
+        "theory": "## JSON — les données sous forme de texte\n**JSON** (JavaScript Object Notation) est le format universel pour envoyer des données entre programmes : les API répondent en JSON,\nles fichiers de config sont écrits en JSON, les sauvegardes le stockent. C'est du **texte** brut qui ressemble presque exactement à un objet\nou un tableau JS — donc il circule facilement sur le réseau, mais vous ne pouvez pas l'utiliser directement tant que vous ne l'avez pas reconverti en vraies données.\nDeux fonctions intégrées franchissent ce pont : **JSON.parse** transforme une chaîne JSON en données vivantes ; **JSON.stringify** retransforme des données en chaîne.\n~~~js\nconst data = JSON.parse('[{\"price\": 10}, {\"price\": 5}]');\ndata[0].price;                 // 10  — now it's a real array of objects\nJSON.stringify({ ok: true });  // '{\"ok\":true}'  — back to text\n~~~\n> WARNING — en JSON, **les clés doivent être entre guillemets doubles** et vous ne pouvez pas laisser de virgule finale : `{name: 'Jet'}` et `{\"a\":1,}` sont tous deux invalides.\n> INTEL — `JSON.parse` **lève une erreur** si le texte est mal formé. Enveloppez les entrées à risque dans `try { ... } catch (e) { ... }` pour qu'une seule mauvaise chaîne ne fasse pas tout planter.\n## Mise en forme des enregistrements\nUne fois analysé, ce n'est qu'un tableau d'objets simples — donc `reduce`, `map` et `filter` fonctionnent exactement comme toujours.\n`reduce` est parfait pour réduire de nombreux enregistrements en une seule valeur, comme un cumul :\n~~~js\ndata.reduce((sum, r) => sum + r.price, 0);   // 15  — sum every record's price\n~~~\n## Sélection de champs\nSouvent vous ne voulez que quelques clés d'un gros enregistrement. Copiez celles que vous voulez dans un objet neuf — en laissant l'original intact :\n~~~js\nconst out = {};\nfor (const k of ['a', 'c']) if (k in obj) out[k] = obj[k];\n~~~\n> INTEL — utilisez `k in obj` pour tester une clé, pas `if (obj[k])`. La vérification `in` reste vraie quand la valeur est `0` ou `''`, alors que `if (obj[k])` les écarterait à tort."
       },
       "jsm0d-sort": {
         "title": "TRI & COMPARATEURS",
-        "subtitle": "sort() · numeric vs lexical · sort by key · top-N",
-        "theory": "## Le piège du comparateur\n`.sort()` sans argument trie **comme du texte**, donc `[10, 2, 1].sort()` donne `[1, 10, 2]` — faux pour des nombres !\nPassez un comparateur renvoyant négatif / 0 / positif :\n~~~js\n[10, 2, 1].sort((a, b) => a - b);   // [1, 2, 10] ascending\n[10, 2, 1].sort((a, b) => b - a);   // [10, 2, 1] descending\n~~~\n## Ne modifiez pas le tableau de l'appelant\n`.sort()` trie **en place**. Copiez d'abord avec `.slice()` pour renvoyer un nouveau tableau et laisser l'entrée intacte.\n## Trier selon un champ\n~~~js\npeople.slice().sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));\n~~~\n> INTEL — `arr.slice().sort(cmp).slice(0, n)` est le classique 'top-N' en une ligne."
+        "subtitle": "sort() · numérique vs lexical · tri par clé · top-N",
+        "theory": "## Ce que fait réellement sort\n`.sort()` réordonne un tableau. Ça paraît simple — mais par défaut il trie **comme du texte**, en comparant les éléments\ncaractère par caractère, comme des mots dans un dictionnaire. C'est pour ça que les nombres ressortent dans le désordre :\n~~~js\n[10, 9, 100].sort();   // ['10','100','9'] — '1' beats '9' alphabetically!\n~~~\n## Le comparateur : comment trier des nombres\nPour trier comme *vous* l'entendez, passez à `.sort()` un **comparateur** — une fonction qui prend deux éléments `(a, b)`\net renvoie un nombre. **Négatif** signifie 'a passe en premier', **positif** signifie 'b passe en premier', **0** signifie\n'laisse-les à égalité'. Pour les nombres, toute l'astuce tient en `a - b` :\n~~~js\n[10, 9, 100].sort((a, b) => a - b);   // [9, 10, 100] ascending\n[10, 9, 100].sort((a, b) => b - a);   // [100, 10, 9] descending\n~~~\n> WARNING — Oublier le comparateur est le bug de tri n°1. `[10, 9, 100].sort()` donne `['10','100','9']`,\n> pas `[9, 10, 100]`. Passez toujours `(a, b) => a - b` pour les nombres.\n## Sort mute — alors copiez d'abord\n`.sort()` ne renvoie **pas** un tableau neuf ; il réarrange **l'original sur place** et vous le rend.\nSi un appelant a encore besoin de ses données dans leur ordre d'origine, vous les avez bousillées. Copiez avec `.slice()` d'abord, puis\ntriez la copie — l'entrée reste intacte :\n~~~js\nconst ranked = scores.slice().sort((a, b) => b - a);   // scores is unchanged\n~~~\n## Trier par une clé, pas par l'élément entier\nPour ordonner des objets, comparez le **champ** qui vous intéresse. Les chaînes n'ont pas de `-`, alors renvoyez `-1 / 1 / 0` à la main :\n~~~js\npeople.slice().sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));\n~~~\n> INTEL — Triez par ordre décroissant, gardez la tranche de tête, et vous avez le classique 'top-N' en une ligne :\n> `arr.slice().sort((a, b) => b - a).slice(0, n)`."
       },
       "jsm0e-search": {
         "title": "RECHERCHE & ALGORITHMES",
-        "subtitle": "binary search · is-sorted · array rotation",
-        "theory": "## Recherche binaire\nSur un tableau **trié**, divisez l'espace de recherche par deux à chaque étape : examinez le milieu, puis allez à gauche ou à droite.\n~~~js\n// lo/hi window; mid = (lo + hi) >> 1; compare arr[mid] to target\n~~~\nElle trouve une valeur parmi un million d'entrées en ~20 étapes au lieu d'un million.\n## Bouclage modulaire\nPour faire pivoter ou boucler un indice, `((k % n) + n) % n` retombe toujours dans `0..n-1`, même pour un k négatif.\n> INTEL — La recherche binaire n'est correcte que si le tableau est déjà trié. Vérifiez, ou triez d'abord."
+        "subtitle": "recherche binaire · est-trié · rotation de tableau",
+        "theory": "## Recherche linéaire vs binaire\nLa façon la plus simple de trouver quelque chose, c'est la **recherche linéaire** : on parcourt le tableau depuis le début et on s'arrête au\npremier résultat. Ça marche toujours, mais sur une grande liste ça peut vérifier chaque élément un par un.\nSi le tableau est **déjà trié**, la **recherche binaire** est bien plus rapide. Vous suivez une fenêtre avec deux indices,\n`lo` et `hi`, vous regardez le **milieu** et vous jetez la moitié du tableau à chaque étape : trop petit ? la réponse est\nà droite, alors avancez `lo` au-delà de `mid`. Trop grand ? déplacez `hi` vers la gauche. Continuez tant que `lo <= hi`.\n~~~js\nlet lo = 0, hi = arr.length - 1;\nwhile (lo <= hi) {\n  const mid = (lo + hi) >> 1;        // middle index\n  if (arr[mid] === target) return mid;\n  if (arr[mid] < target) lo = mid + 1;   // search the right half\n  else hi = mid - 1;                     // search the left half\n}\n~~~\nCe découpage par moitié trouve une valeur parmi un million d'entrées en ~20 étapes au lieu d'un million.\n> WARNING — La recherche binaire n'est **correcte que sur un tableau trié**. Sur des données non triées, elle renvoie\n> silencieusement de mauvaises réponses. Vérifiez d'abord l'ordre (voir `isSorted`), ou triez avant de chercher.\n## Surveillez les bornes\nLa plupart des bugs de recherche binaire sont des **erreurs d'un cran** : utilisez `lo <= hi` (pas `<`) pour qu'une fenêtre d'un seul élément soit quand même\nvérifiée, et déplacez toujours la borne *au-delà* de `mid` (`mid + 1` / `mid - 1`) — la laisser *sur* `mid` peut boucler\nà l'infini. En cas de doute, tracez à la main un tableau de 1 et de 2 éléments.\n## Repli modulaire (pour la rotation)\nPour faire tourner ou replier un index autour d'un tableau de longueur `n`, `((k % n) + n) % n` atterrit toujours dans `0..n-1` —\nmême quand `k` est négatif ou plus grand que `n`. Le premier `% n` le réduit ; le `+ n` puis `% n` corrige\nles négatifs, car en JS un simple `%` peut renvoyer un résultat négatif.\n> INTEL — Attaquez d'abord par la version force brute pour verrouiller la bonne réponse, puis optimisez. Une fonction\n> rapide mais fausse sur les cas limites est pire qu'une lente mais juste."
       },
       "jsm0f-stralgo": {
         "title": "ALGORITHMES DE CHAÎNES",
-        "subtitle": "normalize · palindrome · anagram · title-case"
+        "subtitle": "normaliser · palindrome · anagramme · casse-titre",
+        "theory": "## Normaliser d'abord, comparer ensuite\n**Quoi :** *normaliser* signifie décaper une chaîne jusqu'à une forme nue — en minuscules, sans espaces, sans ponctuation — avant d'en faire quoi que ce soit.\n**Pourquoi :** l'ordinateur voit `'Lain'` et `'lain'` comme des textes totalement différents. Balayez le bruit et la vraie comparaison devient triviale.\n~~~js\nconst clean = s.toLowerCase().replace(/[^a-z0-9]/g, '');\n// 'A man!' -> 'aman'  (lower-cased, only letters/digits survive)\n~~~\nLa regex `/[^a-z0-9]/g` signifie *tout caractère qui N'EST PAS une lettre minuscule ni un chiffre* — `replace` les supprime tous.\n> WARNING — Comparer des chaînes brutes est le piège n°1 du débutant : `'Silent' === 'silent'` vaut `false`. Normalisez **les deux** côtés avant toute vérification.\n## Inverser & trier : construire une signature\nDeux casse-têtes classiques découlent directement d'un texte normalisé :\n- Un **palindrome** se lit à l'identique dans les deux sens — donc la chaîne nettoyée égale son propre inverse.\n- Deux chaînes sont des **anagrammes** si elles utilisent exactement les mêmes lettres — donc leurs lettres *triées* coïncident.\n~~~js\n'cinema'.split('').sort().join('');  // 'aceimn'\n'iceman'.split('').sort().join('');  // 'aceimn' — same signature -> anagram\n~~~\nTrier les caractères transforme chaque mot en **empreinte** : réarranger les lettres ne peut pas la changer, donc des empreintes égales signifient des jeux de lettres égaux.\n## Codes de caractères\nBesoin du nombre brut derrière un caractère ? `'A'.charCodeAt(0)` vaut `65`, et `String.fromCharCode(65)` le retransforme en `'A'` — pratique pour décaler ou ordonner des lettres.\n> INTEL — `split('')` éclate une chaîne en tableau de caractères, et `join('')` la ressoude. `sort()` et `reverse()` ne fonctionnent que sur des tableaux, donc cet aller-retour est la manière de remodeler du texte."
       },
       "jsm10-math": {
         "title": "MATHS & NOMBRES",
         "subtitle": "pgcd · primalité · bornage de plages",
-        "theory": "## L'algorithme d'Euclide\nLe plus grand commun diviseur : remplacez continuellement `(a, b)` par `(b, a % b)` jusqu'à ce que `b` vaille 0 — alors `a` est le PGCD.\n~~~js\nwhile (b !== 0) { [a, b] = [b, a % b]; }   // a is now gcd\n~~~\n## La primalité, à moindre coût\nUn nombre `n` est premier si rien entre 2 et **√n** ne le divise — vérifier au-delà de la racine carrée est du travail gaspillé.\n~~~js\nfor (let i = 2; i * i <= n; i++) { if (n % i === 0) return false; }\n~~~\n## Le bornage\nFixez une valeur dans une plage avec `Math.max(lo, Math.min(x, hi))`.\n> INTEL — `i * i <= n` l'emporte sur `i <= Math.sqrt(n)` : arithmétique entière, aucune mauvaise surprise en virgule flottante."
+        "theory": "## Algorithme d'Euclide (plus grand commun diviseur)\n**Quoi :** le PGCD est le plus grand nombre qui divise deux valeurs sans reste — `gcd(12, 18)` vaut `6`.\n**Pourquoi :** Euclide a trouvé un raccourci vieux de 2 000 ans : remplacer `(a, b)` par `(b, a % b)` encore et encore. Les nombres rétrécissent vite, et dès l'instant où `b` atteint 0, la réponse se trouve dans `a`.\n~~~js\nwhile (b !== 0) { [a, b] = [b, a % b]; }   // a is now the gcd\n// 18%12=6 -> (12,6); 12%6=0 -> (6,0); stop -> 6\n~~~\n`a % b` est le **reste** de la division. `[a, b] = [b, a % b]` échange les deux valeurs d'un coup (déstructuration) pour ne pas perdre `b` avant de l'avoir utilisée.\n## Primalité, sans travail gaspillé\n**Quoi :** un **nombre premier** est un entier supérieur à 1 sans diviseur autre que 1 et lui-même (2, 3, 5, 7, 11, ...).\n**Pourquoi ne tester que jusqu'à √n ?** Les diviseurs vont par paires dont le produit fait `n`. L'un des partenaires est toujours ≤ √n, donc si aucun diviseur n'apparaît avant la racine carrée, il n'en existe aucun au-dessus non plus.\n~~~js\nif (n < 2) return false;                 // 0 and 1 are not prime\nfor (let i = 2; i * i <= n; i++) {\n  if (n % i === 0) return false;         // found a divisor -> not prime\n}\nreturn true;\n~~~\n> WARNING — Boucler `i` jusqu'à `n` fonctionne quand même mais c'est terriblement gaspilleur : pour un million, ça fait ~1000x plus de vérifications. Arrêtez-vous à √n.\n## Borner une valeur dans une plage\n**Quoi :** *clamp* force un nombre à rester entre une borne basse et une borne haute — tout ce qui est sous `lo` devient `lo`, tout ce qui est au-dessus de `hi` devient `hi`.\n~~~js\nMath.max(lo, Math.min(x, hi));  // x pinned to [lo, hi]\n// clamp(99, 0, 10): min(99,10)=10, then max(0,10)=10\n~~~\n> WARNING — L'ordre des arguments compte : c'est `Math.min(x, hi)` puis `Math.max(lo, ...)`. Intervertissez `lo` et `hi` et une valeur trop basse peut filer au-delà du plafond.\n## Entiers vs flottants\nJavaScript n'a qu'un seul type de nombre, et les décimaux sont stockés en binaire — donc certaines fractions ne peuvent pas être exactes.\n~~~js\n0.1 + 0.2;                       // 0.30000000000000004, not 0.3 !\n(0.1 + 0.2).toFixed(2);          // '0.30'  (a string, rounded for display)\n~~~\n> INTEL — Ne testez jamais des flottants avec `===`. Comparez avec une minuscule tolérance, par ex. `Math.abs(a - b) < 1e-9`. Et `i * i <= n` l'emporte sur `i <= Math.sqrt(n)` : arithmétique entière pure, aucune mauvaise surprise en virgule flottante."
       }
     },
     "exercises": {
       "js-wake": {
         "title": "RÉVEIL",
-        "brief": "Premier contact. Affichez le signal.",
-        "hint": "Trois appels distincts à console.log(), ponctuation et majuscules reproduites à l'identique.",
-        "prompt": "Affichez ces **trois lignes, exactement**, dans l'ordre, avec `console.log` :\n~~~text\nWake up, Neo...\nThe Matrix has you...\nFollow the white rabbit.\n~~~"
+        "brief": "Premier contact. Journalisez le signal.",
+        "hint": "Trois appels console.log() distincts, ponctuation et majuscules respectées à l'identique.",
+        "prompt": "Journalisez ces **trois lignes, exactement**, dans l'ordre, avec `console.log` :\n~~~text\nWake up, Neo...\nThe Matrix has you...\nFollow the white rabbit.\n~~~"
       },
       "js-amplify": {
         "title": "AMPLIFIER",
-        "brief": "Amplifiez une transmission faible.",
+        "brief": "Boostez une transmission faible.",
         "hint": "return signal * 2;",
         "prompt": "Définissez **amplify(signal)** qui **renvoie** le signal à amplitude doublée (signal × 2).\n~~~js\namplify(21)  // 42\namplify(-3)  // -6\n~~~"
       },
@@ -978,25 +979,85 @@ window.CONTENT_FR = {
         "title": "DÉMARRAGE IA",
         "brief": "Mettez un superordinateur en ligne — avec un littéral de gabarit.",
         "hint": "return `${name} online. All systems nominal.`;",
-        "prompt": "Définissez **bootMessage(name)** qui renvoie la chaîne :\n~~~text\n<name> online. All systems nominal.\n~~~\nUtilisez un littéral de gabarit."
+        "prompt": "Définissez **bootMessage(name)** renvoyant la chaîne :\n~~~text\n<name> online. All systems nominal.\n~~~\nUtilisez un littéral de gabarit."
+      },
+      "js-rootkit": {
+        "title": "ROOT CHECK",
+        "brief": "Vérifiez une identité avec l'égalité stricte.",
+        "hint": "Renvoyez la comparaison directement : name === 'root'.",
+        "prompt": "Définissez **isRoot(name)** qui renvoie `true` uniquement quand `name` est **exactement** la chaîne `'root'`, sinon `false`.\nUtilisez l'égalité stricte `===` — la casse compte, donc `'Root'` n'est **pas** root.\n~~~js\nisRoot('root')     // true\nisRoot('Trinity')  // false\nisRoot('Root')     // false\n~~~"
+      },
+      "js-typeprobe": {
+        "title": "TYPE PROBE",
+        "brief": "Scannez une valeur et signalez son type.",
+        "hint": "return typeof value;",
+        "prompt": "Définissez **probe(value)** qui renvoie le **type** de `value` sous forme de chaîne, avec l'opérateur `typeof`.\n~~~js\nprobe('Neo')  // 'string'\nprobe(42)     // 'number'\nprobe(true)   // 'boolean'\n~~~"
+      },
+      "js-callsign": {
+        "title": "CALLSIGN",
+        "brief": "Forgez un indicatif à partir de deux parties d'un nom.",
+        "hint": "Accents graves, nom de famille d'abord : `${last}-${first}`.",
+        "prompt": "Définissez **callsign(first, last)** qui renvoie le nom de **famille** et le **prénom** joints par un trait d'union, avec un littéral de gabarit.\nFormat : `` `${last}-${first}` ``\n~~~js\ncallsign('Motoko', 'Kusanagi')  // 'Kusanagi-Motoko'\ncallsign('Spike', 'Spiegel')    // 'Spiegel-Spike'\n~~~"
+      },
+      "js-roundpwr": {
+        "title": "POWER GAUGE",
+        "brief": "Arrondissez une mesure en une chaîne de jauge étiquetée.",
+        "hint": "Math.round(level) à l'intérieur de `Power: ${...}%`.",
+        "prompt": "Définissez **powerLabel(level)** qui **arrondit** `level` au nombre entier le plus proche et le renvoie sous forme de chaîne étiquetée.\nFormat : `` `Power: ${rounded}%` `` — utilisez `Math.round` et un littéral de gabarit.\n~~~js\npowerLabel(87.6)  // 'Power: 88%'\npowerLabel(50)    // 'Power: 50%'\npowerLabel(33.2)  // 'Power: 33%'\n~~~"
+      },
+      "js-banner": {
+        "title": "BOOT BANNER",
+        "brief": "Affichez une bannière de connexion formatée à partir de variables.",
+        "hint": "Trois appels console.log : une ligne de titre littérale, puis `USER: ${user}` et `NODE: ${node}`.",
+        "prompt": "Stockez le nom de l'opérateur et le numéro de nœud dans des variables, puis `console.log` une **bannière de trois lignes** construite avec des littéraux de gabarit.\nAffichez ces **trois lignes, exactement** :\n~~~text\n=== THE CONSTRUCT ===\nUSER: Neo\nNODE: 7\n~~~\nDéclarez `const user = 'Neo'` et `const node = 7`, puis interpolez-les avec `${...}` — ne codez pas les valeurs en dur dans les lignes USER/NODE."
       },
       "js-parity": {
         "title": "CONTRÔLE DE PARITÉ",
-        "brief": "Repérez les paquets aux numéros pairs.",
+        "brief": "Marquez les paquets de numéro pair.",
         "hint": "return n % 2 === 0;",
-        "prompt": "Définissez **isEven(n)** qui renvoie un booléen — `true` si n est pair, sinon `false`. Utilisez `%` et `===`."
+        "prompt": "Définissez **isEven(n)** renvoyant un booléen — `true` si n est pair, sinon `false`. Utilisez `%` et `===`."
       },
       "js-clearance": {
         "title": "NIVEAUX D'ACCÈS",
         "brief": "Associez les niveaux d'habilitation à des paliers.",
-        "hint": "Enchaînez des if avec des return anticipés, du plus bas au plus haut.",
-        "prompt": "Définissez **clearance(level)** qui renvoie :\n- `< 1` → 'DENIED'\n- `1–2` → 'GUEST'\n- `3–4` → 'OPERATOR'\n- `5+` → 'ROOT'"
+        "hint": "Enchaînez les if avec des return anticipés, du plus bas au plus haut.",
+        "prompt": "Définissez **clearance(level)** renvoyant :\n- `< 1` → 'DENIED'\n- `1–2` → 'GUEST'\n- `3–4` → 'OPERATOR'\n- `5+` → 'ROOT'"
       },
       "js-magi": {
         "title": "LE SYSTÈME MAGI",
         "brief": "FizzBuzz, en combinaison de pilotage.",
-        "hint": "String(n) convertit un nombre en sa forme texte.",
-        "prompt": "Définissez **magi(n)** qui renvoie :\n- divisible par **15** → 'SYNCHRONIZED'\n- divisible par **3** → 'MELCHIOR'\n- divisible par **5** → 'BALTHASAR'\n- sinon le nombre sous forme de chaîne, par exemple '7'"
+        "hint": "String(n) convertit un nombre en sa forme textuelle.",
+        "prompt": "Définissez **magi(n)** renvoyant :\n- divisible par **15** → 'SYNCHRONIZED'\n- divisible par **3** → 'MELCHIOR'\n- divisible par **5** → 'BALTHASAR'\n- sinon le nombre sous forme de chaîne, p. ex. '7'"
+      },
+      "js-absval": {
+        "title": "MAGNITUDE",
+        "brief": "Retirez le signe d'une mesure de tension.",
+        "hint": "n < 0 ? -n : n",
+        "prompt": "Définissez **absValue(n)** renvoyant la distance de `n` à zéro (sa valeur absolue).\nN'utilisez **pas** `Math.abs`. Utilisez un ternaire ou un `if`.\n~~~js\nabsValue(-7)  // 7\nabsValue(7)   // 7\nabsValue(0)   // 0\n~~~"
+      },
+      "js-tag": {
+        "title": "POLARITY TAG",
+        "brief": "Étiquetez un signal selon sa polarité.",
+        "hint": "n > 0 ? 'POS' : n < 0 ? 'NEG' : 'ZERO'",
+        "prompt": "Définissez **tag(n)** renvoyant la chaîne `'POS'` si `n` est positif, `'NEG'` s'il est négatif, et `'ZERO'` s'il vaut exactement 0.\nUtilisez une chaîne de ternaires (`?:`).\n~~~js\ntag(5)   // 'POS'\ntag(-3)  // 'NEG'\ntag(0)   // 'ZERO'\n~~~"
+      },
+      "js-bothonline": {
+        "title": "DUAL UPLINK",
+        "brief": "Les deux nœuds doivent être actifs pour router le trafic.",
+        "hint": "a === true && b === true",
+        "prompt": "Définissez **bothOnline(a, b)** renvoyant `true` uniquement quand `a` et `b` sont **tous deux** `true`, sinon `false`.\nUtilisez l'opérateur `&&`. Renvoyez un véritable booléen.\n~~~js\nbothOnline(true, true)   // true\nbothOnline(true, false)  // false\n~~~"
+      },
+      "js-gradeletter": {
+        "title": "THREAT GRADE",
+        "brief": "Convertissez un score de menace de 0 à 100 en note alphabétique.",
+        "hint": "Vérifiez d'abord la tranche la plus haute, puis enchaînez avec else if.",
+        "prompt": "Définissez **gradeLetter(score)** faisant correspondre un nombre de 0 à 100 à une lettre :\n`>= 90` -> `'A'`, `>= 80` -> `'B'`, `>= 70` -> `'C'`, `>= 60` -> `'D'`, sinon `'F'`.\nUtilisez `if / else if / else`.\n~~~js\ngradeLetter(95)  // 'A'\ngradeLetter(72)  // 'C'\ngradeLetter(40)  // 'F'\n~~~"
+      },
+      "js-isleap": {
+        "title": "LEAP CYCLE",
+        "brief": "Déterminez si une année est bissextile.",
+        "hint": "(year % 4 === 0 && year % 100 !== 0) || year % 400 === 0",
+        "prompt": "Définissez **isLeap(year)** renvoyant `true` si `year` est une année bissextile, sinon `false`.\nRègle : divisible par 4 **et** pas par 100 — **sauf** si aussi divisible par 400.\n~~~js\nisLeap(2024)  // true\nisLeap(1900)  // false\nisLeap(2000)  // true\n~~~"
       },
       "js-reverse": {
         "title": "GLACE PALINDROME",
@@ -1008,13 +1069,43 @@ window.CONTENT_FR = {
         "title": "PURGE DES VOYELLES",
         "brief": "Compressez une transmission.",
         "hint": "Filtrez les caractères où !'aeiou'.includes(ch.toLowerCase()).",
-        "prompt": "Définissez **compress(s)** qui renvoie `s` avec chaque voyelle supprimée (a e i o u, majuscule ou minuscule). Conservez tout le reste, y compris y.\n~~~js\ncompress('Windowlicker')  // 'Wndwlckr'\n~~~"
+        "prompt": "Définissez **compress(s)** qui renvoie `s` avec chaque voyelle supprimée (a e i o u, majuscule ou minuscule). Gardez tout le reste, y compris le y.\n~~~js\ncompress('Windowlicker')  // 'Wndwlckr'\n~~~"
       },
       "js-loud": {
         "title": "FILTRE DE FRÉQUENCE",
-        "brief": "Filtrez l'ensemble pour ne garder que les morceaux à BPM élevé.",
+        "brief": "Filtrez l'ensemble pour ne garder que les bangers à haut BPM.",
         "hint": ".filter(t => t.bpm >= 120).map(t => t.name)",
         "prompt": "`tracks` est un tableau d'objets `{ name, bpm }`. Définissez **loudTracks(tracks)** qui renvoie un tableau contenant uniquement les **names** dont le bpm est **>= 120**, en préservant l'ordre.\n~~~js\nloudTracks([{name:'Lull',bpm:90},{name:'Spice',bpm:128}])  // ['Spice']\n~~~"
+      },
+      "js-shout": {
+        "title": "VOICE AMP",
+        "brief": "Rognez, hurlez-le en majuscules, claquez un point d'exclamation à la fin.",
+        "hint": "s.trim().toUpperCase() + '!'",
+        "prompt": "Définissez **shout(s)** qui rogne les espaces autour, convertit le texte en **majuscules** et ajoute un seul `'!'`.\n~~~js\nshout('wake up')   // 'WAKE UP!'\nshout('  neo ')    // 'NEO!'\n~~~"
+      },
+      "js-mask": {
+        "title": "CRED MASK",
+        "brief": "Masquez un numéro de cred-stick en ne laissant que les quatre derniers chiffres.",
+        "hint": "'*'.repeat(card.length - 4) + card.slice(-4), mais protégez le cas length <= 4",
+        "prompt": "Définissez **mask(card)** qui renvoie le numéro avec chaque caractère sauf les **4 derniers** remplacé par `'*'`.\nSi l'entrée fait 4 caractères ou moins, renvoyez-la telle quelle.\n~~~js\nmask('1234567890123456')  // '************3456'\nmask('4242')              // '4242'\n~~~"
+      },
+      "js-wordcount": {
+        "title": "TOKEN TALLY",
+        "brief": "Comptez les mots d'une transmission.",
+        "hint": "Rognez d'abord ; si c'est '' renvoyez 0, sinon split(' ').length (jetez les morceaux vides).",
+        "prompt": "Définissez **wordCount(s)** qui renvoie combien de mots séparés par des espaces la chaîne contient.\nUne chaîne vide ou ne contenant que des espaces doit renvoyer `0`.\n~~~js\nwordCount('hack the planet')  // 3\nwordCount('')                 // 0\n~~~"
+      },
+      "js-screamcase": {
+        "title": "SCREAM CASE",
+        "brief": "Forgez un identifiant hurlant à partir d'une liste de mots.",
+        "hint": "words.map(w => w.toUpperCase()).join('_')",
+        "prompt": "Définissez **screamCase(words)** qui met chaque mot en majuscules et les joint avec un underscore `'_'`.\nUn tableau vide renvoie la chaîne vide.\n~~~js\nscreamCase(['boot', 'up'])  // 'BOOT_UP'\nscreamCase([])             // ''\n~~~"
+      },
+      "js-longwords": {
+        "title": "SIGNAL SIEVE",
+        "brief": "Ne gardez que les longs indicatifs, jetez le bruit court.",
+        "hint": "words.filter(w => w.length >= 5)",
+        "prompt": "Définissez **longWords(words)** qui renvoie un nouveau tableau contenant uniquement les mots dont la longueur est **supérieure ou égale à 5**.\nL'ordre est préservé ; un tableau vide renvoie un tableau vide.\n~~~js\nlongWords(['neo', 'trinity', 'tank'])  // ['trinity']\nlongWords([])                          // []\n~~~"
       },
       "js-accumulate": {
         "title": "ACCUMULATEUR DE PUISSANCE",
@@ -1025,50 +1116,140 @@ window.CONTENT_FR = {
       "js-frequency": {
         "title": "FRÉQUENCE DU SIGNAL",
         "brief": "Construisez une table de fréquences du flux.",
-        "hint": "Parcourez avec for...of ; freq[ch] = (freq[ch] || 0) + 1.",
-        "prompt": "Définissez **charFrequency(s)** qui renvoie un **objet** associant chaque caractère à son nombre d'occurrences.\n~~~js\ncharFrequency('aab')  // { a: 2, b: 1 }\n~~~"
+        "hint": "Bouclez avec for...of ; freq[ch] = (freq[ch] || 0) + 1.",
+        "prompt": "Définissez **charFrequency(s)** qui renvoie un **objet** associant chaque caractère à son décompte.\n~~~js\ncharFrequency('aab')  // { a: 2, b: 1 }\n~~~"
       },
       "js-bounty": {
         "title": "TABLEAU DES PRIMES",
-        "brief": "Recherchez le prix d'une cible — en toute sécurité.",
+        "brief": "Cherchez le prix d'une cible — en toute sécurité.",
         "hint": "(name in board) ? board[name] : 0",
-        "prompt": "`board` est un objet de `name -> reward`. Définissez **bounty(board, name)** qui renvoie la récompense, ou **0** si le nom n'est pas sur le tableau.\n~~~js\nbounty({ Asimov: 2500000 }, 'Spike')  // 0\n~~~"
+        "prompt": "`board` est un objet `name -> reward`. Définissez **bounty(board, name)** qui renvoie la récompense, ou **0** si le nom n'est pas sur le tableau.\n~~~js\nbounty({ Asimov: 2500000 }, 'Spike')  // 0\n~~~"
+      },
+      "js-maxcell": {
+        "title": "PEAK OUTPUT",
+        "brief": "Trouvez la cellule de réacteur la plus chaude.",
+        "hint": "cells.reduce((m, c) => (c > m ? c : m)) — sans graine, reduce démarre depuis la première cellule.",
+        "prompt": "Définissez **maxCell(cells)** qui renvoie le plus grand nombre d'un tableau non vide. Utilisez **reduce**.\n~~~js\nmaxCell([3, 7, 2])  // 7\n~~~"
+      },
+      "js-average": {
+        "title": "MEAN SIGNAL",
+        "brief": "Faites la moyenne du flux de télémétrie.",
+        "hint": "Renvoyez 0 quand nums.length vaut 0 ; sinon nums.reduce((a, c) => a + c, 0) / nums.length.",
+        "prompt": "Définissez **average(nums)** qui renvoie la moyenne arithmétique du tableau. Un tableau **vide** a une moyenne de **0**.\n~~~js\naverage([2, 4])  // 3\naverage([])     // 0\n~~~"
+      },
+      "js-merge": {
+        "title": "CONFIG OVERRIDE",
+        "brief": "Patchez les valeurs par défaut avec les surcharges.",
+        "hint": "Object.assign({}, a, b) — les sources plus tardives écrasent les plus anciennes, et le {} tout neuf garde les entrées intactes.",
+        "prompt": "Définissez **mergeConfigs(a, b)** qui renvoie un **nouvel** objet avec toutes les clés des deux, où les valeurs de `b` l'emportent en cas de conflit. Ne **mutez pas** `a` ni `b`.\n~~~js\nmergeConfigs({ hp: 100, mp: 30 }, { mp: 50, lvl: 9 })  // { hp: 100, mp: 50, lvl: 9 }\n~~~"
+      },
+      "js-rewards": {
+        "title": "BOUNTY LEDGER",
+        "brief": "Faites le décompte de toutes les récompenses du tableau.",
+        "hint": "Object.values(board).reduce((a, c) => a + c, 0) — extrayez les nombres, puis repliez-les.",
+        "prompt": "`board` est un objet `name -> reward`. Définissez **totalRewards(board)** qui renvoie la somme de toutes les récompenses (les **valeurs**). Utilisez **Object.values** et **reduce**. Un tableau vide totalise **0**.\n~~~js\ntotalRewards({ Spike: 2500000, Jet: 1000000 })  // 3500000\n~~~"
+      },
+      "js-invert": {
+        "title": "REVERSE LOOKUP",
+        "brief": "Retournez la table de codec de bout en bout.",
+        "hint": "Object.entries(obj).reduce((acc, [k, v]) => { acc[v] = k; return acc; }, {})",
+        "prompt": "Définissez **invert(obj)** qui renvoie un **nouvel** objet avec les clés et les valeurs échangées : chaque valeur devient une clé, pointant vers sa clé d'origine. Supposez que les valeurs sont uniques. Utilisez **Object.entries**.\n~~~js\ninvert({ a: 'x', b: 'y' })  // { x: 'a', y: 'b' }\n~~~"
       },
       "js-countdown": {
         "title": "SÉQUENCE DE LANCEMENT",
         "brief": "Lancez le compte à rebours de l'allumage.",
         "hint": "for (let i = n; i >= 1; i--) out.push(i);",
-        "prompt": "Définissez **countdown(n)** renvoyant un **tableau** qui décompte de `n` à `1`.\n~~~js\ncountdown(3)  // [3, 2, 1]\ncountdown(0)  // []\n~~~"
+        "prompt": "Définissez **countdown(n)** qui renvoie un **tableau** comptant à rebours de `n` jusqu'à `1`.\n~~~js\ncountdown(3)  // [3, 2, 1]\ncountdown(0)  // []\n~~~"
       },
       "js-sumto": {
         "title": "SOMME DU RÉACTEUR",
-        "brief": "Comptez les n premières cellules du réacteur.",
-        "hint": "Partez de total = 0, puis total += i pour i de 1 à n.",
-        "prompt": "Définissez **sumTo(n)** renvoyant `1 + 2 + ... + n`. Renvoyez **0** quand `n < 1`.\n~~~js\nsumTo(5)  // 15\n~~~"
+        "brief": "Faites le décompte des n premières cellules du réacteur.",
+        "hint": "Démarrez total = 0, puis total += i pour i de 1 à n.",
+        "prompt": "Définissez **sumTo(n)** qui renvoie `1 + 2 + ... + n`. Renvoyez **0** quand `n < 1`.\n~~~js\nsumTo(5)  // 15\n~~~"
       },
       "js-hailstone": {
         "title": "GRÊLON",
         "brief": "Comptez les étapes de la chute libre de Collatz.",
         "hint": "while (n !== 1) { n = n % 2 === 0 ? n/2 : 3*n+1; steps++; }",
-        "prompt": "La règle de Collatz : si `n` est pair, divisez-le par deux ; s'il est impair, faites `3n + 1`. Répétez jusqu'à ce que `n` vaille 1.\nDéfinissez **hailstone(n)** renvoyant le **nombre d'étapes** pour atteindre 1 (supposez n >= 1).\n~~~js\nhailstone(1)  // 0   (already there)\nhailstone(8)  // 3   (8 -> 4 -> 2 -> 1)\n~~~"
+        "prompt": "La règle de Collatz : si `n` est pair, divisez-le par deux ; s'il est impair, faites `3n + 1`. Répétez jusqu'à ce que `n` vaille 1.\nDéfinissez **hailstone(n)** qui renvoie le **nombre d'étapes** pour atteindre 1 (supposez n >= 1).\n~~~js\nhailstone(1)  // 0   (already there)\nhailstone(8)  // 3   (8 -> 4 -> 2 -> 1)\n~~~"
+      },
+      "js-rangearr": {
+        "title": "BALAYER LA PLAGE",
+        "brief": "Ratissez chaque secteur de a à b.",
+        "hint": "Démarrez out = [], puis for (let i = a; i <= b; i++) out.push(i).",
+        "prompt": "Définissez **rangeArr(a, b)** qui renvoie un **tableau** des entiers de `a` jusqu'à `b`, **inclus** (supposez `a <= b`). Construisez-le avec une boucle.\n~~~js\nrangeArr(2, 5)  // [2, 3, 4, 5]\nrangeArr(4, 4)  // [4]\n~~~"
+      },
+      "js-maxof": {
+        "title": "PIC LE PLUS HAUT",
+        "brief": "Pistez la plus grande mesure en un seul passage.",
+        "hint": "Gardez le cas vide avec null, amorcez best = nums[0], puis relevez-le dès que n > best.",
+        "prompt": "Définissez **maxOf(nums)** qui renvoie le plus grand nombre du tableau. N'utilisez **pas** `Math.max` ; parcourez le tableau avec une boucle. Un tableau **vide** renvoie **null**.\n~~~js\nmaxOf([3, 7, 2])  // 7\nmaxOf([])         // null\n~~~"
+      },
+      "js-countmatches": {
+        "title": "DÉCOMPTE DE SIGNAL",
+        "brief": "Comptez combien de fois la cible apparaît.",
+        "hint": "Démarrez count = 0, bouclez avec for...of, et count++ dès que x === target.",
+        "prompt": "Définissez **countMatches(arr, target)** qui renvoie combien d'éléments sont **strictement égaux** à `target` (`===`). Comptez-les avec une boucle.\n~~~js\ncountMatches([1, 2, 2, 3, 2], 2)  // 3\ncountMatches([], 5)               // 0\n~~~"
+      },
+      "js-digitssum": {
+        "title": "BROYAGE DE CHIFFRES",
+        "brief": "Repliez un nombre jusqu'à la somme de ses chiffres.",
+        "hint": "Bouclez tant que n > 0 : ajoutez n % 10 à la somme, puis n = Math.floor(n / 10).",
+        "prompt": "Définissez **digitsSum(n)** qui renvoie la somme des chiffres décimaux d'un entier non négatif `n`. Utilisez une boucle **while** avec `% 10` et `Math.floor(n / 10)` — aucune conversion en chaîne.\n~~~js\ndigitsSum(123)  // 6\ndigitsSum(0)    // 0\n~~~"
+      },
+      "js-fizzlist": {
+        "title": "GRILLE BUZZ",
+        "brief": "Estampillez le motif fizz/buzz classique sur une plage.",
+        "hint": "Vérifiez i % 15 d'abord, puis i % 3, puis i % 5, sinon empilez le nombre — l'ordre compte.",
+        "prompt": "Définissez **fizzList(n)** qui renvoie un **tableau** pour `1..n` : les multiples de **15** deviennent `'FB'`, les multiples de **3** deviennent `'F'`, les multiples de **5** deviennent `'B'`, sinon le nombre lui-même. `fizzList(0)` vaut `[]`.\n~~~js\nfizzList(5)  // [1, 2, 'F', 4, 'B']\n~~~"
       },
       "js-counter": {
         "title": "COMPTEUR FANTÔME",
         "brief": "Forgez un compteur doté d'une mémoire privée.",
         "hint": "Capturez `let n = 0;` puis renvoyez une fonction qui fait n++ et renvoie n.",
-        "prompt": "Définissez **makeCounter()** qui renvoie une **fonction**. Chaque appel à cette fonction renvoie l'entier\nsuivant, en commençant à **1**. Des compteurs distincts doivent être indépendants.\n~~~js\nconst c = makeCounter();\nc();  // 1\nc();  // 2\n~~~"
+        "prompt": "Définissez **makeCounter()** qui renvoie une **fonction**. Chaque appel à cette fonction renvoie l'entier\nsuivant, en démarrant à **1**. Des compteurs distincts doivent être indépendants.\n~~~js\nconst c = makeCounter();\nc();  // 1\nc();  // 2\n~~~"
       },
       "js-multiplier": {
         "title": "USINE À GAIN",
         "brief": "Fabriquez des amplificateurs à la demande.",
         "hint": "return (x) => x * factor; — factor reste capturé.",
-        "prompt": "Définissez **multiplier(factor)** qui renvoie une fonction multipliant sa saisie par `factor`.\n~~~js\nconst double = multiplier(2);\ndouble(21);   // 42\nconst triple = multiplier(3);\ntriple(10);   // 30\n~~~"
+        "prompt": "Définissez **multiplier(factor)** qui renvoie une fonction multipliant son entrée par `factor`.\n~~~js\nconst double = multiplier(2);\ndouble(21);   // 42\nconst triple = multiplier(3);\ntriple(10);   // 30\n~~~"
       },
       "js-compose": {
         "title": "CHAÎNE DE SIGNAL",
-        "brief": "Reliez deux transformations en une seule.",
+        "brief": "Câblez deux transformations en une seule.",
         "hint": "return (x) => f(g(x)); — l'interne s'exécute en premier.",
-        "prompt": "Définissez **compose(f, g)** renvoyant une nouvelle fonction qui applique **g d'abord, puis f** :\n`compose(f, g)(x)` doit être égal à `f(g(x))`.\n~~~js\nconst inc = (x) => x + 1;\nconst dbl = (x) => x * 2;\ncompose(inc, dbl)(5);   // inc(dbl(5)) = 11\n~~~"
+        "prompt": "Définissez **compose(f, g)** qui renvoie une nouvelle fonction appliquant **g d'abord, puis f** :\n`compose(f, g)(x)` doit valoir `f(g(x))`.\n~~~js\nconst inc = (x) => x + 1;\nconst dbl = (x) => x * 2;\ncompose(inc, dbl)(5);   // inc(dbl(5)) = 11\n~~~"
+      },
+      "js-accum": {
+        "title": "DÉCOMPTE COURANT",
+        "brief": "Une fonction qui se souvient de son total courant.",
+        "hint": "let total = 0 en dehors de la fonction renvoyée ; à l'intérieur faites total += n; return total.",
+        "prompt": "Définissez **makeAccumulator()** qui renvoie une fonction. Chaque appel **ajoute** son argument à un total courant gardé dans la fermeture et renvoie le **nouveau** total. Un accumulateur fraîchement créé démarre à **0**.\n~~~js\nconst acc = makeAccumulator();\nacc(10)  // 10\nacc(5)   // 15\nacc(-3)  // 12\n~~~"
+      },
+      "js-toggle": {
+        "title": "RELAIS BASCULANT",
+        "brief": "Un interrupteur qui bascule à chaque pression.",
+        "hint": "Gardez un drapeau booléen dans la fermeture ; lisez la valeur, puis inversez le drapeau avant de renvoyer.",
+        "prompt": "Définissez **toggle(a, b)** qui renvoie une fonction **alternant** sa valeur de retour à chaque appel : `a`, puis `b`, puis `a`, puis `b`, et ainsi de suite. Le **premier** appel renvoie `a`.\n~~~js\nconst sw = toggle('ON', 'OFF');\nsw()  // 'ON'\nsw()  // 'OFF'\nsw()  // 'ON'\n~~~"
+      },
+      "js-limiter": {
+        "title": "VANNE DE DÉBIT",
+        "brief": "Autorisez un nombre fixe de passages, puis refusez.",
+        "hint": "Pistez un décompte d'usages ; tant que used < max incrémentez et renvoyez true, sinon renvoyez false.",
+        "prompt": "Définissez **limiter(max)** qui renvoie une fonction renvoyant `true` pour ses `max` premiers appels, puis `false` pour chaque appel suivant.\n~~~js\nconst gate = limiter(2);\ngate()  // true\ngate()  // true\ngate()  // false\ngate()  // false\n~~~"
+      },
+      "js-once": {
+        "title": "TIR UNIQUE",
+        "brief": "Exécutez-la une fois ; mettez le résultat en cache pour toujours.",
+        "hint": "Gardez un drapeau called et un résultat sauvegardé ; au premier appel levez le drapeau et stockez fn(x), puis renvoyez toujours result.",
+        "prompt": "Définissez **once(fn)** qui renvoie un emballage (wrapper). La **première** fois que l'emballage est appelé, il exécute `fn` (en transmettant l'argument) et mémorise le résultat. Chaque appel ultérieur renvoie ce **même** premier résultat **sans** rappeler `fn`.\n~~~js\nlet runs = 0;\nconst boot = once(function (x) { runs++; return x * 2; });\nboot(5)  // 10  (runs === 1)\nboot(9)  // 10  (runs still 1)\n~~~"
+      },
+      "js-applyn": {
+        "title": "CHAÎNE ITÉRÉE",
+        "brief": "Composez une fonction avec elle-même n fois.",
+        "hint": "Renvoyez (x) => { let v = x; bouclez n fois v = fn(v); return v; }. Quand n vaut 0, la boucle ne s'exécute jamais.",
+        "prompt": "Définissez **applyN(fn, n)** qui renvoie une fonction appliquant `fn` à son entrée **n** fois de suite. Avec `n === 0`, elle renvoie l'entrée inchangée (identité).\n~~~js\nconst inc = function (x) { return x + 1; };\napplyN(inc, 3)(0)   // 3\napplyN(inc, 0)(42)  // 42\n~~~"
       },
       "js-factorial": {
         "title": "CASCADE FACTORIELLE",
@@ -1080,13 +1261,43 @@ window.CONTENT_FR = {
         "title": "FIBONACCI FANTÔME",
         "brief": "Invoquez la suite dorée.",
         "hint": "if (n < 2) return n; else return fib(n-1) + fib(n-2);",
-        "prompt": "La suite : 0, 1, 1, 2, 3, 5, 8, 13, ... — chaque terme est la somme des deux précédents.\nDéfinissez **fib(n)** qui renvoie le nième terme (indexé à partir de 0) : `fib(0) === 0`, `fib(1) === 1`.\n~~~js\nfib(7)  // 13\n~~~"
+        "prompt": "La suite : 0, 1, 1, 2, 3, 5, 8, 13, ... — chaque terme est la somme des deux qui le précèdent.\nDéfinissez **fib(n)** qui renvoie le nième terme (indexé à partir de 0) : `fib(0) === 0`, `fib(1) === 1`.\n~~~js\nfib(7)  // 13\n~~~"
       },
       "js-power": {
         "title": "ÉCHELLE DE PUISSANCE",
         "brief": "Élevez le signal, échelon par échelon.",
         "hint": "if (exp === 0) return 1; else return base * power(base, exp - 1);",
         "prompt": "Définissez **power(base, exp)** de façon récursive (exp est un entier >= 0). `power(b, 0) === 1`.\n~~~js\npower(2, 10)  // 1024\n~~~"
+      },
+      "js-sumdigits": {
+        "title": "SAIGNÉE DE CHIFFRES",
+        "brief": "Saignez un entier un chiffre à la fois et additionnez les gouttes.",
+        "hint": "Base: n < 10 -> n. Else (n % 10) + sumDigits(Math.floor(n / 10)).",
+        "prompt": "Définissez **sumDigits(n)** qui renvoie la somme des chiffres décimaux d'un entier non négatif `n` — de façon **récursive**, sans boucle. Cas de base : un seul chiffre (`n < 10`) se renvoie lui-même.\n~~~js\nsumDigits(123)  // 6\nsumDigits(0)    // 0\n~~~"
+      },
+      "js-reversestr": {
+        "title": "MASQUAGE INVERSÉ",
+        "brief": "Faites tourner le signal à l'envers, un caractère à la fois.",
+        "hint": "Base: '' -> ''. Else reverseStr(s.slice(1)) + s[0].",
+        "prompt": "Définissez **reverseStr(s)** qui renvoie la chaîne inversée — de façon **récursive**, sans boucle ni `.reverse()`. Cas de base : la chaîne vide renvoie `''`.\n~~~js\nreverseStr('neo')  // 'oen'\nreverseStr('')     // ''\n~~~"
+      },
+      "js-repeatstr": {
+        "title": "BOUCLE D'ÉCHO",
+        "brief": "Empilez le même fragment n fois de profondeur sans une seule boucle.",
+        "hint": "Base: n === 0 -> ''. Else s + repeatStr(s, n - 1).",
+        "prompt": "Définissez **repeatStr(s, n)** qui renvoie `s` concaténé `n` fois — de façon **récursive**, sans boucle ni `.repeat()`. Cas de base : `n === 0` renvoie `''`.\n~~~js\nrepeatStr('ab', 3)  // 'ababab'\nrepeatStr('x', 0)   // ''\n~~~"
+      },
+      "js-palindrome-rec": {
+        "title": "SONDE MIROIR",
+        "brief": "Sondez une chaîne par les deux bouts, en vous repliant vers le milieu.",
+        "hint": "Base: length <= 1 -> true. Else if s[0] !== last char -> false; else isPalindrome(s.slice(1, -1)).",
+        "prompt": "Définissez **isPalindrome(s)** qui renvoie `true` si `s` se lit pareil à l'endroit et à l'envers — de façon **récursive**, sans boucle ni `.reverse()`. Comparez les deux extrémités, puis récursez sur le milieu. Cas de base : une longueur `<= 1` vaut `true`.\n~~~js\nisPalindrome('racecar')  // true\nisPalindrome('hello')    // false\n~~~"
+      },
+      "js-countdownarr": {
+        "title": "SÉQUENCE DE LANCEMENT",
+        "brief": "Construisez la séquence de lancement n..1 en empilant la descente.",
+        "hint": "Base: n <= 0 -> []. Else [n].concat(countDownArr(n - 1)).",
+        "prompt": "Définissez **countDownArr(n)** qui renvoie un tableau décomptant de `n` jusqu'à `1` — de façon **récursive**, sans boucle. Cas de base : `n <= 0` renvoie `[]`.\n~~~js\ncountDownArr(3)  // [3, 2, 1]\ncountDownArr(0)  // []\n~~~"
       },
       "js-divide": {
         "title": "PIÈGE DIV/0",
@@ -1106,149 +1317,419 @@ window.CONTENT_FR = {
         "hint": "try { return fn(); } catch (e) { return fallback; }",
         "prompt": "Définissez **attempt(fn, fallback)** qui appelle `fn()` et renvoie son résultat — mais si `fn` **lève une exception**,\nrenvoyez `fallback` à la place.\n~~~js\nattempt(() => 42, 0)            // 42\nattempt(() => { throw 1; }, 0)  // 0\n~~~"
       },
+      "js-requirepos": {
+        "title": "GARDIEN",
+        "brief": "Rejetez tout appel de puissance non positif.",
+        "hint": "if (n <= 0) throw new Error(...); return n;",
+        "prompt": "Définissez **requirePositive(n)** qui renvoie `n` quand `n > 0`, mais **lève** une `Error` quand `n <= 0`.\n~~~js\nrequirePositive(5)   // 5\nrequirePositive(0)   // throws\nrequirePositive(-3)  // throws\n~~~"
+      },
+      "js-validatename": {
+        "title": "POINT DE CONTRÔLE",
+        "brief": "Exigez un vrai pseudo, nettoyé au cordeau.",
+        "hint": "var name = s.trim(); if (name === '') throw new Error(...); return name;",
+        "prompt": "Définissez **validateName(s)** qui renvoie le nom débarrassé des espaces qui l'entourent.\nSi le nom une fois nettoyé est vide (vide ou rien que des espaces), **levez** une `Error` à la place.\n~~~js\nvalidateName('  Neo ')  // 'Neo'\nvalidateName('   ')     // throws\nvalidateName('')        // throws\n~~~"
+      },
+      "js-safedivide": {
+        "title": "PORT SÉCURISÉ",
+        "brief": "Divisez sans jamais faire sauter le fusible.",
+        "hint": "if (b === 0) return null; return a / b;",
+        "prompt": "Définissez **safeDivide(a, b)** qui renvoie `a / b`, mais renvoie `null` au lieu de diviser par zéro.\nElle ne doit **jamais lever d'exception** — quand `b` vaut `0`, échouez sans casser avec `null`.\n~~~js\nsafeDivide(10, 2)  // 5\nsafeDivide(7, 0)   // null\n~~~"
+      },
+      "js-getordefault": {
+        "title": "CACHE DE REPLI",
+        "brief": "Faites confiance à la fonction, mais gardez une sauvegarde prête.",
+        "hint": "try { return fn(); } catch (e) { return fallback; }",
+        "prompt": "Définissez **getOrDefault(fn, fallback)** qui appelle `fn()` et renvoie sa valeur.\nSi `fn()` **lève une exception**, avalez l'erreur et renvoyez `fallback` à la place. Utilisez `try` / `catch`.\n~~~js\ngetOrDefault(function () { return 42; }, 0)            // 42\ngetOrDefault(function () { throw new Error('x'); }, 0)  // 0\n~~~"
+      },
+      "js-assertrange": {
+        "title": "VERROU DE PLAGE",
+        "brief": "Bridez le cadran — ou déclenchez l'alarme.",
+        "hint": "if (x < lo || x > hi) throw new Error(...); return x;",
+        "prompt": "Définissez **assertRange(x, lo, hi)** qui renvoie `x` quand il se situe entre `lo` et `hi` (bornes incluses).\nSi `x` est en dessous de `lo` **ou** au-dessus de `hi`, **levez** une `Error`.\n~~~js\nassertRange(5, 0, 10)   // 5\nassertRange(0, 0, 10)   // 0  (boundary is allowed)\nassertRange(11, 0, 10)  // throws\n~~~"
+      },
       "js-unique": {
         "title": "DÉDOUBLONNE LE SIGNAL",
-        "brief": "Éliminez les paquets en double.",
+        "brief": "Élaguez les paquets en double.",
         "hint": "return [...new Set(arr)];",
-        "prompt": "Définissez **unique(arr)** qui renvoie un nouveau tableau débarrassé des doublons, en **préservant l'ordre**.\n~~~js\nunique([1, 1, 2, 3, 3])  // [1, 2, 3]\n~~~"
+        "prompt": "Définissez **unique(arr)** renvoyant un nouveau tableau dont les doublons sont retirés, **l'ordre préservé**.\n~~~js\nunique([1, 1, 2, 3, 3])  // [1, 2, 3]\n~~~"
       },
       "js-tally": {
         "title": "CARTE DE FRÉQUENCE",
-        "brief": "Comptez le trafic sur chaque canal.",
+        "brief": "Comptez le brouhaha sur chaque canal.",
         "hint": "for (const x of items) m.set(x, (m.get(x) || 0) + 1);",
-        "prompt": "Définissez **tally(items)** qui renvoie une **Map** associant chaque élément au nombre de fois où il apparaît.\n~~~js\nconst m = tally(['a', 'a', 'b']);\nm.get('a');  // 2\nm.size;      // 2\n~~~"
+        "prompt": "Définissez **tally(items)** renvoyant une **Map** associant chaque élément au nombre de fois où il apparaît.\n~~~js\nconst m = tally(['a', 'a', 'b']);\nm.get('a');  // 2\nm.size;      // 2\n~~~"
       },
       "js-intersect": {
         "title": "TERRAIN COMMUN",
         "brief": "Trouvez les coordonnées partagées.",
         "hint": "const sb = new Set(b); return [...new Set(a)].filter(x => sb.has(x));",
-        "prompt": "Définissez **intersect(a, b)** qui renvoie les valeurs présentes dans les **deux** tableaux — uniques, dans l'ordre où elles\napparaissent dans `a`.\n~~~js\nintersect([1, 2, 3], [2, 3, 4])  // [2, 3]\n~~~"
+        "prompt": "Définissez **intersect(a, b)** renvoyant les valeurs présentes dans les **deux** tableaux — uniques, dans l'ordre où elles\napparaissent dans `a`.\n~~~js\nintersect([1, 2, 3], [2, 3, 4])  // [2, 3]\n~~~"
+      },
+      "js-union": {
+        "title": "FUSIONNER LES RÉSEAUX",
+        "brief": "Fondez deux listes de nœuds, sans répétitions.",
+        "hint": "Walk a.concat(b), push each value not already in a Set.",
+        "prompt": "Définissez **union(a, b)** renvoyant les valeurs uniques des deux tableaux — d'abord l'ordre de a, puis les valeurs de b pas déjà présentes.\n~~~js\nunion([1, 2], [2, 3])  // [1, 2, 3]\n~~~"
+      },
+      "js-difference": {
+        "title": "LISTE DE PURGE",
+        "brief": "Ne gardez que les nœuds que b n'a jamais revendiqués.",
+        "hint": "Put b in a Set, then push each x of a that the Set lacks.",
+        "prompt": "Définissez **difference(a, b)** renvoyant les valeurs de `a` qui n'apparaissent **pas** dans `b`, dans l'ordre original de a. Les doublons de `a` sont conservés.\n~~~js\ndifference([1, 2, 3], [2])  // [1, 3]\n~~~"
+      },
+      "js-hasdupes": {
+        "title": "ALERTE CLONE",
+        "brief": "Déclenchez l'alarme si une valeur se répète.",
+        "hint": "If new Set(arr).size is smaller than arr.length, something repeated.",
+        "prompt": "Définissez **hasDuplicates(arr)** renvoyant **true** si une valeur apparaît plus d'une fois, sinon **false**. Comparez la taille d'un `Set` à la longueur du tableau.\n~~~js\nhasDuplicates([1, 2, 1])  // true\nhasDuplicates([1, 2, 3])  // false\n~~~"
+      },
+      "js-firstrepeat": {
+        "title": "TRACE D'ÉCHO",
+        "brief": "Attrapez le premier signal qui ping deux fois.",
+        "hint": "Track seen values in a Set; the first x already in it is your answer.",
+        "prompt": "Définissez **firstRepeat(arr)** renvoyant la première valeur vue une **seconde** fois lorsque vous balayez de gauche à droite. Si rien ne se répète, renvoyez **null**.\n~~~js\nfirstRepeat([2, 1, 3, 1, 2])  // 1\nfirstRepeat([1, 2, 3])        // null\n~~~"
+      },
+      "js-mostcommon": {
+        "title": "FRÉQ DOMINANTE",
+        "brief": "Trouvez la valeur qui couvre toutes les autres.",
+        "hint": "Build a Map of counts; update the leader only when a count strictly beats the best so far.",
+        "prompt": "Définissez **mostCommon(arr)** renvoyant la valeur dont le compte est le plus élevé. En cas d'égalité, renvoyez la valeur qui **atteint la première** ce compte gagnant lors du balayage de gauche à droite. Un tableau vide renvoie **null**.\n~~~js\nmostCommon([1, 2, 2, 3, 2])  // 2\nmostCommon([1, 2, 2, 1])     // 2\n~~~"
       },
       "js-stack-class": {
         "title": "LA PILE",
-        "brief": "Construisez un tampon dernier entré, premier sorti.",
-        "hint": "Appuyez-vous sur un tableau : push -> arr.push, pop -> arr.pop, peek -> arr[arr.length-1].",
-        "prompt": "Définissez une classe **Stack** avec : **push(x)**, **pop()** (renvoie et retire le sommet), **peek()** (le sommet\nsans le retirer), **size()** et **isEmpty()**.\n~~~js\nconst s = new Stack();\ns.push(1); s.push(2);\ns.pop();   // 2\ns.size();  // 1\n~~~"
+        "brief": "Construisez un tampon dernier-entré, premier-sorti.",
+        "hint": "Back it with an array: push -> arr.push, pop -> arr.pop, peek -> arr[arr.length-1].",
+        "prompt": "Définissez une classe **Stack** avec : **push(x)**, **pop()** (renvoie et retire le sommet), **peek()** (le sommet\nsans le retirer), **size()**, et **isEmpty()**.\n~~~js\nconst s = new Stack();\ns.push(1); s.push(2);\ns.pop();   // 2\ns.size();  // 1\n~~~"
       },
       "js-counter-class": {
         "title": "COMPTEUR DE TICKS",
         "brief": "Un objet qui se souvient de son compte.",
-        "hint": "constructor(start = 0) { this.n = start; } puis inc/dec ajustent this.n.",
-        "prompt": "Définissez une classe **Counter** avec une valeur de départ optionnelle (par défaut **0**), des méthodes **inc()** et\n**dec()**, et **value()** qui renvoie le compte actuel.\n~~~js\nconst c = new Counter(10);\nc.inc(); c.inc(); c.dec();\nc.value();   // 11\n~~~"
+        "hint": "constructor(start = 0) { this.n = start; } then inc/dec adjust this.n.",
+        "prompt": "Définissez une classe **Counter** avec une valeur de départ optionnelle (par défaut **0**), les méthodes **inc()** et\n**dec()**, et **value()** renvoyant le compte courant.\n~~~js\nconst c = new Counter(10);\nc.inc(); c.inc(); c.dec();\nc.value();   // 11\n~~~"
       },
       "js-rect-class": {
         "title": "BOÎTE ENGLOBANTE",
         "brief": "De la géométrie pour le HUD.",
-        "hint": "area = w * h ; perimeter = 2 * (w + h).",
+        "hint": "area = w * h; perimeter = 2 * (w + h).",
         "prompt": "Définissez une classe **Rectangle** prenant une largeur et une hauteur, avec **area()** et **perimeter()**.\n~~~js\nconst r = new Rectangle(3, 4);\nr.area();        // 12\nr.perimeter();   // 14\n~~~"
+      },
+      "js-toggle-cls": {
+        "title": "RELAIS DE PUISSANCE",
+        "brief": "Un interrupteur qui bascule entre deux états.",
+        "hint": "Store this.on in the constructor; flip sets this.on = !this.on; isOn returns it.",
+        "prompt": "Définissez une classe **Toggle** avec `constructor(on = false)`, `flip()` (inverse l'état), et `isOn()` (renvoie le booléen courant). Un `Toggle()` tout neuf démarre **éteint**.\n~~~js\nconst t = new Toggle();\nt.isOn()   // false\nt.flip();\nt.isOn()   // true\n~~~"
+      },
+      "js-accum-cls": {
+        "title": "CŒUR DE COMPTAGE",
+        "brief": "Gardez un total cumulé à chaque impact.",
+        "hint": "Init this.sum = 0 in the constructor; add does this.sum += n; return this.sum.",
+        "prompt": "Définissez une classe **Accumulator** avec `constructor()` (le total démarre à **0**), `add(n)` (ajoute `n` et **renvoie** le nouveau total cumulé), et `total()` (renvoie le total courant).\n~~~js\nconst acc = new Accumulator();\nacc.add(10)   // 10\nacc.add(5)    // 15\nacc.total()   // 15\n~~~"
+      },
+      "js-inventory-cls": {
+        "title": "SOUTE À CARGO",
+        "brief": "Suivez les objets distincts dans la soute.",
+        "hint": "Back it with a Set: add -> this.items.add(item); count -> this.items.size; has -> this.items.has(item).",
+        "prompt": "Définissez une classe **Inventory** avec `constructor()` (démarre vide), `add(item)` (stocke l'objet), `has(item)` (renvoie `true`/`false`), et `count()` (renvoie le nombre d'objets **distincts** — les doublons n'augmentent pas le compte).\n~~~js\nconst inv = new Inventory();\ninv.add('ammo'); inv.add('ammo'); inv.add('medkit');\ninv.has('ammo')   // true\ninv.count()       // 2\n~~~"
+      },
+      "js-queue-cls": {
+        "title": "FILE DE SIGNAUX",
+        "brief": "Premier entré, premier sorti — le tampon de paquets.",
+        "hint": "Back it with an array: enqueue pushes; dequeue returns null when empty else shift(); size is items.length.",
+        "prompt": "Définissez une classe **Queue** avec `enqueue(x)` (ajoute à l'arrière), `dequeue()` (retire et renvoie l'élément de **tête**, ou `null` quand elle est vide), et `size()` (nombre d'éléments en attente). Elle est **FIFO** : le premier élément mis en file est le premier sorti.\n~~~js\nconst q = new Queue();\nq.enqueue(1); q.enqueue(2);\nq.dequeue()  // 1\nq.size()     // 1\n~~~"
+      },
+      "js-wallet-cls": {
+        "title": "PORTEFEUILLE DE CRÉDITS",
+        "brief": "Détenez des crédits ; refusez tout découvert.",
+        "hint": "Store this.bal in the constructor; in withdraw guard with if (n > this.bal) return false before subtracting.",
+        "prompt": "Définissez une classe **Wallet** avec `constructor(start = 0)`, `deposit(n)` (ajoute au solde), `withdraw(n)` (renvoie `false` et ne change **rien** si `n` dépasse le solde, sinon soustrait et renvoie `true`), et `balance()`.\n~~~js\nconst w = new Wallet(10);\nw.withdraw(4)   // true\nw.balance()     // 6\nw.withdraw(99)  // false  (balance unchanged)\n~~~"
       },
       "js-digitsonly": {
         "title": "RÉDUIRE AUX CHIFFRES",
-        "brief": "Ne gardez que le signal numérique.",
+        "brief": "Ne garder que le signal numérique.",
         "hint": "return s.replace(/\\D/g, '');  // \\D is 'not a digit'",
-        "prompt": "Définissez **digitsOnly(s)** qui renvoie `s` avec chaque non-chiffre supprimé.\n~~~js\ndigitsOnly('a1b2c3')  // '123'\n~~~"
+        "prompt": "Définissez **digitsOnly(s)** qui renvoie `s` avec tous les non-chiffres supprimés.\n~~~js\ndigitsOnly('a1b2c3')  // '123'\n~~~"
       },
       "js-hexcolor": {
         "title": "VALIDATEUR HEX",
-        "brief": "N'acceptez que les vrais codes couleur.",
-        "hint": "/^#[0-9a-fA-F]{6}$/.test(s) — ^ et $ ancrent toute la chaîne.",
-        "prompt": "Définissez **isHexColor(s)** qui renvoie `true` uniquement lorsque `s` est un `#` suivi d'**exactement 6** chiffres hexadécimaux\n(0-9, a-f, A-F).\n~~~js\nisHexColor('#ff8800')  // true\nisHexColor('#FFF')     // false (only 3)\nisHexColor('ff8800')   // false (no #)\n~~~"
+        "brief": "N'accepter que les vrais codes couleur.",
+        "hint": "/^#[0-9a-fA-F]{6}$/.test(s) — ^ and $ anchor the whole string.",
+        "prompt": "Définissez **isHexColor(s)** qui renvoie `true` uniquement quand `s` est un `#` suivi d'**exactement 6** chiffres hexadécimaux\n(0-9, a-f, A-F).\n~~~js\nisHexColor('#ff8800')  // true\nisHexColor('#FFF')     // false (only 3)\nisHexColor('ff8800')   // false (no #)\n~~~"
       },
       "js-tokens": {
         "title": "TOKENISEUR",
-        "brief": "Découpez une transmission en mots.",
+        "brief": "Découper une transmission en mots.",
         "hint": "return s.match(/[a-z0-9]+/gi) || [];",
-        "prompt": "Définissez **tokens(s)** qui renvoie un tableau des 'mots' alphanumériques de `s` (suites de lettres/chiffres),\nen ignorant la ponctuation et les espaces. Aucune correspondance -> `[]`.\n~~~js\ntokens('hi, world! 42')  // ['hi', 'world', '42']\n~~~"
+        "prompt": "Définissez **tokens(s)** qui renvoie un tableau des 'mots' alphanumériques de `s` (suites de lettres/chiffres),\nen ignorant ponctuation et espaces. Aucune correspondance -> `[]`.\n~~~js\ntokens('hi, world! 42')  // ['hi', 'world', '42']\n~~~"
+      },
+      "js-maskdigits": {
+        "title": "DIGIT REDACT",
+        "brief": "Caviarder chaque chiffre du flux.",
+        "hint": "s.replace(/\\\\d/g, '#') — the g flag hits every digit.",
+        "prompt": "Définissez **maskDigits(s)** qui renvoie `s` avec **chaque chiffre** remplacé par un `'#'`. Les non-chiffres restent intacts.\n~~~js\nmaskDigits('a1b2')      // 'a#b#'\nmaskDigits('CASE 0451') // 'CASE ####'\n~~~"
+      },
+      "js-istag": {
+        "title": "HASHTAG GATE",
+        "brief": "N'admettre que les hashtags minuscules propres.",
+        "hint": "/^#[a-z0-9]+$/.test(s) — ^ and $ pin both ends, + means one-or-more.",
+        "prompt": "Définissez **isTag(s)** qui renvoie `true` uniquement quand `s` est un `#` suivi d'**une ou plusieurs** lettres minuscules ou chiffres — et rien d'autre.\n~~~js\nisTag('#neo7')  // true\nisTag('#Neo')   // false (uppercase)\nisTag('#')      // false (needs 1+ chars)\nisTag('neo')    // false (no #)\n~~~"
+      },
+      "js-countvowels": {
+        "title": "VOWEL COUNTER",
+        "brief": "Compter les voyelles, toutes casses.",
+        "hint": "(s.match(/[aeiou]/gi) || []).length — guard the null when there are none.",
+        "prompt": "Définissez **countVowels(s)** qui renvoie le nombre de voyelles (`a e i o u`, **insensible à la casse**) présentes dans `s`.\n~~~js\ncountVowels('Neo')   // 2\ncountVowels('AEIOU') // 5\ncountVowels('xyz')   // 0\n~~~"
+      },
+      "js-collapsespaces": {
+        "title": "WHITESPACE CRUSH",
+        "brief": "Compresser les suites d'espaces en intervalles simples.",
+        "hint": "s.replace(/\\\\s+/g, ' ').trim() — \\\\s+ is one-or-more whitespace.",
+        "prompt": "Définissez **collapseSpaces(s)** qui remplace chaque suite d'espaces blancs par un seul espace `' '`, puis rogne les extrémités.\nUne chaîne vide ou composée uniquement d'espaces renvoie `''`.\n~~~js\ncollapseSpaces('  hack   the  planet ')  // 'hack the planet'\ncollapseSpaces('   ')                    // ''\n~~~"
+      },
+      "js-extractnums": {
+        "title": "NUMBER HARVEST",
+        "brief": "Extraire chaque nombre du bruit.",
+        "hint": "s.match(/\\\\d+/g) returns matches or null; map(Number).",
+        "prompt": "Définissez **extractNumbers(s)** qui renvoie un tableau de toutes les suites de chiffres sous forme de **nombres**, dans l'ordre. Aucun chiffre → tableau vide.\n~~~js\nextractNumbers('a12b3')  // [12, 3]\nextractNumbers('none')   // []\n~~~"
       },
       "js-pricetotal": {
         "title": "SOMME DE FACTURE",
-        "brief": "Faites le total du registre à partir de JSON brut.",
+        "brief": "Totaliser le registre depuis du JSON brut.",
         "hint": "JSON.parse(json).reduce((sum, r) => sum + r.price, 0)",
         "prompt": "`json` est une chaîne JSON représentant un tableau d'objets ayant chacun un **price** numérique. Définissez\n**totalPrice(json)** qui renvoie la somme de tous les prix.\n~~~js\ntotalPrice('[{\"price\":10},{\"price\":5}]')  // 15\n~~~"
       },
       "js-pluck": {
         "title": "EXTRACTEUR DE CHAMP",
-        "brief": "Extrayez une seule colonne des enregistrements.",
+        "brief": "Arracher une seule colonne des enregistrements.",
         "hint": "JSON.parse(json).map(r => r[key])",
-        "prompt": "`json` est un tableau JSON d'objets. Définissez **pluck(json, key)** qui renvoie un tableau contenant uniquement les valeurs de ce\nchamp, dans l'ordre.\n~~~js\npluck('[{\"name\":\"Spike\"},{\"name\":\"Jet\"}]', 'name')  // ['Spike', 'Jet']\n~~~"
+        "prompt": "`json` est un tableau JSON d'objets. Définissez **pluck(json, key)** qui renvoie un tableau des seules valeurs de ce\nchamp, dans l'ordre.\n~~~js\npluck('[{\"name\":\"Spike\"},{\"name\":\"Jet\"}]', 'name')  // ['Spike', 'Jet']\n~~~"
       },
       "js-pick": {
         "title": "CAVIARDEUR",
-        "brief": "Ne divulguez que les champs autorisés.",
+        "brief": "Ne divulguer que les champs autorisés.",
         "hint": "for (const k of keys) if (k in obj) out[k] = obj[k];",
-        "prompt": "Définissez **pick(obj, keys)** qui renvoie un **nouvel** objet contenant uniquement les clés listées qui existent réellement\nsur `obj` (ignorez celles qui manquent). Ne modifiez pas `obj`.\n~~~js\npick({ a: 1, b: 2, c: 3 }, ['a', 'c'])  // { a: 1, c: 3 }\n~~~"
+        "prompt": "Définissez **pick(obj, keys)** qui renvoie un **nouvel** objet contenant uniquement les clés listées qui existent réellement\nsur `obj` (ignorez les absentes). Ne modifiez pas `obj`.\n~~~js\npick({ a: 1, b: 2, c: 3 }, ['a', 'c'])  // { a: 1, c: 3 }\n~~~"
+      },
+      "js-parsescore": {
+        "title": "DECRYPT",
+        "brief": "Analyser un paquet JSON et lire son score.",
+        "hint": "const obj = JSON.parse(jsonStr); return obj.score;",
+        "prompt": "Un capteur envoie sa mesure sous forme de **chaîne** JSON comme `'{\"score\":42}'`. Définissez **parseScore(jsonStr)** qui analyse la chaîne avec `JSON.parse` et renvoie la valeur du champ `score`.\n~~~js\nparseScore('{\"score\":42}')   // 42\nparseScore('{\"score\":0}')    // 0\n~~~"
+      },
+      "js-sumfield": {
+        "title": "TALLY CORE",
+        "brief": "Réduire une colonne d'enregistrements en un total.",
+        "hint": "records.reduce((acc, r) => acc + r[key], 0)",
+        "prompt": "`records` est un tableau d'objets. Définissez **sumField(records, key)** qui renvoie la somme de la valeur numérique à `key` sur tous les enregistrements. Un tableau vide totalise `0`.\n~~~js\nsumField([{n:1},{n:2},{n:3}], 'n')   // 6\nsumField([], 'n')                    // 0\n~~~"
+      },
+      "js-averagefield": {
+        "title": "MEAN FILTER",
+        "brief": "Moyenner un champ sur tous les enregistrements.",
+        "hint": "Guard length 0, then sum / records.length.",
+        "prompt": "`records` est un tableau d'objets. Définissez **averageField(records, key)** qui renvoie la moyenne de la valeur à `key`. Sommez le champ, puis divisez par le nombre d'enregistrements. Un tableau vide renvoie `0` (ne jamais diviser par zéro).\n~~~js\naverageField([{n:2},{n:4},{n:6}], 'n')   // 4\naverageField([], 'n')                    // 0\n~~~"
+      },
+      "js-countbyfield": {
+        "title": "CENSUS",
+        "brief": "Recenser les enregistrements par champ.",
+        "hint": "out[v] = (out[v] || 0) + 1 in a loop.",
+        "prompt": "`records` est un tableau d'objets. Définissez **countByField(records, key)** qui renvoie un objet associant chaque valeur distincte à `key` au nombre d'enregistrements qui la possèdent. Un tableau vide renvoie `{}`.\n~~~js\ncountByField([{c:'a'},{c:'b'},{c:'a'}], 'c')  // { a: 2, b: 1 }\n~~~"
+      },
+      "js-maxbyfield": {
+        "title": "APEX SCAN",
+        "brief": "Trouver l'enregistrement qui domine un champ.",
+        "hint": "Guard empty -> null, seed best = records[0], loop keeping the larger record[key].",
+        "prompt": "`records` est un tableau d'objets. Définissez **maxByField(records, key)** qui renvoie l'enregistrement entier dont la valeur à `key` est la plus grande. Sur un tableau vide, renvoyez `null`.\n~~~js\nmaxByField([{name:'a',hp:5},{name:'b',hp:9}], 'hp')  // {name:'b',hp:9}\nmaxByField([], 'hp')                                 // null\n~~~"
       },
       "js-sortdesc": {
         "title": "CLASSER DÉCROISSANT",
-        "brief": "La menace la plus élevée en premier.",
+        "brief": "La menace la plus forte d'abord.",
         "hint": "nums.slice().sort((a, b) => b - a)",
-        "prompt": "Définissez **sortDesc(nums)** qui renvoie un **nouveau** tableau des nombres, du plus grand au plus petit. Ne modifiez pas l'entrée.\n~~~js\nsortDesc([3, 1, 2])  // [3, 2, 1]\n~~~"
+        "prompt": "Définissez **sortDesc(nums)** renvoyant un **nouveau** tableau des nombres, du plus grand au plus petit. Ne mutez pas l'entrée.\n~~~js\nsortDesc([3, 1, 2])  // [3, 2, 1]\n~~~"
       },
       "js-sortbyname": {
         "title": "TRI DE L'EFFECTIF",
-        "brief": "Classez le manifeste de l'équipage par ordre alphabétique.",
+        "brief": "Classez le manifeste d'équipage par ordre alphabétique.",
         "hint": "crew.slice().sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)",
-        "prompt": "`crew` est un tableau d'objets `{ name }`. Définissez **sortByName(crew)** qui renvoie un **nouveau** tableau trié\npar ordre alphabétique selon `name`.\n~~~js\nsortByName([{name:'Spike'},{name:'Ed'}])  // [{name:'Ed'},{name:'Spike'}]\n~~~"
+        "prompt": "`crew` est un tableau d'objets `{ name }`. Définissez **sortByName(crew)** renvoyant un **nouveau** tableau trié\nalphabétiquement par `name`.\n~~~js\nsortByName([{name:'Spike'},{name:'Ed'}])  // [{name:'Ed'},{name:'Spike'}]\n~~~"
       },
       "js-topn": {
         "title": "TOP-N MENACES",
         "brief": "Faites remonter les signaux les plus forts.",
         "hint": "nums.slice().sort((a, b) => b - a).slice(0, n)",
-        "prompt": "Définissez **topN(nums, n)** qui renvoie les `n` plus grands nombres, par ordre décroissant. Si `n` dépasse la longueur,\nrenvoyez-les tous triés.\n~~~js\ntopN([5, 1, 9, 3], 2)  // [9, 5]\n~~~"
+        "prompt": "Définissez **topN(nums, n)** renvoyant les `n` plus grands nombres, par ordre décroissant. Si `n` dépasse la longueur,\nrenvoyez-les tous triés.\n~~~js\ntopN([5, 1, 9, 3], 2)  // [9, 5]\n~~~"
+      },
+      "js-sortasc": {
+        "title": "BALAYAGE CROISSANT",
+        "brief": "Ordonnez le signal du plus bas au plus haut.",
+        "hint": "nums.slice().sort((a,b) => a - b)",
+        "prompt": "Définissez **sortAsc(nums)** renvoyant un NOUVEAU tableau trié numériquement par ordre croissant. Ne mutez pas l'entrée.\n~~~js\nsortAsc([3,1,2])    // [1,2,3]\nsortAsc([10,9,100]) // [9,10,100]  (numeric, not '10' < '100' < '9')\n~~~"
+      },
+      "js-median": {
+        "title": "VERROU CENTRAL",
+        "brief": "Trouvez la valeur en plein centre des données.",
+        "hint": "Triez une copie, prenez Math.floor(len/2) ; pour une longueur paire, faites la moyenne de s[mid-1] et s[mid].",
+        "prompt": "Définissez **median(nums)** renvoyant la valeur du milieu des nombres triés. Si la longueur est paire, renvoyez la **moyenne des deux valeurs centrales**. Un tableau vide renvoie **0**. Ne mutez pas l'entrée.\n~~~js\nmedian([3,1,2])     // 2\nmedian([4,1,3,2])   // 2.5  (average of 2 and 3)\nmedian([])          // 0\n~~~"
+      },
+      "js-sortbylength": {
+        "title": "LE PLUS COURT D'ABORD",
+        "brief": "Mettez les chaînes en file par taille, stable en cas d'égalité.",
+        "hint": "words.slice().sort((a,b) => a.length - b.length) — le tri de V8 est stable pour des clés égales.",
+        "prompt": "Définissez **sortByLength(words)** renvoyant un NOUVEAU tableau trié par ordre croissant de **longueur de chaîne**. Les chaînes de longueur égale conservent leur ordre d'entrée d'origine (stable). Ne mutez pas l'entrée.\n~~~js\nsortByLength(['ccc','a','bb'])      // ['a','bb','ccc']\nsortByLength(['bb','dd','a','cc'])   // ['a','bb','dd','cc']  (ties keep order)\n~~~"
+      },
+      "js-secondlargest": {
+        "title": "DAUPHIN",
+        "brief": "Trouvez le deuxième signal distinct le plus fort.",
+        "hint": "Rassemblez les valeurs distinctes dans un tableau adossé à un Set, triez par ordre décroissant, renvoyez l'index 1 (ou null s'il y en a moins de 2).",
+        "prompt": "Définissez **secondLargest(nums)** renvoyant la **2e plus grande valeur distincte**. Les valeurs répétées comptent une seule fois. S'il y a moins de 2 valeurs distinctes, renvoyez **null**. Ne mutez pas l'entrée.\n~~~js\nsecondLargest([3,1,2])    // 2\nsecondLargest([5,5,4])    // 4  (5 counts once)\nsecondLargest([7,7,7])    // null\n~~~"
+      },
+      "js-bottomn": {
+        "title": "MAILLONS FAIBLES",
+        "brief": "Extrayez les n plus petites lectures, du plus bas au plus haut.",
+        "hint": "nums.slice().sort((a,b) => a - b).slice(0, n) — vérifiez d'abord n <= 0.",
+        "prompt": "Définissez **bottomN(nums, n)** renvoyant un NOUVEAU tableau des **n plus petites** valeurs par ordre **croissant**. Si n vaut 0 ou moins, renvoyez `[]`. Si n dépasse la longueur, renvoyez toutes les valeurs triées. Ne mutez pas l'entrée.\n~~~js\nbottomN([5,3,9,1], 2)  // [1,3]\nbottomN([5,3,9,1], 0)  // []\nbottomN([2,1], 9)      // [1,2]\n~~~"
       },
       "js-binsearch": {
         "title": "BALAYAGE BINAIRE",
         "brief": "Localisez la cible en temps logarithmique.",
         "hint": "Bouclez tant que lo <= hi ; mid = (lo+hi)>>1 ; déplacez lo ou hi au-delà de mid.",
-        "prompt": "Définissez **binarySearch(sorted, target)** qui renvoie l'**indice** de `target` dans le tableau\ntrié par ordre croissant, ou **-1** s'il est absent.\n~~~js\nbinarySearch([1, 3, 5, 7, 9], 7)  // 3\nbinarySearch([1, 3, 5], 2)        // -1\n~~~"
+        "prompt": "Définissez **binarySearch(sorted, target)** renvoyant l'**index** de `target` dans le tableau trié par ordre\ncroissant, ou **-1** s'il est absent.\n~~~js\nbinarySearch([1, 3, 5, 7, 9], 7)  // 3\nbinarySearch([1, 3, 5], 2)        // -1\n~~~"
       },
       "js-issorted": {
         "title": "CONTRÔLE DE L'ORDRE",
         "brief": "Confirmez que la séquence est propre.",
-        "hint": "Renvoyez false dès que arr[i] < arr[i-1].",
-        "prompt": "Définissez **isSorted(arr)** qui renvoie `true` si le tableau est en ordre non décroissant (chaque élément >= le\nprécédent). Les tableaux vides et à un seul élément sont triés.\n~~~js\nisSorted([1, 2, 2, 3])  // true\nisSorted([3, 1])        // false\n~~~"
+        "hint": "Renvoyez false dès l'instant où arr[i] < arr[i-1].",
+        "prompt": "Définissez **isSorted(arr)** renvoyant `true` si le tableau est en ordre non décroissant (chaque élément >= le\nprécédent). Les tableaux vides et à un seul élément sont triés.\n~~~js\nisSorted([1, 2, 2, 3])  // true\nisSorted([3, 1])        // false\n~~~"
       },
       "js-rotate": {
         "title": "ROTATION DE TABLEAU",
         "brief": "Décalez le tampon circulaire.",
         "hint": "s = ((k % n) + n) % n; return arr.slice(n - s).concat(arr.slice(0, n - s));",
-        "prompt": "Définissez **rotate(arr, k)** qui renvoie un **nouveau** tableau pivoté vers la **droite** de `k` positions. `k` peut dépasser\nla longueur.\n~~~js\nrotate([1, 2, 3, 4, 5], 2)  // [4, 5, 1, 2, 3]\n~~~"
+        "prompt": "Définissez **rotate(arr, k)** renvoyant un **nouveau** tableau pivoté vers la **droite** de `k` positions. `k` peut dépasser\nla longueur.\n~~~js\nrotate([1, 2, 3, 4, 5], 2)  // [4, 5, 1, 2, 3]\n~~~"
+      },
+      "js-contains": {
+        "title": "SONDE ICE",
+        "brief": "La clé est-elle dans le coffre trié ?",
+        "hint": "Boucle lo<=hi ; comparez le point milieu ; déplacez lo ou hi.",
+        "prompt": "`sorted` est en ordre croissant. Définissez **contains(sorted, x)** renvoyant `true`/`false` à l'aide d'une **recherche binaire** (réduisez la plage de moitié à chaque étape).\n~~~js\ncontains([1, 3, 5, 7], 5)  // true\ncontains([1, 3, 5, 7], 4)  // false\n~~~"
+      },
+      "js-countocc": {
+        "title": "DÉCOMPTE DE SIGNAL",
+        "brief": "Comptez combien de fois le ping se répète.",
+        "hint": "Démarrez un compteur à 0 et ajoutez 1 pour chaque valeur égale à x.",
+        "prompt": "Définissez **countOccurrences(arr, x)** renvoyant combien de fois `x` apparaît dans `arr`. Un seul balayage de gauche à droite suffit.\n~~~js\ncountOccurrences([1, 2, 2, 3, 2], 2)  // 3\ncountOccurrences([1, 2, 3], 5)        // 0\n~~~"
+      },
+      "js-firstindex": {
+        "title": "PREMIÈRE TRACE",
+        "brief": "Repérez le premier emplacement contenant la cible.",
+        "hint": "Bouclez par index ; renvoyez i au premier résultat ; renvoyez -1 après la boucle.",
+        "prompt": "Définissez **firstIndex(arr, x)** renvoyant l'index du **premier** élément égal à `x`, ou **-1** s'il n'y en a aucun. Écrivez la boucle vous-même — pas de `indexOf`.\n~~~js\nfirstIndex([5, 3, 5, 7], 5)  // 0\nfirstIndex([1, 2, 3], 9)     // -1\n~~~"
+      },
+      "js-kthsmallest": {
+        "title": "CHIFFRE DE RANG",
+        "brief": "Extrayez le k-ième plus petit du tas.",
+        "hint": "arr.slice().sort((a,b)=>a-b) puis l'index k-1 — slice garde l'original intact.",
+        "prompt": "Définissez **kthSmallest(arr, k)** renvoyant la **k-ième plus petite** valeur (indexée à partir de 1) en triant une **copie** du tableau par ordre croissant. `arr` contient toujours au moins `k` nombres. Ne mutez pas l'entrée.\n~~~js\nkthSmallest([3, 1, 2], 1)     // 1\nkthSmallest([5, 5, 2, 8], 2)  // 5\n~~~"
+      },
+      "js-findpeak": {
+        "title": "CRÊTE DE SIGNAL",
+        "brief": "Trouvez un emplacement pas plus bas que ses voisins.",
+        "hint": "Balayez de gauche à droite ; un élément est un pic quand il est >= à chaque voisin qui existe.",
+        "prompt": "Définissez **findPeakIndex(arr)** renvoyant l'index du **premier** élément qui est `>=` à ses deux voisins (les bords comptent, en ne comparant que le côté qui existe). `arr` contient au moins un élément, donc un pic existe toujours.\n~~~js\nfindPeakIndex([1, 3, 2])  // 1\nfindPeakIndex([5, 4, 3])  // 0\n~~~"
       },
       "js-palindrome2": {
         "title": "PROTOCOLE MIROIR",
-        "brief": "Détectez une phrase qui se lit dans les deux sens.",
+        "brief": "Détecter une phrase qui se lit dans les deux sens.",
         "hint": "Nettoyez avec /[^a-z0-9]/g, puis comparez à la chaîne nettoyée inversée.",
-        "prompt": "Définissez **isPalindrome(s)** qui renvoie `true` si `s` se lit de la même façon de gauche à droite et de droite à gauche, **en ignorant**\nla casse, les espaces et la ponctuation.\n~~~js\nisPalindrome('A man, a plan, a canal: Panama')  // true\nisPalindrome('wired')                           // false\n~~~"
+        "prompt": "Définissez **isPalindrome(s)** retournant `true` si `s` se lit à l'identique de gauche à droite et de droite à gauche, **en ignorant**\nla casse, les espaces et la ponctuation.\n~~~js\nisPalindrome('A man, a plan, a canal: Panama')  // true\nisPalindrome('wired')                           // false\n~~~"
       },
       "js-anagram": {
         "title": "BROUILLAGE DE LETTRES",
         "brief": "Mêmes lettres, ordre différent.",
         "hint": "Triez les lettres nettoyées de chacune ; signatures identiques = anagramme.",
-        "prompt": "Définissez **isAnagram(a, b)** qui renvoie `true` si `a` et `b` utilisent les mêmes lettres, **en ignorant la casse et\nles espaces**.\n~~~js\nisAnagram('listen', 'silent')        // true\nisAnagram('Dormitory', 'Dirty Room') // true\n~~~"
+        "prompt": "Définissez **isAnagram(a, b)** retournant `true` si `a` et `b` utilisent les mêmes lettres, **en ignorant la casse et\nles espaces**.\n~~~js\nisAnagram('listen', 'silent')        // true\nisAnagram('Dormitory', 'Dirty Room') // true\n~~~"
       },
       "js-titlecase": {
         "title": "CASSE TITRE",
-        "brief": "Mettez en majuscule le nom de la mission.",
+        "brief": "Mettre en majuscule le nom de la mission.",
         "hint": "s.split(' ').map(w => w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w).join(' ')",
         "prompt": "Définissez **titleCase(s)** qui met en majuscule la première lettre de chaque mot séparé par une espace, et met le reste en minuscules.\n~~~js\ntitleCase('ghost in the shell')  // 'Ghost In The Shell'\n~~~"
       },
+      "js-normalize": {
+        "title": "NORMALISATION DU SIGNAL",
+        "brief": "Nettoyer une transmission bruitée : minuscules, rognage, fermeture des trous.",
+        "hint": "s.trim().toLowerCase().replace(/\\s+/g, ' ')",
+        "prompt": "Définissez **normalize(s)** qui passe le texte en minuscules, rogne les extrémités, et réduit chaque suite d'espaces internes à un seul espace.\n~~~js\nnormalize('  Hello   WORLD ')  // 'hello world'\nnormalize('JACK   IN')         // 'jack in'\n~~~"
+      },
+      "js-longword": {
+        "title": "INDICATIF LE PLUS LONG",
+        "brief": "Trouver le plus long mot séparé par des espaces dans une chaîne.",
+        "hint": "Découpez sur ' ', bouclez en ne gardant un mot que lorsque sa longueur est strictement supérieure.",
+        "prompt": "Définissez **longestWord(s)** qui retourne le plus long mot séparé par des espaces. En cas d'égalité, retournez le **premier** mot qui atteint la longueur maximale.\n~~~js\nlongestWord('hack the planet')   // 'planet'\nlongestWord('neo trinity tank')  // 'trinity'\n~~~"
+      },
+      "js-pangram": {
+        "title": "SONDE PANGRAMME",
+        "brief": "Vérifier si une ligne utilise chaque lettre de l'alphabet.",
+        "hint": "Passez en minuscules, puis bouclez sur les codes de caractères 97..122 ; si un indexOf vaut -1, retournez false.",
+        "prompt": "Définissez **isPangram(s)** retournant `true` uniquement si la chaîne contient chaque lettre **a-z** au moins une fois, sans tenir compte de la casse.\n~~~js\nisPangram('The quick brown fox jumps over the lazy dog')  // true\nisPangram('hello world')                                 // false\n~~~"
+      },
+      "js-freqchar": {
+        "title": "GLYPHE DOMINANT",
+        "brief": "Trouver le caractère qui apparaît le plus, espaces exclus.",
+        "hint": "Ignorez ' ', comptez dans un objet, et ne mettez à jour le meilleur que lorsque le nouveau compte est strictement supérieur au max.",
+        "prompt": "Définissez **mostFrequentChar(s)** retournant le caractère qui apparaît le plus souvent, **en ignorant les espaces**. En cas d'égalité, retournez le caractère qui **atteint en premier** le compte maximal. Supposez au moins un caractère non-espace.\n~~~js\nmostFrequentChar('aabbbc')  // 'b'\nmostFrequentChar('hello')   // 'l'\nmostFrequentChar('a b a')   // 'a'\n~~~"
+      },
+      "js-caesar": {
+        "title": "CHIFFRE DE CÉSAR",
+        "brief": "Décaler l'alphabet minuscule vers l'avant, en bouclant après z.",
+        "hint": "Pour les codes 97..122 utilisez (c - 97 + n) % 26 + 97 ; sinon copiez le caractère.",
+        "prompt": "Définissez **caesar(s, n)** qui décale chaque lettre minuscule a-z vers l'avant de `n` (en bouclant z→a). Laissez tout autre caractère inchangé. Supposez que `n` vaut 0..25.\n~~~js\ncaesar('abc', 1)   // 'bcd'\ncaesar('xyz', 3)   // 'abc'\ncaesar('a-b', 1)   // 'b-c'\n~~~"
+      },
       "js-gcd": {
         "title": "DIVISEUR COMMUN",
-        "brief": "Réduisez deux signaux à leur racine.",
+        "brief": "Réduire deux signaux à leur racine.",
         "hint": "while (b !== 0) { const r = a % b; a = b; b = r; } return a;",
-        "prompt": "Définissez **gcd(a, b)** qui renvoie le plus grand commun diviseur (supposez a, b >= 0, pas les deux à 0).\n~~~js\ngcd(12, 18)  // 6\n~~~"
+        "prompt": "Définissez **gcd(a, b)** retournant le plus grand commun diviseur (supposez a, b >= 0, pas les deux à 0).\n~~~js\ngcd(12, 18)  // 6\n~~~"
       },
       "js-isprime": {
         "title": "SCANNER DE PREMIERS",
-        "brief": "Signalez les indivisibles.",
+        "brief": "Repérer l'indivisible.",
         "hint": "if (n < 2) return false; for (let i = 2; i*i <= n; i++) if (n % i === 0) return false; return true;",
-        "prompt": "Définissez **isPrime(n)** qui renvoie `true` si `n` est premier. Les nombres inférieurs à 2 ne sont pas premiers.\n~~~js\nisPrime(13)  // true\nisPrime(1)   // false\n~~~"
+        "prompt": "Définissez **isPrime(n)** retournant `true` si `n` est premier. Les nombres inférieurs à 2 ne sont pas premiers.\n~~~js\nisPrime(13)  // true\nisPrime(1)   // false\n~~~"
       },
       "js-clamp": {
         "title": "BORNAGE D'INTERVALLE",
-        "brief": "Maintenez la commande des gaz dans ses limites.",
+        "brief": "Maintenir la commande des gaz dans ses limites.",
         "hint": "Math.max(lo, Math.min(x, hi))",
-        "prompt": "Définissez **clamp(x, lo, hi)** qui renvoie `x` contraint à la plage `[lo, hi]`.\n~~~js\nclamp(5, 0, 10)   // 5\nclamp(-3, 0, 10)  // 0\nclamp(99, 0, 10)  // 10\n~~~"
+        "prompt": "Définissez **clamp(x, lo, hi)** retournant `x` contraint à la plage `[lo, hi]`.\n~~~js\nclamp(5, 0, 10)   // 5\nclamp(-3, 0, 10)  // 0\nclamp(99, 0, 10)  // 10\n~~~"
+      },
+      "js-lcm": {
+        "title": "PLUS PETIT COMMUN MULTIPLE",
+        "brief": "Le plus petit nombre divisible par les deux entrées.",
+        "hint": "Calculez d'abord le pgcd, puis a / gcd(a,b) * b évite le débordement.",
+        "prompt": "Définissez **lcm(a, b)** retournant le plus petit commun multiple de deux entiers positifs. Utilisez l'identité `a * b / gcd(a, b)`.\n~~~js\nlcm(4, 6)   // 12\nlcm(3, 5)   // 15\n~~~"
+      },
+      "js-digitalroot": {
+        "title": "RACINE NUMÉRIQUE",
+        "brief": "Réduire un nombre à un seul chiffre.",
+        "hint": "Boucle externe tant que n>=10 ; boucle interne qui somme les chiffres.",
+        "prompt": "Définissez **digitalRoot(n)** qui additionne de façon répétée les chiffres de `n` (n >= 0) jusqu'à ce qu'il ne reste qu'un seul chiffre.\n~~~js\ndigitalRoot(942)  // 9+4+2=15 -> 1+5=6\ndigitalRoot(0)    // 0\n~~~"
+      },
+      "js-ispoweroftwo": {
+        "title": "PUISSANCE DE DEUX",
+        "brief": "Détecter les puissances exactes de deux.",
+        "hint": "n > 0 ET (n & (n - 1)) === 0 efface l'unique bit allumé.",
+        "prompt": "Définissez **isPowerOfTwo(n)** retournant `true` uniquement quand `n` est une puissance positive de deux (1, 2, 4, 8, 16, ...).\n~~~js\nisPowerOfTwo(8)   // true\nisPowerOfTwo(6)   // false\n~~~"
+      },
+      "js-roundto": {
+        "title": "ARRONDIR À LA DÉCIMALE",
+        "brief": "Arrondir à un nombre fixe de décimales.",
+        "hint": "Math.round(n * 10 ** places) / 10 ** places.",
+        "prompt": "Définissez **roundTo(n, places)** qui arrondit `n` à `places` décimales et retourne un Number. Agrandissez l'échelle, arrondissez, puis revenez à l'échelle.\n~~~js\nroundTo(3.14159, 2)  // 3.14\nroundTo(2.5, 0)      // 3\n~~~"
+      },
+      "js-sumdivisors": {
+        "title": "SOMME DES DIVISEURS",
+        "brief": "Additionner chaque diviseur de n.",
+        "hint": "Bouclez i de 1 à n ; quand n % i === 0, ajoutez i au total.",
+        "prompt": "Définissez **sumDivisors(n)** retournant la somme de tous les diviseurs positifs de `n` (n >= 1), y compris 1 et `n` lui-même.\n~~~js\nsumDivisors(6)   // 1+2+3+6 = 12\nsumDivisors(7)   // 1+7 = 8\n~~~"
       }
     }
   },

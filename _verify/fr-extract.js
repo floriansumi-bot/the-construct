@@ -23,6 +23,7 @@ const order = [
   "curriculum-js.js",
   "curriculum-js-pack-1.js", "curriculum-js-pack-2.js", "curriculum-js-pack-3.js",
   "curriculum-js-pack-4.js", "curriculum-js-pack-5.js", "curriculum-js-pack-6.js",
+  "curriculum-js-pack-7.js", "curriculum-js-pack-8.js", "curriculum-js-pack-9.js",
   "curriculum-ts.js",
   "curriculum-ts-pack-1.js", "curriculum-ts-pack-2.js", "curriculum-ts-pack-3.js",
   "curriculum-ts-pack-4.js", "curriculum-ts-pack-5.js", "curriculum-ts-pack-6.js",
