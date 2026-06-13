@@ -1,0 +1,158 @@
+{
+  "type": "new",
+  "module": {
+    "id": "luam08-math",
+    "code": "0x08",
+    "title": "MATH & ALGORITHMS",
+    "subtitle": "math lib · recursion · table.sort",
+    "theory": "## The math toolbox\nLua ships a built-in **math** library. You call its tools with a dot: `math.floor(x)`. The handy ones:\n\n- **math.floor(x)** — round DOWN to the nearest whole number. `math.floor(3.9)` is `3`.\n- **math.abs(x)** — distance from zero (drops the minus sign). `math.abs(-7)` is `7`.\n- **math.max(a, b, ...)** — the biggest of the arguments.\n- **math.min(a, b, ...)** — the smallest.\n- **math.sqrt(x)** — the square root. `math.sqrt(9)` is `3.0`.\n\n~~~lua\nprint(math.floor(3.9))   -- 3\nprint(math.abs(-7))      -- 7\nprint(math.max(4, 9, 2)) -- 9\nprint(math.sqrt(16))     -- 4.0\n~~~\n\n> INTEL — `math.sqrt` always hands back a float, so `math.sqrt(9)` prints as `3.0`, not `3`. That is normal — `3.0 == 3` is still `true` in Lua.\n\n## Recursion: a function that calls itself\n**Recursion** means a function calls itself on a smaller problem until it hits a tiny case it can answer directly — the **base case**. Without a base case it loops forever, so always write that first.\n\nThe classic is **factorial** (`5! = 5*4*3*2*1`):\n~~~lua\nfunction factorial(n)\n  if n <= 1 then return 1 end      -- base case\n  return n * factorial(n - 1)      -- shrink the problem\nend\nprint(factorial(5))  -- 120\n~~~\n\n**Euclid's algorithm** finds the greatest common divisor (gcd) — the largest number that divides both. Lua's `%` gives the remainder:\n~~~lua\nfunction gcd(a, b)\n  if b == 0 then return a end      -- base case\n  return gcd(b, a % b)             -- swap & shrink\nend\nprint(gcd(48, 18))  -- 6\n~~~\n\n**Fibonacci** adds the two numbers before it (0, 1, 1, 2, 3, 5, 8, ...). Two base cases here:\n~~~lua\nfunction fib(n)\n  if n < 2 then return n end       -- fib(0)=0, fib(1)=1\n  return fib(n - 1) + fib(n - 2)\nend\nprint(fib(7))  -- 13\n~~~\n\n> WARNING — Every recursion needs a base case that stops it. If `factorial` never checked `n <= 1` it would call itself forever and crash with a stack overflow.\n\n## Checking for primes\nA **prime** is a whole number greater than 1 divisible only by 1 and itself (2, 3, 5, 7, 11, ...). To test `n`, try dividing by every number from 2 up: if any divides evenly (remainder 0), it is NOT prime.\n~~~lua\nfunction is_prime(n)\n  if n < 2 then return false end\n  for d = 2, n - 1 do\n    if n % d == 0 then return false end\n  end\n  return true\nend\n~~~\n\n## Sorting a table\n**table.sort(t)** rearranges an array IN PLACE — it changes `t` itself and returns nothing. By default it sorts ascending (smallest first):\n~~~lua\nlocal nums = {5, 1, 4, 2}\ntable.sort(nums)\nprint(nums[1], nums[4])  -- 1   5\n~~~\n\nTo sort differently, pass a **comparator**: a function `(a, b)` that returns `true` when `a` should come before `b`. For descending order, say \"a comes first when it is bigger\":\n~~~lua\nlocal nums = {5, 1, 4, 2}\ntable.sort(nums, function(a, b) return a > b end)\nprint(nums[1])  -- 5\n~~~\n\n> WARNING — `table.sort` does NOT return a new table. Writing `local s = table.sort(t)` puts `nil` in `s`. Sort `t`, then use `t`. Also remember Lua arrays start at index **1**, not 0 — the first element is `t[1]`.\n"
+  },
+  "exercises": [
+    {
+      "id": "lua-driftgap",
+      "title": "DRIFT GAP",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "How far off the mark?",
+      "prompt": "Define **drift_gap(target, actual)** that returns how far `actual` is from `target`, as a positive number, using **math.abs**.\n~~~lua\ndrift_gap(10, 7)  -- 3\ndrift_gap(7, 10)  -- 3\n~~~",
+      "starter": "function drift_gap(target, actual)\n  -- TODO: use math.abs\n  return 0\nend\n",
+      "solution": "function drift_gap(target, actual)\n  return math.abs(target - actual)\nend\n",
+      "tests": [
+        { "name": "actual below target", "code": "assert(drift_gap(10, 7) == 3, \"expected 3\")" },
+        { "name": "actual above target", "code": "assert(drift_gap(7, 10) == 3, \"gap is always positive\")" },
+        { "name": "dead on", "code": "assert(drift_gap(5, 5) == 0, \"no gap\")" }
+      ],
+      "hint": "math.abs(target - actual) drops the minus sign.",
+      "lore": "Off by three microns. The net notices."
+    },
+    {
+      "id": "lua-peaksignal",
+      "title": "PEAK SIGNAL",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "The strongest of three.",
+      "prompt": "Define **peak_signal(a, b, c)** that returns the largest of the three numbers, using **math.max**.\n~~~lua\npeak_signal(4, 9, 2)  -- 9\n~~~",
+      "starter": "function peak_signal(a, b, c)\n  -- TODO: use math.max\n  return 0\nend\n",
+      "solution": "function peak_signal(a, b, c)\n  return math.max(a, b, c)\nend\n",
+      "tests": [
+        { "name": "middle wins", "code": "assert(peak_signal(4, 9, 2) == 9, \"expected 9\")" },
+        { "name": "last wins", "code": "assert(peak_signal(1, 1, 8) == 8, \"expected 8\")" },
+        { "name": "handles negatives", "code": "assert(peak_signal(-5, -2, -9) == -2, \"expected -2\")" }
+      ],
+      "hint": "math.max takes any number of arguments and returns the biggest.",
+      "lore": "Lock onto the loudest channel."
+    },
+    {
+      "id": "lua-floorvolts",
+      "title": "FLOOR VOLTS",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Round the reading down.",
+      "prompt": "Define **floor_volts(reading)** that returns the reading rounded DOWN to a whole number, using **math.floor**.\n~~~lua\nfloor_volts(3.9)   -- 3\nfloor_volts(7.01)  -- 7\n~~~",
+      "starter": "function floor_volts(reading)\n  -- TODO: use math.floor\n  return reading\nend\n",
+      "solution": "function floor_volts(reading)\n  return math.floor(reading)\nend\n",
+      "tests": [
+        { "name": "rounds down", "code": "assert(floor_volts(3.9) == 3, \"expected 3\")" },
+        { "name": "barely over", "code": "assert(floor_volts(7.01) == 7, \"expected 7\")" },
+        { "name": "already whole", "code": "assert(floor_volts(5) == 5, \"expected 5\")" }
+      ],
+      "hint": "math.floor(3.9) is 3 — it always rounds toward smaller.",
+      "lore": "Trim the noise. Keep the whole units."
+    },
+    {
+      "id": "lua-vectorlen",
+      "title": "VECTOR LENGTH",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Hypotenuse from two legs.",
+      "prompt": "Define **vector_len(x, y)** that returns the straight-line length of the vector — the square root of `x*x + y*y` — using **math.sqrt**.\n~~~lua\nvector_len(3, 4)  -- 5.0\n~~~",
+      "starter": "function vector_len(x, y)\n  -- TODO: use math.sqrt\n  return 0\nend\n",
+      "solution": "function vector_len(x, y)\n  return math.sqrt(x * x + y * y)\nend\n",
+      "tests": [
+        { "name": "3-4-5 triangle", "code": "assert(vector_len(3, 4) == 5, \"expected 5\")" },
+        { "name": "axis only", "code": "assert(vector_len(0, 6) == 6, \"expected 6\")" },
+        { "name": "5-12-13 triangle", "code": "assert(vector_len(5, 12) == 13, \"expected 13\")" }
+      ],
+      "hint": "math.sqrt(x*x + y*y). Squaring before adding, like Pythagoras.",
+      "lore": "Distance is just geometry under pressure."
+    },
+    {
+      "id": "lua-factorial",
+      "title": "FACTORIAL",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Multiply the chain down.",
+      "prompt": "Define **factorial(n)** using **recursion**. It returns `n * (n-1) * ... * 1`. The factorial of 0 is 1.\n~~~lua\nfactorial(5)  -- 120\nfactorial(0)  -- 1\n~~~",
+      "starter": "function factorial(n)\n  -- TODO: base case, then recurse\n  return 0\nend\n",
+      "solution": "function factorial(n)\n  if n <= 1 then return 1 end\n  return n * factorial(n - 1)\nend\n",
+      "tests": [
+        { "name": "factorial of 5", "code": "assert(factorial(5) == 120, \"expected 120\")" },
+        { "name": "base case zero", "code": "assert(factorial(0) == 1, \"factorial(0) is 1\")" },
+        { "name": "factorial of 6", "code": "assert(factorial(6) == 720, \"expected 720\")" }
+      ],
+      "hint": "Base case: if n <= 1 return 1. Otherwise return n * factorial(n - 1).",
+      "lore": "Each layer multiplies the one below."
+    },
+    {
+      "id": "lua-euclidgcd",
+      "title": "EUCLID GCD",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Greatest common divisor.",
+      "prompt": "Define **gcd(a, b)** using **Euclid's algorithm** (recursion): when `b` is 0, return `a`; otherwise return `gcd(b, a % b)`.\n~~~lua\ngcd(48, 18)  -- 6\ngcd(7, 0)    -- 7\n~~~",
+      "starter": "function gcd(a, b)\n  -- TODO: base case b == 0, then recurse\n  return 0\nend\n",
+      "solution": "function gcd(a, b)\n  if b == 0 then return a end\n  return gcd(b, a % b)\nend\n",
+      "tests": [
+        { "name": "48 and 18", "code": "assert(gcd(48, 18) == 6, \"expected 6\")" },
+        { "name": "base case", "code": "assert(gcd(7, 0) == 7, \"when b is 0, return a\")" },
+        { "name": "coprime", "code": "assert(gcd(13, 7) == 1, \"expected 1\")" },
+        { "name": "one divides the other", "code": "assert(gcd(100, 25) == 25, \"expected 25\")" }
+      ],
+      "hint": "If b == 0 return a; else return gcd(b, a % b). The % is the remainder.",
+      "lore": "Strip the shared factor. What remains is irreducible."
+    },
+    {
+      "id": "lua-fibwave",
+      "title": "FIB WAVE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Each term sums the two before.",
+      "prompt": "Define **fib(n)** using **recursion**. The sequence is 0, 1, 1, 2, 3, 5, 8, ... so `fib(0)` is 0 and `fib(1)` is 1; otherwise `fib(n) = fib(n-1) + fib(n-2)`.\n~~~lua\nfib(7)  -- 13\nfib(0)  -- 0\n~~~",
+      "starter": "function fib(n)\n  -- TODO: base cases for 0 and 1, then recurse\n  return 0\nend\n",
+      "solution": "function fib(n)\n  if n < 2 then return n end\n  return fib(n - 1) + fib(n - 2)\nend\n",
+      "tests": [
+        { "name": "fib(7)", "code": "assert(fib(7) == 13, \"expected 13\")" },
+        { "name": "base zero", "code": "assert(fib(0) == 0, \"fib(0) is 0\")" },
+        { "name": "base one", "code": "assert(fib(1) == 1, \"fib(1) is 1\")" },
+        { "name": "fib(10)", "code": "assert(fib(10) == 55, \"expected 55\")" }
+      ],
+      "hint": "If n < 2 return n. Otherwise return fib(n-1) + fib(n-2).",
+      "lore": "The spiral grows from what came before."
+    },
+    {
+      "id": "lua-rankdesc",
+      "title": "RANK DESCENDING",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Sort a table, biggest first.",
+      "prompt": "Define **rank_desc(t)** that sorts the array `t` from largest to smallest and returns it. Use **table.sort** with a comparator. Remember `table.sort` changes `t` in place, so sort it then `return t`.\n~~~lua\nrank_desc({3, 1, 4, 1, 5})  -- {5, 4, 3, 1, 1}\n~~~",
+      "starter": "function rank_desc(t)\n  -- TODO: sort t descending with a comparator, then return it\n  return t\nend\n",
+      "solution": "function rank_desc(t)\n  table.sort(t, function(a, b) return a > b end)\n  return t\nend\n",
+      "tests": [
+        { "name": "five elements, descending", "code": "local r = rank_desc({3, 1, 4, 1, 5})\nassert(#r == 5 and r[1] == 5 and r[2] == 4 and r[3] == 3 and r[4] == 1 and r[5] == 1, \"expected {5,4,3,1,1}\")" },
+        { "name": "already descending stays put", "code": "local r = rank_desc({9, 6, 2})\nassert(#r == 3 and r[1] == 9 and r[2] == 6 and r[3] == 2, \"expected {9,6,2}\")" },
+        { "name": "handles negatives", "code": "local r = rank_desc({-1, -5, 0})\nassert(#r == 3 and r[1] == 0 and r[2] == -1 and r[3] == -5, \"expected {0,-1,-5}\")" }
+      ],
+      "hint": "table.sort(t, function(a, b) return a > b end), then return t.",
+      "lore": "The strongest signals rise to the top of the stack."
+    }
+  ]
+}

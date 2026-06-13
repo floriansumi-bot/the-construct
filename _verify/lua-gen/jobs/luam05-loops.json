@@ -1,0 +1,156 @@
+{
+  "type": "new",
+  "module": {
+    "id": "luam05-loops",
+    "code": "0x05",
+    "title": "LOOPS & RANGES",
+    "subtitle": "numeric for · while · repeat · accumulation",
+    "theory": "\n## Doing something many times\nUp to now your code ran each line once, top to bottom. A **loop** lets you repeat a block — count from 1 to 10, add up a list, keep going until a condition is met. This sector covers Lua's three loops and the patterns you build with them.\n\n## The numeric `for` — a counted range\nThe most common loop walks a **range** of numbers. You give a **start**, an **end**, and (optionally) a **step**.\n\n~~~lua\nfor i = 1, 5 do      -- i takes 1, 2, 3, 4, 5\n  print(i)\nend\n~~~\n\n**WHAT** — `for i = a, b do ... end` runs the block once for each value of `i` from `a` up to and *including* `b`. **WHY** — when you know exactly how many times to repeat (or which numbers to visit), this is the clearest tool.\n\n> INTEL — the end value is **inclusive**. `for i = 1, 5` really does run with `i = 5` on the last pass. This trips up people coming from languages where the end is excluded.\n\n### Adding a step\nA third number is the **step** — how much `i` changes each pass. A negative step counts **down**.\n\n~~~lua\nfor i = 0, 10, 2 do print(i) end   -- 0 2 4 6 8 10\nfor i = 5, 1, -1 do print(i) end   -- 5 4 3 2 1\n~~~\n\n> WARNING — to count downward you MUST give a negative step. `for i = 5, 1 do` uses the default step of `+1`, sees that 5 is already past 1, and runs **zero** times — no error, just nothing happens. Write `for i = 5, 1, -1 do`.\n\n## Accumulating — sum and product\nThe killer move of a loop is the **accumulator**: a variable you set up *before* the loop and update *inside* it. To total a list, start at `0` and add each value. To multiply, start at `1` and multiply.\n\n~~~lua\nlocal sum = 0\nfor i = 1, 4 do\n  sum = sum + i      -- 0+1, then +2, +3, +4\nend\nprint(sum)           -- 10\n~~~\n\n> WARNING — declare the accumulator OUTSIDE the loop. If you write `local sum = 0` *inside* the `do ... end`, it resets to 0 on every pass and your total is wrong. And remember Lua has no `++`: write `sum = sum + i`, never `sum++`.\n\n> INTEL — pick the right seed. Sums start at **0** (adding 0 changes nothing). Products start at **1** (multiplying by 1 changes nothing). Seeding a product with 0 would force the answer to 0 forever.\n\n## The `while` loop — repeat as long as a condition holds\nWhen you DON'T know the count up front — \"keep going until the number drops below 1\" — use **while**. It checks the condition *first*, then runs the block, then checks again.\n\n~~~lua\nlocal n = 16\nlocal steps = 0\nwhile n > 1 do\n  n = n / 2          -- you must change n, or this never ends\n  steps = steps + 1\nend\nprint(steps)         -- 4\n~~~\n\n> WARNING — a `while` runs forever unless something inside it eventually makes the condition false. The classic bug is forgetting to update the variable you're testing — an **infinite loop**. Always make sure the block moves toward the exit.\n\n## The `repeat ... until` loop — run first, check after\n`repeat ... until cond` is `while`'s mirror image: it runs the block **once before** checking, then keeps going **until** the condition becomes true. Because the body runs first, it always executes at least once.\n\n~~~lua\nlocal i = 1\nrepeat\n  print(i)\n  i = i + 1\nuntil i > 3          -- prints 1, 2, 3\n~~~\n\n> INTEL — note the logic is flipped: `while cond` loops *while true*, but `repeat ... until cond` loops *until true* (i.e. while the condition is still false). Read the word `until` literally: \"keep going until this becomes true.\"\n\n## Building a result table with `table.insert`\nLoops often produce a **list**. Start with an empty table `{}` and push values onto the end with `table.insert`. Lua arrays are **1-indexed**, and `table.insert(t, v)` appends `v` at position `#t + 1`.\n\n~~~lua\nlocal squares = {}\nfor i = 1, 4 do\n  table.insert(squares, i * i)   -- 1, 4, 9, 16\nend\nprint(squares[1], squares[4])    -- 1   16\nprint(#squares)                  -- 4\n~~~\n\n**WHAT** — `table.insert(t, v)` grows the array by one, putting `v` last. **WHY** — you rarely know the final size ahead of time; inserting lets the list grow as the loop runs. `#t` then tells you how many items landed.\n\n## `break` — leave a loop early\nSometimes you want to stop the moment you find what you're after. **break** jumps straight out of the nearest loop, skipping the rest.\n\n~~~lua\nlocal found = nil\nfor i = 2, 100 do\n  if 84 % i == 0 then\n    found = i        -- first divisor of 84 that is >= 2\n    break            -- stop looking\n  end\nend\nprint(found)         -- 2\n~~~\n\n> INTEL — `break` only exits the **innermost** loop it sits in. There is no `break 2` to escape several loops at once — for that you restructure with a flag or a helper function.\n\n> WARNING — `%` is the **remainder** operator: `a % b == 0` means `b` divides `a` evenly. It's the standard \"is this divisible / is this even\" test — `n % 2 == 0` is true for even numbers.\n"
+  },
+  "exercises": [
+    {
+      "id": "lua-loop-countsum",
+      "title": "RANGE TOTAL",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Sum 1 up to n with a numeric for.",
+      "prompt": "\nDefine **sum_to(n)** that returns the total of every whole number from **1** to **n** (inclusive). Use a numeric `for` and an accumulator that starts at 0.\n~~~lua\nsum_to(4)   -- 10   (1 + 2 + 3 + 4)\nsum_to(1)   -- 1\n~~~\n",
+      "starter": "function sum_to(n)\n  -- TODO: add 1, 2, ..., n into a running total\n  return 0\nend",
+      "solution": "function sum_to(n)\n  local sum = 0\n  for i = 1, n do\n    sum = sum + i\n  end\n  return sum\nend",
+      "tests": [
+        { "name": "sum to 4", "code": "assert(sum_to(4) == 10)" },
+        { "name": "sum to 1", "code": "assert(sum_to(1) == 1)" },
+        { "name": "sum to 10", "code": "assert(sum_to(10) == 55)" }
+      ],
+      "hint": "local sum = 0 before the loop; for i = 1, n do sum = sum + i end; then return sum.",
+      "lore": "Walk the range one node at a time. The total is the toll you pay."
+    },
+    {
+      "id": "lua-loop-countdown",
+      "title": "DESCENT VECTOR",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Count down from n into a list.",
+      "prompt": "\nDefine **countdown(n)** that returns an array holding the numbers **n, n-1, ... , 1** in that order. Use a numeric `for` with a negative step and `table.insert`.\n~~~lua\nlocal t = countdown(3)\nprint(t[1], t[2], t[3])  -- 3  2  1\n~~~\n",
+      "starter": "function countdown(n)\n  local out = {}\n  -- TODO: push n, n-1, ..., 1 onto out (mind the step)\n  return out\nend",
+      "solution": "function countdown(n)\n  local out = {}\n  for i = n, 1, -1 do\n    table.insert(out, i)\n  end\n  return out\nend",
+      "tests": [
+        { "name": "counts down from 3", "code": "local t = countdown(3)\nassert(#t == 3 and t[1] == 3 and t[2] == 2 and t[3] == 1)" },
+        { "name": "single element", "code": "local t = countdown(1)\nassert(#t == 1 and t[1] == 1)" },
+        { "name": "length matches n", "code": "local t = countdown(5)\nassert(#t == 5 and t[1] == 5 and t[5] == 1)" }
+      ],
+      "hint": "for i = n, 1, -1 do table.insert(out, i) end — the -1 step counts downward.",
+      "lore": "Ten to one, the descent burns clean. Forget the minus and you never leave the pad."
+    },
+    {
+      "id": "lua-loop-product",
+      "title": "CHAIN MULTIPLY",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Multiply 1 through n together.",
+      "prompt": "\nDefine **product_to(n)** that returns the product of every whole number from **1** to **n** (this is n factorial). Seed the accumulator at **1**, not 0.\n~~~lua\nproduct_to(4)   -- 24   (1 * 2 * 3 * 4)\nproduct_to(1)   -- 1\n~~~\n",
+      "starter": "function product_to(n)\n  -- TODO: multiply 1 * 2 * ... * n (start the accumulator at 1)\n  return 0\nend",
+      "solution": "function product_to(n)\n  local prod = 1\n  for i = 1, n do\n    prod = prod * i\n  end\n  return prod\nend",
+      "tests": [
+        { "name": "product to 4", "code": "assert(product_to(4) == 24)" },
+        { "name": "product to 1", "code": "assert(product_to(1) == 1)" },
+        { "name": "product to 5", "code": "assert(product_to(5) == 120)" }
+      ],
+      "hint": "Start local prod = 1 (a 0 seed would zero everything); then prod = prod * i in the loop.",
+      "lore": "Stack the multipliers. Seed it with zero and the whole chain flatlines."
+    },
+    {
+      "id": "lua-loop-evens",
+      "title": "EVEN HARVEST",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Collect even numbers up to n.",
+      "prompt": "\nDefine **evens_to(n)** that returns an array of every even number from **2** up to **n** (inclusive), in ascending order. A `for` with step 2 makes this clean; build the list with `table.insert`.\n~~~lua\nlocal t = evens_to(8)\nprint(t[1], t[4])  -- 2  8\n~~~\n",
+      "starter": "function evens_to(n)\n  local out = {}\n  -- TODO: collect 2, 4, 6, ... up to n\n  return out\nend",
+      "solution": "function evens_to(n)\n  local out = {}\n  for i = 2, n, 2 do\n    table.insert(out, i)\n  end\n  return out\nend",
+      "tests": [
+        { "name": "evens up to 8", "code": "local t = evens_to(8)\nassert(#t == 4 and t[1] == 2 and t[2] == 4 and t[3] == 6 and t[4] == 8)" },
+        { "name": "odd bound stops early", "code": "local t = evens_to(7)\nassert(#t == 3 and t[3] == 6)" },
+        { "name": "none below 2", "code": "local t = evens_to(1)\nassert(#t == 0)" }
+      ],
+      "hint": "for i = 2, n, 2 do table.insert(out, i) end — the step of 2 skips the odds.",
+      "lore": "Skim every second packet off the wire. The grid breathes in twos."
+    },
+    {
+      "id": "lua-loop-halve",
+      "title": "HALVING CASCADE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Count how many halvings reach 1.",
+      "prompt": "\nDefine **halvings(n)** that returns how many times you can integer-halve **n** before it reaches **1** or below. Use a `while` loop: keep dividing while `n > 1`, counting each step. Use `//` (floor division) so the result stays a whole number.\n~~~lua\nhalvings(16)  -- 4   (16 -> 8 -> 4 -> 2 -> 1)\nhalvings(1)   -- 0\n~~~\n",
+      "starter": "function halvings(n)\n  local steps = 0\n  -- TODO: while n > 1, halve n (use //) and count the step\n  return steps\nend",
+      "solution": "function halvings(n)\n  local steps = 0\n  while n > 1 do\n    n = n // 2\n    steps = steps + 1\n  end\n  return steps\nend",
+      "tests": [
+        { "name": "16 takes 4 steps", "code": "assert(halvings(16) == 4)" },
+        { "name": "1 needs no steps", "code": "assert(halvings(1) == 0)" },
+        { "name": "non-power rounds down", "code": "assert(halvings(10) == 3)" }
+      ],
+      "hint": "while n > 1 do n = n // 2; steps = steps + 1 end — you must change n or it loops forever.",
+      "lore": "Fold the signal in half, again and again, until only the core bit remains."
+    },
+    {
+      "id": "lua-loop-firstdiv",
+      "title": "FIRST FACTOR",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Find the smallest divisor, then break.",
+      "prompt": "\nDefine **first_divisor(n)** that returns the smallest integer **d** with `d >= 2` that divides **n** evenly (test with `n % d == 0`). Loop `d` from 2 upward and `break` the instant you find one. Assume `n >= 2`; a prime's first divisor is itself.\n~~~lua\nfirst_divisor(15)  -- 3\nfirst_divisor(13)  -- 13\n~~~\n",
+      "starter": "function first_divisor(n)\n  -- TODO: scan d from 2 up; return the first d that divides n\n  return -1\nend",
+      "solution": "function first_divisor(n)\n  local found = n\n  for d = 2, n do\n    if n % d == 0 then\n      found = d\n      break\n    end\n  end\n  return found\nend",
+      "tests": [
+        { "name": "15 splits at 3", "code": "assert(first_divisor(15) == 3)" },
+        { "name": "even splits at 2", "code": "assert(first_divisor(28) == 2)" },
+        { "name": "prime returns itself", "code": "assert(first_divisor(13) == 13)" }
+      ],
+      "hint": "for d = 2, n do if n % d == 0 then found = d; break end end — the loop reaches n itself for a prime.",
+      "lore": "Pry at the number from the smallest end. The first crack is the one that matters."
+    },
+    {
+      "id": "lua-loop-collatz",
+      "title": "STORM SEQUENCE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Count steps with repeat...until.",
+      "prompt": "\nDefine **storm_steps(n)** that applies this rule until **n** reaches **1**, counting the steps: if `n` is even, set `n = n // 2`; otherwise set `n = 3 * n + 1`. Because you act before testing, use a `repeat ... until n == 1` loop. Return the number of steps. Assume `n >= 1`.\n~~~lua\nstorm_steps(1)  -- 0   (already at 1)\nstorm_steps(8)  -- 3   (8 -> 4 -> 2 -> 1)\n~~~\n",
+      "starter": "function storm_steps(n)\n  local steps = 0\n  if n == 1 then return 0 end\n  -- TODO: repeat the even/odd rule until n == 1, counting steps\n  return steps\nend",
+      "solution": "function storm_steps(n)\n  local steps = 0\n  if n == 1 then return 0 end\n  repeat\n    if n % 2 == 0 then\n      n = n // 2\n    else\n      n = 3 * n + 1\n    end\n    steps = steps + 1\n  until n == 1\n  return steps\nend",
+      "tests": [
+        { "name": "already at 1", "code": "assert(storm_steps(1) == 0)" },
+        { "name": "power of two", "code": "assert(storm_steps(8) == 3)" },
+        { "name": "odd start", "code": "assert(storm_steps(6) == 8)" }
+      ],
+      "hint": "Guard n == 1 first, then repeat the if/else rule with steps = steps + 1, until n == 1.",
+      "lore": "Feed any seed to the storm. It always spirals home to one — eventually."
+    },
+    {
+      "id": "lua-loop-runcap",
+      "title": "CAPPED RUN",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Accumulate until a cap, then break.",
+      "prompt": "\nDefine **run_until_cap(list, cap)** that walks the array **list** adding values to a running total, but stops the moment the total would **reach or exceed** `cap`. Return an array of the values actually taken (those added before hitting the cap). Use a numeric `for` and `break`.\n~~~lua\nlocal t = run_until_cap({ 3, 4, 10, 1 }, 8)\nprint(t[1], t[2])  -- 3  4   (3+4=7 ok; adding 10 hits 17 >= 8, so stop)\nprint(#t)          -- 2\n~~~\n",
+      "starter": "function run_until_cap(list, cap)\n  local taken = {}\n  -- TODO: add items while the total stays below cap; break otherwise\n  return taken\nend",
+      "solution": "function run_until_cap(list, cap)\n  local taken = {}\n  local total = 0\n  for i = 1, #list do\n    if total + list[i] >= cap then\n      break\n    end\n    total = total + list[i]\n    table.insert(taken, list[i])\n  end\n  return taken\nend",
+      "tests": [
+        { "name": "stops before cap", "code": "local t = run_until_cap({ 3, 4, 10, 1 }, 8)\nassert(#t == 2 and t[1] == 3 and t[2] == 4)" },
+        { "name": "takes all when under cap", "code": "local t = run_until_cap({ 1, 1, 1 }, 100)\nassert(#t == 3 and t[3] == 1)" },
+        { "name": "first item already over", "code": "local t = run_until_cap({ 50, 1 }, 10)\nassert(#t == 0)" }
+      ],
+      "hint": "Track a running total; for each item, if total + list[i] >= cap then break, else add it and table.insert.",
+      "lore": "Pull data until the buffer's about to blow, then cut the line clean."
+    }
+  ]
+}

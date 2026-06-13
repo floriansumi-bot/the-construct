@@ -8,6 +8,7 @@ global.window = {};
 function load(f) { (0, eval)(fs.readFileSync(path.join(base, "js", f), "utf8")); }
 load("tracks.js");
 load("curriculum-lua.js");
+load("curriculum-lua-pack-1.js");
 
 (async function () {
   const factory = new LuaFactory();

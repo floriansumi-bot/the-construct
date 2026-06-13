@@ -1,0 +1,159 @@
+{
+  "type": "new",
+  "module": {
+    "id": "luam07-patterns",
+    "code": "0x07",
+    "title": "STRING PATTERNS",
+    "subtitle": "format · find · match · gsub · gmatch",
+    "theory": "## What this sector is about\nText is data. To read a log line, pull a name out of a packet, or clean up dirty input, you need to **search inside strings** and **rebuild them**. Lua gives you a tiny, fast pattern engine for exactly this.\n\n> WARNING — Lua patterns are **NOT regular expressions (regex)**. They look similar but the rules differ. `%d` works, but `\\d` does NOT. Forget PCRE here — learn the few Lua rules below and you are done.\n\n## string.format — build a clean string\n`string.format` fills in blanks (called **specifiers**) with your values, like a fill-in template.\n~~~lua\nprint(string.format(\"%s lvl %d\", \"NEO\", 7))  -- NEO lvl 7\nprint(string.format(\"%.2f credits\", 3.5))     -- 3.50 credits\n~~~\nThe common specifiers: **%s** = a string, **%d** = a whole number, **%.2f** = a decimal with 2 places.\n\n> INTEL — `%d` needs an integer. `string.format(\"%d\", 3.5)` will error. Use `%.0f` if you want to round a decimal, or `%d` only on real integers.\n\n## What a pattern is — the character classes\nA **pattern** is a mini-description of \"what kind of text I am looking for\". The building blocks are **classes** (each matches ONE character):\n~~~text\n%d  one digit        0-9\n%a  one letter       A-Z a-z\n%s  one space        space, tab, newline\n%w  one letter OR digit (alphanumeric)\n.   any one character at all\n~~~\nA **capital** class means the opposite: **%D** = not a digit, **%A** = not a letter, **%S** = not a space.\n\n## Quantifiers — how many\nBy itself a class matches exactly one character. Add a symbol after it to repeat:\n~~~text\n%d+   one OR MORE digits   (greedy: grabs as many as it can)\n%d*   zero or more digits\n%d-   zero or more, but as FEW as possible (lazy)\n~~~\nSo `%d+` matches `\"42\"` as the whole thing, not just `\"4\"`.\n\n## string.find — where is it?\n`string.find(s, pattern)` returns the **start and end positions** of the first match, or **nil** if nothing matched. Positions are **1-indexed** (the first character is 1, not 0).\n~~~lua\nlocal i, j = string.find(\"id=A7\", \"%d+\")\nprint(i, j)  -- 5   5   (the single digit \"7\" sits at position 5)\n~~~\nA plain word with no special characters just finds that literal text:\n~~~lua\nprint(string.find(\"hello world\", \"world\"))  -- 7   11\n~~~\n\n> WARNING — beginners expect index **0** for \"first character\". In Lua the first character is at index **1**, and `find` returns `nil` (not -1, not 0) when there is no match. Always test `if string.find(...) then`.\n\n## Anchors — ^ start and $ end\nPut **^** at the FRONT of a pattern to mean \"must match at the very start of the string\". Put **$** at the END to mean \"must reach the very end\".\n~~~lua\nprint(string.find(\"abc\", \"^a\"))   -- 1  1  (starts with a)\nprint(string.find(\"abc\", \"^b\"))   -- nil  (does not start with b)\nprint(string.match(\"4242\", \"^%d+$\"))  -- 4242 (the WHOLE string is digits)\n~~~\n`^%d+$` is the classic \"is this string made of only digits?\" check.\n\n> INTEL — `^` only anchors when it is the FIRST character of the pattern. Anywhere else it is just a literal `^`. Same idea for `$` only at the very end.\n\n## string.match — give me the text\n`string.find` tells you WHERE. `string.match` gives you the matched **text itself** (or **nil** if no match).\n~~~lua\nprint(string.match(\"id=A7\", \"%d+\"))  -- 7\n~~~\n\n## Captures — pull pieces out with ( )\nWrap part of a pattern in **parentheses** to **capture** it. `match` then returns just those pieces, in order.\n~~~lua\nlocal user, host = string.match(\"neo@matrix\", \"(%a+)@(%a+)\")\nprint(user, host)  -- neo   matrix\n~~~\nWithout captures you get the whole match. With captures you get exactly the pieces you wrapped.\n\n## string.gsub — find AND replace\n`string.gsub(s, pattern, replacement)` returns a **new string** with every match swapped, plus a **count** of how many it changed. (Strings in Lua never change in place — you always get a new one back.)\n~~~lua\nlocal clean, n = string.gsub(\"a1b2c3\", \"%d\", \"#\")\nprint(clean, n)  -- a#b#c#   3\n~~~\nUse `()` in the replacement too: `%1` means \"the first capture\".\n~~~lua\nprint(string.gsub(\"neo@matrix\", \"(%a+)@(%a+)\", \"%2.%1\"))  -- matrix.neo  1\n~~~\n\n## string.gmatch — loop over every match\n`string.gmatch(s, pattern)` gives you an **iterator** — perfect for a `for` loop that visits each match one at a time.\n~~~lua\nfor word in string.gmatch(\"red green blue\", \"%a+\") do\n  print(word)   -- red   green   blue (each on its own line)\nend\n~~~\nWith captures, `gmatch` hands you the captured pieces each time through the loop.\n\n> INTEL — colon style works too: `s:match(p)` is the same as `string.match(s, p)`. Pick whichever reads better.\n\n> WARNING — `..` joins strings (`\"a\" .. \"b\"` is `\"ab\"`). The `+` symbol is **only math** — `\"a\" + \"b\"` is an error. To build text, always use `..`, never `+`.\n"
+  },
+  "exercises": [
+    {
+      "id": "lua-fmt-tag",
+      "title": "ID TAG",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Format a name-and-level badge.",
+      "prompt": "Define **id_tag(name, lvl)** that returns a string built with **string.format** in the form `NAME [Lv.N]`, where N is a whole number.\n~~~lua\nid_tag(\"NEO\", 7)   -- \"NEO [Lv.7]\"\nid_tag(\"TRINITY\", 12)  -- \"TRINITY [Lv.12]\"\n~~~\nUse the **%s** and **%d** specifiers.",
+      "starter": "function id_tag(name, lvl)\n  -- TODO: use string.format with %s and %d\n  return \"\"\nend\n",
+      "solution": "function id_tag(name, lvl)\n  return string.format(\"%s [Lv.%d]\", name, lvl)\nend\n",
+      "tests": [
+        { "name": "basic tag", "code": "assert(id_tag(\"NEO\", 7) == \"NEO [Lv.7]\")" },
+        { "name": "two digits", "code": "assert(id_tag(\"TRINITY\", 12) == \"TRINITY [Lv.12]\")" },
+        { "name": "level zero", "code": "assert(id_tag(\"GHOST\", 0) == \"GHOST [Lv.0]\")" }
+      ],
+      "hint": "return string.format(\"%s [Lv.%d]\", name, lvl)",
+      "lore": "Every runner needs a callsign on the grid."
+    },
+    {
+      "id": "lua-find-digit",
+      "title": "FIRST DIGIT",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Locate where the first run of digits starts.",
+      "prompt": "Define **first_digit_pos(s)** that returns the **1-indexed position** where the first digit appears in **s**, or **0** if there is no digit at all. Use **string.find** with the pattern `%d`.\n~~~lua\nfirst_digit_pos(\"id=A7\")   -- 5\nfirst_digit_pos(\"abc\")     -- 0\n~~~",
+      "starter": "function first_digit_pos(s)\n  -- TODO: string.find(s, \"%d\") returns the start position, or nil\n  return -1\nend\n",
+      "solution": "function first_digit_pos(s)\n  local i = string.find(s, \"%d\")\n  if i then\n    return i\n  end\n  return 0\nend\n",
+      "tests": [
+        { "name": "digit found", "code": "assert(first_digit_pos(\"id=A7\") == 5)" },
+        { "name": "no digit", "code": "assert(first_digit_pos(\"abc\") == 0)" },
+        { "name": "digit at start", "code": "assert(first_digit_pos(\"9lives\") == 1)" }
+      ],
+      "hint": "local i = string.find(s, \"%d\"); return i or 0",
+      "lore": "Find the number buried in the noise."
+    },
+    {
+      "id": "lua-all-digits",
+      "title": "PURE NUMERIC",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 160,
+      "brief": "Is the whole string only digits?",
+      "prompt": "Define **all_digits(s)** that returns **true** if **s** is made up of one or more digits and NOTHING else, otherwise **false**. Use anchors: the pattern `^%d+$` matches a string that is entirely digits. An empty string is **false**.\n~~~lua\nall_digits(\"4242\")   -- true\nall_digits(\"4a2\")    -- false\nall_digits(\"\")       -- false\n~~~",
+      "starter": "function all_digits(s)\n  -- TODO: match against ^%d+$ and return a boolean\n  return true\nend\n",
+      "solution": "function all_digits(s)\n  return string.match(s, \"^%d+$\") ~= nil\nend\n",
+      "tests": [
+        { "name": "all digits", "code": "assert(all_digits(\"4242\") == true)" },
+        { "name": "has a letter", "code": "assert(all_digits(\"4a2\") == false)" },
+        { "name": "empty is false", "code": "assert(all_digits(\"\") == false)" },
+        { "name": "leading text fails", "code": "assert(all_digits(\"x99\") == false)" }
+      ],
+      "hint": "return string.match(s, \"^%d+$\") ~= nil",
+      "lore": "Clean keys only. Reject the tampered ones."
+    },
+    {
+      "id": "lua-grab-number",
+      "title": "EXTRACT VALUE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 160,
+      "brief": "Pull the number out of a key=value pair.",
+      "prompt": "Define **grab_number(s)** that finds the first run of digits in **s** and returns it as a **number** (use tonumber), or **nil** if there are no digits. Match `%d+` so you grab the whole run, not just one digit.\n~~~lua\ngrab_number(\"hp=255\")   -- 255\ngrab_number(\"level 8 ok\")  -- 8\ngrab_number(\"none\")     -- nil\n~~~",
+      "starter": "function grab_number(s)\n  -- TODO: string.match(s, \"%d+\") then tonumber(...)\n  return 0\nend\n",
+      "solution": "function grab_number(s)\n  local hit = string.match(s, \"%d+\")\n  if hit then\n    return tonumber(hit)\n  end\n  return nil\nend\n",
+      "tests": [
+        { "name": "extracts 255", "code": "assert(grab_number(\"hp=255\") == 255)" },
+        { "name": "extracts 8", "code": "assert(grab_number(\"level 8 ok\") == 8)" },
+        { "name": "no number is nil", "code": "assert(grab_number(\"none\") == nil)" },
+        { "name": "returns a number type", "code": "assert(type(grab_number(\"x=42\")) == \"number\")" }
+      ],
+      "hint": "local hit = string.match(s, \"%d+\"); return hit and tonumber(hit) or nil",
+      "lore": "Strip the label, keep the payload."
+    },
+    {
+      "id": "lua-split-pair",
+      "title": "SPLIT HANDLE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 160,
+      "brief": "Capture both sides of an @ handle.",
+      "prompt": "Define **split_handle(s)** for a handle like `user@host`. Use a pattern with two captures — `(%a+)@(%a+)` — and return the two captured strings (user first, host second).\n~~~lua\nlocal u, h = split_handle(\"neo@matrix\")\n-- u == \"neo\", h == \"matrix\"\n~~~",
+      "starter": "function split_handle(s)\n  -- TODO: return both captures from (%a+)@(%a+)\n  return nil, nil\nend\n",
+      "solution": "function split_handle(s)\n  local user, host = string.match(s, \"(%a+)@(%a+)\")\n  return user, host\nend\n",
+      "tests": [
+        { "name": "splits neo@matrix", "code": "local u, h = split_handle(\"neo@matrix\"); assert(u == \"neo\" and h == \"matrix\")" },
+        { "name": "splits root@zion", "code": "local u, h = split_handle(\"root@zion\"); assert(u == \"root\" and h == \"zion\")" },
+        { "name": "user side only check", "code": "local u = split_handle(\"trinity@grid\"); assert(u == \"trinity\")" }
+      ],
+      "hint": "return string.match(s, \"(%a+)@(%a+)\")",
+      "lore": "Two halves of one identity, decoded."
+    },
+    {
+      "id": "lua-redact",
+      "title": "REDACT DIGITS",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Mask every digit and count them.",
+      "prompt": "Define **redact(s)** that replaces every digit in **s** with `#` using **string.gsub**, and returns BOTH the new string and the number of digits replaced (gsub already returns both values, in that order).\n~~~lua\nlocal out, n = redact(\"a1b2c3\")\n-- out == \"a#b#c#\", n == 3\n~~~",
+      "starter": "function redact(s)\n  -- TODO: use string.gsub(s, \"%d\", \"#\") and return both results\n  return s, 0\nend\n",
+      "solution": "function redact(s)\n  return string.gsub(s, \"%d\", \"#\")\nend\n",
+      "tests": [
+        { "name": "masks and counts", "code": "local out, n = redact(\"a1b2c3\"); assert(out == \"a#b#c#\" and n == 3)" },
+        { "name": "no digits", "code": "local out, n = redact(\"abc\"); assert(out == \"abc\" and n == 0)" },
+        { "name": "all digits", "code": "local out, n = redact(\"007\"); assert(out == \"###\" and n == 3)" }
+      ],
+      "hint": "return string.gsub(s, \"%d\", \"#\")  -- gsub returns string AND count",
+      "lore": "Scrub the serials before the dump leaks."
+    },
+    {
+      "id": "lua-swap-handle",
+      "title": "FLIP HANDLE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Rewrite user@host as host.user using captures.",
+      "prompt": "Define **flip_handle(s)** that turns a handle `user@host` into `host.user`, using **string.gsub** with two captures `(%a+)@(%a+)` and a replacement that uses `%2` and `%1`. Return ONLY the rewritten string (gsub returns the count second — ignore it).\n~~~lua\nflip_handle(\"neo@matrix\")  -- \"matrix.neo\"\n~~~",
+      "starter": "function flip_handle(s)\n  -- TODO: gsub with \"(%a+)@(%a+)\" -> \"%2.%1\", return only the string\n  return s\nend\n",
+      "solution": "function flip_handle(s)\n  local out = string.gsub(s, \"(%a+)@(%a+)\", \"%2.%1\")\n  return out\nend\n",
+      "tests": [
+        { "name": "flips neo@matrix", "code": "assert(flip_handle(\"neo@matrix\") == \"matrix.neo\")" },
+        { "name": "flips root@zion", "code": "assert(flip_handle(\"root@zion\") == \"zion.root\")" },
+        { "name": "returns a single string", "code": "local r = flip_handle(\"a@b\"); assert(r == \"b.a\" and type(r) == \"string\")" }
+      ],
+      "hint": "local out = string.gsub(s, \"(%a+)@(%a+)\", \"%2.%1\"); return out",
+      "lore": "Reverse the routing. Send the ghost home."
+    },
+    {
+      "id": "lua-sum-numbers",
+      "title": "TALLY STREAM",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Add up every number found in the text.",
+      "prompt": "Define **sum_numbers(s)** that finds every run of digits in **s** and returns their total as a number. Loop with **string.gmatch(s, \"%d+\")**, convert each match with **tonumber**, and add it up. If there are no numbers, return **0**.\n~~~lua\nsum_numbers(\"a3 b10 c2\")   -- 15\nsum_numbers(\"none here\")   -- 0\n~~~",
+      "starter": "function sum_numbers(s)\n  local total = 0\n  -- TODO: for n in string.gmatch(s, \"%d+\") do ... end\n  return total\nend\n",
+      "solution": "function sum_numbers(s)\n  local total = 0\n  for n in string.gmatch(s, \"%d+\") do\n    total = total + tonumber(n)\n  end\n  return total\nend\n",
+      "tests": [
+        { "name": "sums 3+10+2", "code": "assert(sum_numbers(\"a3 b10 c2\") == 15)" },
+        { "name": "no numbers", "code": "assert(sum_numbers(\"none here\") == 0)" },
+        { "name": "single number", "code": "assert(sum_numbers(\"value=42\") == 42)" },
+        { "name": "multi-digit runs", "code": "assert(sum_numbers(\"100 and 200 and 300\") == 600)" }
+      ],
+      "hint": "for n in string.gmatch(s, \"%d+\") do total = total + tonumber(n) end",
+      "lore": "Drain every credit from the stream and tally it."
+    }
+  ]
+}

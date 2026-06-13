@@ -1,0 +1,95 @@
+{
+  "type": "fill",
+  "modId": "luam01-core",
+  "exercises": [
+    {
+      "id": "lua-tag",
+      "title": "PACKET TAG",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Stamp a label on a payload.",
+      "prompt": "Define **tag_packet(payload)** that returns the payload string with the prefix `[NET] ` in front of it.\n~~~lua\ntag_packet(\"ping\")  -- \"[NET] ping\"\n~~~\nBuild it with the **..** concatenation operator.",
+      "starter": "function tag_packet(payload)\n  -- TODO: prefix with \"[NET] \"\n  return \"\"\nend\n",
+      "solution": "function tag_packet(payload)\n  return \"[NET] \" .. payload\nend\n",
+      "tests": [
+        { "name": "tags a ping", "code": "assert(tag_packet(\"ping\") == \"[NET] ping\", \"expected [NET] ping\")" },
+        { "name": "tags any payload", "code": "assert(tag_packet(\"sync\") == \"[NET] sync\")" }
+      ],
+      "hint": "return \"[NET] \" .. payload",
+      "lore": "Every packet wears the colors of its sender."
+    },
+    {
+      "id": "lua-handle",
+      "title": "USER HANDLE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Forge an operator handle.",
+      "prompt": "Define **make_handle(user, node)** that joins the two arguments with an `@` between them.\n~~~lua\nmake_handle(\"trinity\", \"zion\")  -- \"trinity@zion\"\n~~~\nUse a **local** variable to build the result, then **return** it.",
+      "starter": "function make_handle(user, node)\n  local handle = user\n  return handle\nend\n",
+      "solution": "function make_handle(user, node)\n  local handle = user .. \"@\" .. node\n  return handle\nend\n",
+      "tests": [
+        { "name": "joins user and node", "code": "assert(make_handle(\"trinity\", \"zion\") == \"trinity@zion\", \"expected trinity@zion\")" },
+        { "name": "works for any pair", "code": "assert(make_handle(\"morpheus\", \"neb\") == \"morpheus@neb\")" }
+      ],
+      "hint": "local handle = user .. \"@\" .. node",
+      "lore": "A handle is the only true name in the wire."
+    },
+    {
+      "id": "lua-status",
+      "title": "STATUS LINE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Render a core's status report.",
+      "prompt": "Define **status_line(core, level)** where `core` is a string and `level` is a number. Return the report:\n~~~text\n<core>: level <level>\n~~~\nFor example `status_line(\"MAGI\", 7)` returns `\"MAGI: level 7\"`. Concatenating a number with **..** converts it to text automatically.",
+      "starter": "function status_line(core, level)\n  -- TODO\n  return core\nend\n",
+      "solution": "function status_line(core, level)\n  return core .. \": level \" .. level\nend\n",
+      "tests": [
+        { "name": "reports MAGI at 7", "code": "assert(status_line(\"MAGI\", 7) == \"MAGI: level 7\", \"expected MAGI: level 7\")" },
+        { "name": "reports another core", "code": "assert(status_line(\"HAL\", 9) == \"HAL: level 9\")" },
+        { "name": "handles level zero", "code": "assert(status_line(\"GHOST\", 0) == \"GHOST: level 0\")" }
+      ],
+      "hint": "return core .. \": level \" .. level",
+      "lore": "The status line never lies. Only the operators do."
+    },
+    {
+      "id": "lua-uplink",
+      "title": "UPLINK LOG",
+      "kind": "script",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Print a three-line boot log.",
+      "prompt": "Store the call sign `\"NEB-7\"` in a **local** variable, then **print()** these three lines, in order, building each with **..**:\n~~~text\nUplink: NEB-7\nChannel open\nNEB-7 ready\n~~~\nUse the local variable for the call sign in lines 1 and 3 (do not hard-code it twice).",
+      "starter": "local sign = \"NEB-7\"\n-- TODO: print the three lines\n",
+      "solution": "local sign = \"NEB-7\"\nprint(\"Uplink: \" .. sign)\nprint(\"Channel open\")\nprint(sign .. \" ready\")\n",
+      "tests": [
+        { "name": "the channel is not silent", "code": "assert(#stdout() > 0, \"Nothing printed. Use print().\")" },
+        { "name": "uplink line present", "code": "assert(stdout():find(\"Uplink: NEB-7\", 1, true), \"missing line 1\")" },
+        { "name": "channel line present", "code": "assert(stdout():find(\"Channel open\", 1, true), \"missing line 2\")" },
+        { "name": "ready line present", "code": "assert(stdout():find(\"NEB-7 ready\", 1, true), \"missing line 3\")" }
+      ],
+      "hint": "print(\"Uplink: \" .. sign) then print(\"Channel open\") then print(sign .. \" ready\")",
+      "lore": "Three lines and the hovercraft is yours."
+    },
+    {
+      "id": "lua-relay",
+      "title": "SIGNAL RELAY",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Chain two helpers into one transmission.",
+      "prompt": "First define a helper **shout(text)** that returns `text` followed by `\"!\"`. Then define **relay(text)** that returns the result of `shout(text)` prefixed with `\">> \"`.\n~~~lua\nrelay(\"go\")  -- \">> go!\"\n~~~\nCall `shout` from inside `relay` and combine the pieces with **..**.",
+      "starter": "function shout(text)\n  -- TODO\n  return text\nend\n\nfunction relay(text)\n  -- TODO: prefix shout(text) with \">> \"\n  return text\nend\n",
+      "solution": "function shout(text)\n  return text .. \"!\"\nend\n\nfunction relay(text)\n  return \">> \" .. shout(text)\nend\n",
+      "tests": [
+        { "name": "shout adds a bang", "code": "assert(shout(\"go\") == \"go!\", \"shout should append !\")" },
+        { "name": "relay chains shout", "code": "assert(relay(\"go\") == \">> go!\", \"expected >> go!\")" },
+        { "name": "relay works on any text", "code": "assert(relay(\"jack in\") == \">> jack in!\")" }
+      ],
+      "hint": "relay returns \">> \" .. shout(text)",
+      "lore": "One signal, relayed, becomes a chorus."
+    }
+  ]
+}

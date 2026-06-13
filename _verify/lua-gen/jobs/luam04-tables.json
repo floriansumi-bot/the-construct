@@ -1,0 +1,156 @@
+{
+  "type": "new",
+  "module": {
+    "id": "luam04-tables",
+    "code": "0x04",
+    "title": "TABLES AS MAPS",
+    "subtitle": "pairs · key/value · membership · frequency",
+    "theory": "\n## Tables can be maps, not just lists\nIn the last sector a table was a numbered list (`t[1]`, `t[2]`, ...). The SAME table type can also be a **map** (also called a hash, dictionary, or lookup): you store a **value** under a **key**, and the key can be a string.\n\n~~~lua\nlocal user = {}\nuser[\"name\"] = \"lain\"   -- store value \"lain\" under key \"name\"\nuser[\"level\"] = 7\nprint(user[\"name\"])      -- lain\n~~~\n\n**WHAT** — `t[key] = value` puts something into the slot named `key`. **WHY** — a map lets you look things up *by name* instead of by position, which is how you model records, settings, and counts.\n\n> INTEL — `t.name` is just shorthand for `t[\"name\"]`. The dot form only works when the key is a plain word; for any other key (a variable, or a string with spaces) you must use the square brackets `t[key]`.\n\n## Reading a key — and the nil that means \"absent\"\nReading `t[key]` gives you the stored value. If nothing was ever stored under that key, you get **nil** (Lua's word for \"nothing here\"). It is NOT an error and it does NOT crash.\n\n~~~lua\nlocal scores = {}\nscores[\"ana\"] = 50\nprint(scores[\"ana\"])   -- 50\nprint(scores[\"zed\"])   -- nil   (never stored, so absent)\n~~~\n\n> WARNING — a missing key returns `nil`, and `nil` can't do arithmetic. `scores[\"zed\"] + 1` blows up with \"attempt to perform arithmetic on a nil value\". Always check, or supply a default (see below).\n\n## A safe default with `or`\nA common trick: `t[key] or default` gives the stored value, or the default when the slot is `nil`. This is how you start a counter at 0 even on the first sighting.\n\n~~~lua\nlocal n = counts[\"hit\"] or 0   -- 0 if \"hit\" was never seen\ncounts[\"hit\"] = n + 1          -- now it's safely a number\n~~~\n\n## Iterating a map with `pairs`\nA numeric `for` only walks 1, 2, 3, ... so it can't reach string keys. To visit EVERY key/value in a map, use **pairs**:\n\n~~~lua\nfor key, value in pairs(scores) do\n  print(key, value)   -- ana  50   (and every other pair)\nend\n~~~\n\n**WHAT** — `pairs(t)` hands you each `key, value` pair in turn. **WHY** — it's the only way to loop over a map, since the keys aren't numbered positions.\n\n> WARNING — `pairs` gives NO guaranteed order. Do not rely on which key comes first. When you need a total or a count, accumulate into a variable inside the loop — never assume the pairs arrive sorted.\n\n## Checking membership\n\"Is this key in the map?\" — compare its value to `nil`. If the slot holds anything, the key is present.\n\n~~~lua\nif scores[\"ana\"] ~= nil then\n  print(\"ana is registered\")\nend\n~~~\n\nNote `~=` is Lua's **not-equal** operator (other languages write `!=`). And `t[k] ~= nil` is the precise membership test: it stays true even if the stored value is `0` or `\"\"`, which a plain `if t[k] then` would mistreat — but in Lua only `nil` and `false` are falsy, so `0` and `\"\"` are still truthy. Using `~= nil` makes the intent obvious.\n\n## Building a frequency / count table\nPut it together: walk a list, and for each item bump its counter in a map. This counts how often each value appears.\n\n~~~lua\nlocal items = { \"a\", \"b\", \"a\" }\nlocal freq = {}\nfor i = 1, #items do\n  local k = items[i]\n  freq[k] = (freq[k] or 0) + 1   -- start at 0, then add 1\nend\nprint(freq[\"a\"])   -- 2\nprint(freq[\"b\"])   -- 1\n~~~\n\n> INTEL — `(freq[k] or 0) + 1` is the heartbeat of every counter you'll ever write. The `or 0` covers the first time you meet a key; after that the real number takes over.\n\n> WARNING — remember Lua basics from earlier sectors: there is no `++`, so write `x = x + 1`. And `..` joins strings while `+` adds numbers — never use `+` to glue text or `..` to add.\n"
+  },
+  "exercises": [
+    {
+      "id": "lua-stash",
+      "title": "STASH SLOT",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Store one value under a key.",
+      "prompt": "\nDefine **stash(key, value)** that creates a fresh table, stores **value** under **key**, and returns the table.\n~~~lua\nlocal t = stash(\"name\", \"lain\")\nprint(t[\"name\"])  -- lain\n~~~\n",
+      "starter": "function stash(key, value)\n  local t = {}\n  -- TODO: store value under key, then return t\n  return t\nend",
+      "solution": "function stash(key, value)\n  local t = {}\n  t[key] = value\n  return t\nend",
+      "tests": [
+        { "name": "stores under string key", "code": "local t = stash(\"name\", \"lain\")\nassert(t[\"name\"] == \"lain\")" },
+        { "name": "key is dynamic", "code": "local t = stash(\"level\", 7)\nassert(t[\"level\"] == 7)" },
+        { "name": "other keys absent", "code": "local t = stash(\"a\", 1)\nassert(t[\"b\"] == nil)" }
+      ],
+      "hint": "Inside the table, write t[key] = value before returning t.",
+      "lore": "Every secret needs a slot in the grid. Name it, drop it, walk away."
+    },
+    {
+      "id": "lua-lookup",
+      "title": "COLD LOOKUP",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Read a key that might be missing.",
+      "prompt": "\nDefine **lookup(t, key)** that returns the value stored under **key** in table **t**, or returns **nil** when the key is absent (just reading `t[key]` already does this).\n~~~lua\nlocal t = { name = \"lain\" }\nprint(lookup(t, \"name\"))  -- lain\nprint(lookup(t, \"age\"))   -- nil\n~~~\n",
+      "starter": "function lookup(t, key)\n  -- TODO: return the value at key (nil when absent)\n  return \"\"\nend",
+      "solution": "function lookup(t, key)\n  return t[key]\nend",
+      "tests": [
+        { "name": "returns stored value", "code": "assert(lookup({ name = \"lain\" }, \"name\") == \"lain\")" },
+        { "name": "missing key is nil", "code": "assert(lookup({ name = \"lain\" }, \"age\") == nil)" },
+        { "name": "reads numbers too", "code": "assert(lookup({ level = 7 }, \"level\") == 7)" }
+      ],
+      "hint": "Just return t[key] — Lua hands back nil for a key that was never set.",
+      "lore": "Probe the slot. Empty slots whisper nil, not error."
+    },
+    {
+      "id": "lua-registered",
+      "title": "REGISTERED",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Is the key present?",
+      "prompt": "\nDefine **is_registered(t, key)** that returns **true** when **key** exists in **t**, and **false** when it does not. Test membership with `t[key] ~= nil`.\n~~~lua\nlocal users = { ana = true, zed = false }\nprint(is_registered(users, \"ana\"))  -- true\nprint(is_registered(users, \"who\"))  -- false\n~~~\n",
+      "starter": "function is_registered(t, key)\n  -- TODO: true when key exists, false otherwise\n  return false\nend",
+      "solution": "function is_registered(t, key)\n  return t[key] ~= nil\nend",
+      "tests": [
+        { "name": "present key is true", "code": "assert(is_registered({ ana = 50 }, \"ana\") == true)" },
+        { "name": "missing key is false", "code": "assert(is_registered({ ana = 50 }, \"who\") == false)" },
+        { "name": "value false still counts as present", "code": "assert(is_registered({ zed = false }, \"zed\") == true)" }
+      ],
+      "hint": "Return the comparison itself: t[key] ~= nil already yields true or false.",
+      "lore": "The gate doesn't care what you are — only that your slot isn't empty."
+    },
+    {
+      "id": "lua-bump",
+      "title": "COUNTER BUMP",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Increment a counter that may not exist yet.",
+      "prompt": "\nDefine **bump(t, key)** that adds 1 to the counter at **key** in table **t** (starting from 0 if it was absent), then returns the table. Use the `(t[key] or 0) + 1` idiom.\n~~~lua\nlocal c = {}\nbump(c, \"hit\")\nbump(c, \"hit\")\nprint(c[\"hit\"])  -- 2\n~~~\n",
+      "starter": "function bump(t, key)\n  -- TODO: add 1 to t[key], starting from 0 if absent\n  return t\nend",
+      "solution": "function bump(t, key)\n  t[key] = (t[key] or 0) + 1\n  return t\nend",
+      "tests": [
+        { "name": "first bump starts at 1", "code": "local c = bump({}, \"hit\")\nassert(c[\"hit\"] == 1)" },
+        { "name": "second bump reaches 2", "code": "local c = {}\nbump(c, \"hit\")\nbump(c, \"hit\")\nassert(c[\"hit\"] == 2)" },
+        { "name": "keys are independent", "code": "local c = {}\nbump(c, \"a\")\nbump(c, \"b\")\nbump(c, \"a\")\nassert(c[\"a\"] == 2 and c[\"b\"] == 1)" }
+      ],
+      "hint": "t[key] = (t[key] or 0) + 1 — the 'or 0' covers the first sighting.",
+      "lore": "Tick the ledger. Each ghost in the wire leaves one more mark."
+    },
+    {
+      "id": "lua-keycount",
+      "title": "KEY CENSUS",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Count how many keys a map holds.",
+      "prompt": "\nDefine **key_count(t)** that returns how many key/value pairs are in map **t**. The `#` operator does NOT work for string keys — loop with **pairs** and count.\n~~~lua\nkey_count({ a = 1, b = 2, c = 3 })  -- 3\nkey_count({})                        -- 0\n~~~\n",
+      "starter": "function key_count(t)\n  local n = 0\n  -- TODO: walk t with pairs and count each key\n  return -1\nend",
+      "solution": "function key_count(t)\n  local n = 0\n  for _ in pairs(t) do\n    n = n + 1\n  end\n  return n\nend",
+      "tests": [
+        { "name": "three keys", "code": "assert(key_count({ a = 1, b = 2, c = 3 }) == 3)" },
+        { "name": "empty map is zero", "code": "assert(key_count({}) == 0)" },
+        { "name": "single key", "code": "assert(key_count({ only = 99 }) == 1)" }
+      ],
+      "hint": "for _ in pairs(t) do n = n + 1 end — then return n.",
+      "lore": "Tally the slots. The grid never tells you its size — you count it yourself."
+    },
+    {
+      "id": "lua-tally",
+      "title": "FREQUENCY TALLY",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Build a count table from a list.",
+      "prompt": "\nDefine **tally(list)** that takes an array of strings and returns a map from each string to how many times it appears. Walk the array with a numeric for loop and bump a counter for each item.\n~~~lua\nlocal f = tally({ \"a\", \"b\", \"a\" })\nprint(f[\"a\"])  -- 2\nprint(f[\"b\"])  -- 1\n~~~\n",
+      "starter": "function tally(list)\n  local freq = {}\n  -- TODO: count each item in list into freq\n  return freq\nend",
+      "solution": "function tally(list)\n  local freq = {}\n  for i = 1, #list do\n    local k = list[i]\n    freq[k] = (freq[k] or 0) + 1\n  end\n  return freq\nend",
+      "tests": [
+        { "name": "counts repeats", "code": "local f = tally({ \"a\", \"b\", \"a\" })\nassert(f[\"a\"] == 2 and f[\"b\"] == 1)" },
+        { "name": "single occurrences", "code": "local f = tally({ \"x\", \"y\", \"z\" })\nassert(f[\"x\"] == 1 and f[\"y\"] == 1 and f[\"z\"] == 1)" },
+        { "name": "unseen item is nil", "code": "local f = tally({ \"a\", \"a\", \"a\" })\nassert(f[\"a\"] == 3 and f[\"b\"] == nil)" }
+      ],
+      "hint": "Loop i = 1, #list; let k = list[i]; freq[k] = (freq[k] or 0) + 1.",
+      "lore": "Feed it the packet stream. It spits back who screamed loudest."
+    },
+    {
+      "id": "lua-topkey",
+      "title": "LOUDEST SIGNAL",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Find the key with the largest value.",
+      "prompt": "\nDefine **top_key(counts)** that takes a map from string to number and returns the key whose value is the largest. Walk the map with **pairs**, tracking the best key and its value. Assume the map is non-empty and the maximum is unique.\n~~~lua\ntop_key({ a = 1, b = 5, c = 2 })  -- \"b\"\n~~~\n",
+      "starter": "function top_key(counts)\n  -- TODO: return the key with the biggest value\n  return nil\nend",
+      "solution": "function top_key(counts)\n  local best_key = nil\n  local best_val = nil\n  for k, v in pairs(counts) do\n    if best_val == nil or v > best_val then\n      best_key = k\n      best_val = v\n    end\n  end\n  return best_key\nend",
+      "tests": [
+        { "name": "largest in the middle", "code": "assert(top_key({ a = 1, b = 5, c = 2 }) == \"b\")" },
+        { "name": "single key wins", "code": "assert(top_key({ solo = 42 }) == \"solo\")" },
+        { "name": "works with built count map", "code": "local f = {}\nlocal list = { \"x\", \"y\", \"y\", \"y\", \"x\" }\nfor i = 1, #list do f[list[i]] = (f[list[i]] or 0) + 1 end\nassert(top_key(f) == \"y\")" }
+      ],
+      "hint": "Seed best_val = nil; for k, v in pairs(counts) do if best_val == nil or v > best_val then ... end end.",
+      "lore": "Somewhere in the static, one voice peaks. Lock onto it."
+    },
+    {
+      "id": "lua-mergecounts",
+      "title": "MERGE LEDGERS",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Add two count maps together.",
+      "prompt": "\nDefine **merge_counts(a, b)** that returns a NEW map where each key's value is the sum of its values in **a** and **b** (a missing key counts as 0). Copy **a** with pairs, then add **b** with pairs.\n~~~lua\nlocal m = merge_counts({ x = 1, y = 2 }, { y = 3, z = 5 })\nprint(m[\"x\"])  -- 1\nprint(m[\"y\"])  -- 5\nprint(m[\"z\"])  -- 5\n~~~\n",
+      "starter": "function merge_counts(a, b)\n  local out = {}\n  -- TODO: add values from a and b into out\n  return out\nend",
+      "solution": "function merge_counts(a, b)\n  local out = {}\n  for k, v in pairs(a) do\n    out[k] = (out[k] or 0) + v\n  end\n  for k, v in pairs(b) do\n    out[k] = (out[k] or 0) + v\n  end\n  return out\nend",
+      "tests": [
+        { "name": "overlapping key sums", "code": "local m = merge_counts({ x = 1, y = 2 }, { y = 3, z = 5 })\nassert(m[\"x\"] == 1 and m[\"y\"] == 5 and m[\"z\"] == 5)" },
+        { "name": "no overlap keeps both", "code": "local m = merge_counts({ a = 4 }, { b = 6 })\nassert(m[\"a\"] == 4 and m[\"b\"] == 6)" },
+        { "name": "result is a fresh table", "code": "local a = { p = 1 }\nlocal m = merge_counts(a, {})\nm[\"p\"] = 99\nassert(a[\"p\"] == 1)" }
+      ],
+      "hint": "Two pairs loops, each doing out[k] = (out[k] or 0) + v.",
+      "lore": "Two ledgers, one truth. Sum the wire and seal it."
+    }
+  ]
+}

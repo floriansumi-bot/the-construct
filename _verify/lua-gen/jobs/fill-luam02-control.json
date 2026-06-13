@@ -1,0 +1,97 @@
+{
+  "type": "fill",
+  "modId": "luam02-control",
+  "exercises": [
+    {
+      "id": "lua-grade",
+      "title": "SIGNAL GRADE",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Label a signal by strength.",
+      "prompt": "Define **signal_grade(strength)** that returns a label based on the number **strength**:\n- strength **< 30** -> \"WEAK\"\n- **30 to 69** -> \"OK\"\n- **70 or more** -> \"STRONG\"\n\nChain the cases with **if / elseif / else**.\n~~~lua\nsignal_grade(10)  -- \"WEAK\"\nsignal_grade(50)  -- \"OK\"\nsignal_grade(95)  -- \"STRONG\"\n~~~",
+      "starter": "function signal_grade(strength)\n  -- TODO: branch on strength\n  return \"\"\nend\n",
+      "solution": "function signal_grade(strength)\n  if strength < 30 then\n    return \"WEAK\"\n  elseif strength < 70 then\n    return \"OK\"\n  else\n    return \"STRONG\"\n  end\nend\n",
+      "tests": [
+        { "name": "weak signal", "code": "assert(signal_grade(10) == \"WEAK\", \"expected WEAK\")" },
+        { "name": "ok signal", "code": "assert(signal_grade(50) == \"OK\" and signal_grade(30) == \"OK\")" },
+        { "name": "strong signal", "code": "assert(signal_grade(95) == \"STRONG\" and signal_grade(70) == \"STRONG\")" }
+      ],
+      "hint": "if strength < 30 then ... elseif strength < 70 then ... else ... end",
+      "lore": "The tower reads the wire and renders its verdict."
+    },
+    {
+      "id": "lua-clamp",
+      "title": "VOLTAGE CLAMP",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Pin a value inside a range.",
+      "prompt": "Define **clamp(value, low, high)** that pulls **value** back inside the range:\n- if value is **below low**, return **low**\n- if value is **above high**, return **high**\n- otherwise return **value** unchanged\n\nUse **if / elseif / else**.\n~~~lua\nclamp(5, 0, 10)   -- 5\nclamp(-3, 0, 10)  -- 0\nclamp(99, 0, 10)  -- 10\n~~~",
+      "starter": "function clamp(value, low, high)\n  -- TODO: clamp value between low and high\n  return value\nend\n",
+      "solution": "function clamp(value, low, high)\n  if value < low then\n    return low\n  elseif value > high then\n    return high\n  else\n    return value\n  end\nend\n",
+      "tests": [
+        { "name": "in range stays", "code": "assert(clamp(5, 0, 10) == 5)" },
+        { "name": "below clamps to low", "code": "assert(clamp(-3, 0, 10) == 0)" },
+        { "name": "above clamps to high", "code": "assert(clamp(99, 0, 10) == 10)" },
+        { "name": "edges held", "code": "assert(clamp(0, 0, 10) == 0 and clamp(10, 0, 10) == 10)" }
+      ],
+      "hint": "if value < low then return low elseif value > high then return high else return value end",
+      "lore": "No surge escapes the regulator alive."
+    },
+    {
+      "id": "lua-maxcell",
+      "title": "PEAK CELL",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Find the largest reactor cell.",
+      "prompt": "Define **max_cell(cells)** where **cells** is a non-empty array of numbers. Return the largest value. Start your best guess at `cells[1]`, then walk the array with **ipairs** and keep the bigger value whenever you find one.\n~~~lua\nmax_cell({3, 9, 4})    -- 9\nmax_cell({7})          -- 7\n~~~",
+      "starter": "function max_cell(cells)\n  local best = cells[1]\n  -- TODO: scan with ipairs and keep the largest\n  return 0\nend\n",
+      "solution": "function max_cell(cells)\n  local best = cells[1]\n  for _, v in ipairs(cells) do\n    if v > best then\n      best = v\n    end\n  end\n  return best\nend\n",
+      "tests": [
+        { "name": "peak in middle", "code": "assert(max_cell({3, 9, 4}) == 9)" },
+        { "name": "single cell", "code": "assert(max_cell({7}) == 7)" },
+        { "name": "peak at end", "code": "assert(max_cell({1, 2, 8}) == 8 and max_cell({-5, -2, -9}) == -2)" }
+      ],
+      "hint": "for _, v in ipairs(cells) do if v > best then best = v end end",
+      "lore": "One cell always burns hottest. Find it before it finds you."
+    },
+    {
+      "id": "lua-counthi",
+      "title": "OVER THRESHOLD",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Count readings above a line.",
+      "prompt": "Define **count_above(readings, limit)** where **readings** is an array of numbers. Return how many entries are **strictly greater than limit**. Walk the array with **ipairs**, keep a counter, and bump it with `count = count + 1` (Lua has no `++`).\n~~~lua\ncount_above({2, 5, 9, 1}, 4)  -- 2   (5 and 9)\ncount_above({1, 2}, 9)        -- 0\n~~~",
+      "starter": "function count_above(readings, limit)\n  local count = 0\n  -- TODO: count entries strictly greater than limit\n  return -1\nend\n",
+      "solution": "function count_above(readings, limit)\n  local count = 0\n  for _, v in ipairs(readings) do\n    if v > limit then\n      count = count + 1\n    end\n  end\n  return count\nend\n",
+      "tests": [
+        { "name": "two over the line", "code": "assert(count_above({2, 5, 9, 1}, 4) == 2)" },
+        { "name": "none over", "code": "assert(count_above({1, 2}, 9) == 0)" },
+        { "name": "equal does not count", "code": "assert(count_above({4, 4, 5}, 4) == 1 and count_above({10, 20, 30}, 0) == 3)" }
+      ],
+      "hint": "for _, v in ipairs(readings) do if v > limit then count = count + 1 end end",
+      "lore": "Every spike past the redline is logged for the tribunal."
+    },
+    {
+      "id": "lua-doublewave",
+      "title": "DOUBLE WAVE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Build a new array of doubled values.",
+      "prompt": "Define **double_all(nums)** where **nums** is an array of numbers. Return a **new** array where every element is doubled, in the same order. Start with an empty table `{}`, loop the indices with a numeric for from **1** to **#nums**, and assign each result with `out[i] = nums[i] * 2`.\n~~~lua\ndouble_all({1, 2, 3})  -- {2, 4, 6}\ndouble_all({})         -- {}\n~~~",
+      "starter": "function double_all(nums)\n  local out = {}\n  -- TODO: for i = 1, #nums do out[i] = nums[i] * 2 end\n  return out\nend\n",
+      "solution": "function double_all(nums)\n  local out = {}\n  for i = 1, #nums do\n    out[i] = nums[i] * 2\n  end\n  return out\nend\n",
+      "tests": [
+        { "name": "doubles three", "code": "local r = double_all({1, 2, 3}); assert(#r == 3 and r[1] == 2 and r[2] == 4 and r[3] == 6)" },
+        { "name": "empty stays empty", "code": "local r = double_all({}); assert(#r == 0)" },
+        { "name": "preserves order and length", "code": "local r = double_all({5, 0, -2}); assert(#r == 3 and r[1] == 10 and r[2] == 0 and r[3] == -4)" }
+      ],
+      "hint": "for i = 1, #nums do out[i] = nums[i] * 2 end",
+      "lore": "Amplify the waveform, index by index, and ride it out."
+    }
+  ]
+}

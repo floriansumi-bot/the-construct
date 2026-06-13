@@ -1,0 +1,220 @@
+{
+  "type": "new",
+  "module": {
+    "id": "luam06-closures",
+    "code": "0x06",
+    "title": "CLOSURES & HIGHER-ORDER",
+    "subtitle": "functions as values · closures · varargs",
+    "theory": "## Functions are values\nIn Lua a function is just a value, like a number or a string. That means you can store it in a variable, put it in a table, pass it to another function, or hand it back as a return value.\n\n~~~lua\nlocal function double(n)\n  return n * 2\nend\n\nlocal f = double      -- store the function in another variable\nprint(f(21))          -- 42  (calling f calls double)\n~~~\n\nWriting `local function double(n) ... end` is the same as `local double = function(n) ... end`. The second form makes it obvious that the function is a value being assigned.\n\n> INTEL — `double` (no parentheses) is the function itself. `double(5)` (with parentheses) **calls** it and gives you the result. Mixing these up is the #1 beginner slip.\n\n## Passing functions as arguments (higher-order)\nA **higher-order function** is one that takes another function as an argument, or returns one. This lets you write a routine once and feed it different behaviour.\n\n~~~lua\nlocal function apply(fn, x)\n  return fn(x)        -- call whatever function we were handed\nend\n\nlocal function shout(s) return s .. \"!\" end\nprint(apply(shout, \"go\"))   -- go!\n~~~\n\nHere `apply` does not know or care what `fn` does. It just calls it. You decide the behaviour by choosing which function to pass in.\n\n## Returning functions + closures\nA function defined **inside** another function can remember the local variables that surrounded it, even after the outer function has returned. That captured, remembered variable is what makes it a **closure**.\n\n~~~lua\nlocal function make_adder(n)\n  return function(x)\n    return x + n     -- n is remembered from make_adder\n  end\nend\n\nlocal add10 = make_adder(10)\nprint(add10(5))   -- 15\nprint(add10(1))   -- 11\n~~~\n\n`make_adder(10)` builds and returns a brand-new function whose private `n` is locked to 10. Call `make_adder(3)` and you get a different function with its own `n` of 3 — they do not interfere.\n\n## A closure that keeps state (a counter)\nBecause the captured local is shared between calls, a closure can hold state that survives across calls — like a counter that goes up every time you call it.\n\n~~~lua\nlocal function make_counter()\n  local count = 0\n  return function()\n    count = count + 1   -- there is no ++ in Lua\n    return count\n  end\nend\n\nlocal next_id = make_counter()\nprint(next_id())  -- 1\nprint(next_id())  -- 2\nprint(next_id())  -- 3\n~~~\n\n`count` lives on between calls because the inner function still holds a reference to it. Each fresh call to `make_counter()` gets its own independent `count`.\n\n> WARNING — Remember Lua has no `++` and no `+=`. To bump a value you must write `count = count + 1`. Also, two separate counters made by two `make_counter()` calls do NOT share their `count` — each closure has its own.\n\n## Varargs: functions that take any number of arguments\nThe three dots `...` in a parameter list mean \"capture all remaining arguments here.\" Inside the function, `...` stands for that list of extra values.\n\n~~~lua\nlocal function add_all(...)\n  local total = 0\n  for _, v in ipairs({...}) do   -- {...} packs the args into a table\n    total = total + v\n  end\n  return total\nend\n\nprint(add_all(1, 2, 3, 4))   -- 10\n~~~\n\nThe expression `{...}` collects the varargs into a normal (1-indexed) array, so you can loop over them with `ipairs`.\n\n## Counting varargs with select(\"#\", ...)\nTo ask **how many** arguments were passed, use `select(\"#\", ...)`. The literal string `\"#\"` is the special signal that means \"give me the count.\"\n\n~~~lua\nlocal function how_many(...)\n  return select(\"#\", ...)\nend\n\nprint(how_many(\"a\", \"b\", \"c\"))   -- 3\nprint(how_many())                 -- 0\n~~~\n\n`select(\"#\", ...)` counts even `nil` holes correctly, which `#{...}` cannot always do — so prefer it when you truly need the count.\n\n> INTEL — Lua arrays are **1-indexed**: the first element is `t[1]`, not `t[0]`. Keep that in mind whenever you turn `{...}` into a table and read its slots."
+  },
+  "exercises": [
+    {
+      "id": "lua-store-fn",
+      "title": "STORE THE ROUTINE",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "A function is just a value.",
+      "prompt": "Functions are values you can put in a variable.\n\nDefine **run_twice(fn, x)** that calls `fn` on `x`, then calls `fn` again on that result, and returns the final value.\n~~~lua\nlocal function inc(n) return n + 1 end\nrun_twice(inc, 5)   -- 7   (5 -> 6 -> 7)\n~~~",
+      "starter": "function run_twice(fn, x)\n  -- TODO: call fn on x, then on the result\n  return x\nend\n",
+      "solution": "function run_twice(fn, x)\n  return fn(fn(x))\nend\n",
+      "tests": [
+        {
+          "name": "run_twice(inc, 5) -> 7",
+          "code": "local function inc(n) return n + 1 end\nassert(run_twice(inc, 5) == 7, \"5 -> 6 -> 7 should be 7\")"
+        },
+        {
+          "name": "works with doubling",
+          "code": "local function dbl(n) return n * 2 end\nassert(run_twice(dbl, 3) == 12, \"3 -> 6 -> 12 should be 12\")"
+        },
+        {
+          "name": "works with strings",
+          "code": "local function bang(s) return s .. \"!\" end\nassert(run_twice(bang, \"go\") == \"go!!\")"
+        }
+      ],
+      "hint": "Call fn twice: fn(fn(x)).",
+      "lore": "The same routine, run again on its own output."
+    },
+    {
+      "id": "lua-apply",
+      "title": "APPLY",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Pass a function as an argument.",
+      "prompt": "Define **apply(fn, x)** that simply calls the function `fn` with the argument `x` and returns the result.\n~~~lua\nlocal function neg(n) return -n end\napply(neg, 8)   -- -8\n~~~",
+      "starter": "function apply(fn, x)\n  -- TODO: call fn on x\n  return nil\nend\n",
+      "solution": "function apply(fn, x)\n  return fn(x)\nend\n",
+      "tests": [
+        {
+          "name": "apply(neg, 8) -> -8",
+          "code": "local function neg(n) return -n end\nassert(apply(neg, 8) == -8)"
+        },
+        {
+          "name": "apply with a string function",
+          "code": "local function up(s) return s:upper() end\nassert(apply(up, \"trace\") == \"TRACE\")"
+        }
+      ],
+      "hint": "Just return fn(x).",
+      "lore": "Hand the engine a routine; it runs whatever you give it."
+    },
+    {
+      "id": "lua-make-adder",
+      "title": "MAKE ADDER",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Return a function that remembers a number.",
+      "prompt": "Define **make_adder(n)** that returns a NEW function. That returned function takes one argument `x` and returns `x + n`. The value of `n` is captured (a closure).\n~~~lua\nlocal add10 = make_adder(10)\nadd10(5)   -- 15\nadd10(1)   -- 11\n~~~",
+      "starter": "function make_adder(n)\n  -- TODO: return a function that adds n to its argument\n  return nil\nend\n",
+      "solution": "function make_adder(n)\n  return function(x)\n    return x + n\n  end\nend\n",
+      "tests": [
+        {
+          "name": "make_adder returns a function",
+          "code": "assert(type(make_adder(10)) == \"function\", \"make_adder must return a function\")"
+        },
+        {
+          "name": "add10 adds ten",
+          "code": "local add10 = make_adder(10)\nassert(add10(5) == 15 and add10(1) == 11)"
+        },
+        {
+          "name": "two adders are independent",
+          "code": "local add3 = make_adder(3)\nlocal add100 = make_adder(100)\nassert(add3(1) == 4 and add100(1) == 101)"
+        }
+      ],
+      "hint": "Inside make_adder, return function(x) return x + n end.",
+      "lore": "Forge a tool; bake in its calibration."
+    },
+    {
+      "id": "lua-counter",
+      "title": "COUNTER CORE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "A closure that counts up.",
+      "prompt": "Define **make_counter()** that returns a function. Each time the returned function is called it increases an internal count by 1 and returns the new count, starting at 1.\n~~~lua\nlocal next_id = make_counter()\nnext_id()   -- 1\nnext_id()   -- 2\nnext_id()   -- 3\n~~~",
+      "starter": "function make_counter()\n  -- TODO: keep a private count and return a function that bumps it\n  return function()\n    return 0\n  end\nend\n",
+      "solution": "function make_counter()\n  local count = 0\n  return function()\n    count = count + 1\n    return count\n  end\nend\n",
+      "tests": [
+        {
+          "name": "counts 1, 2, 3",
+          "code": "local c = make_counter()\nassert(c() == 1 and c() == 2 and c() == 3)"
+        },
+        {
+          "name": "each counter is independent",
+          "code": "local a = make_counter()\nlocal b = make_counter()\nassert(a() == 1 and a() == 2 and b() == 1, \"counters must not share state\")"
+        }
+      ],
+      "hint": "Declare local count = 0 OUTSIDE the returned function, then count = count + 1 inside.",
+      "lore": "A ticking register, sealed inside the closure."
+    },
+    {
+      "id": "lua-map-double",
+      "title": "MAP",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Apply a function to every element.",
+      "prompt": "Define **map(fn, arr)** that returns a NEW array where each element is `fn` applied to the matching element of `arr`. Do not change the original array.\n~~~lua\nlocal function dbl(n) return n * 2 end\nmap(dbl, {1, 2, 3})   -- {2, 4, 6}\n~~~",
+      "starter": "function map(fn, arr)\n  -- TODO: build a new array by applying fn to each element\n  return {}\nend\n",
+      "solution": "function map(fn, arr)\n  local out = {}\n  for i = 1, #arr do\n    out[i] = fn(arr[i])\n  end\n  return out\nend\n",
+      "tests": [
+        {
+          "name": "doubles each element",
+          "code": "local function dbl(n) return n * 2 end\nlocal r = map(dbl, {1, 2, 3})\nassert(#r == 3 and r[1] == 2 and r[2] == 4 and r[3] == 6)"
+        },
+        {
+          "name": "works with a string function",
+          "code": "local function bang(s) return s .. \"!\" end\nlocal r = map(bang, {\"a\", \"b\"})\nassert(#r == 2 and r[1] == \"a!\" and r[2] == \"b!\")"
+        },
+        {
+          "name": "empty array gives empty array",
+          "code": "local function id(x) return x end\nlocal r = map(id, {})\nassert(#r == 0)"
+        }
+      ],
+      "hint": "Loop i = 1, #arr and set out[i] = fn(arr[i]). Arrays are 1-indexed.",
+      "lore": "Run the filter over the whole datastream."
+    },
+    {
+      "id": "lua-varargs-sum",
+      "title": "VARARG SUM",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Add up any number of arguments.",
+      "prompt": "Define **sum_all(...)** that accepts any number of numbers and returns their total. With no arguments it returns 0. Use `{...}` to gather the arguments.\n~~~lua\nsum_all(1, 2, 3, 4)   -- 10\nsum_all()             -- 0\n~~~",
+      "starter": "function sum_all(...)\n  -- TODO: add up all the arguments\n  return 0\nend\n",
+      "solution": "function sum_all(...)\n  local total = 0\n  for _, v in ipairs({...}) do\n    total = total + v\n  end\n  return total\nend\n",
+      "tests": [
+        {
+          "name": "sum_all(1,2,3,4) -> 10",
+          "code": "assert(sum_all(1, 2, 3, 4) == 10)"
+        },
+        {
+          "name": "no args -> 0",
+          "code": "assert(sum_all() == 0)"
+        },
+        {
+          "name": "handles a single arg and negatives",
+          "code": "assert(sum_all(7) == 7 and sum_all(5, -2, -3) == 0)"
+        }
+      ],
+      "hint": "for _, v in ipairs({...}) do total = total + v end.",
+      "lore": "Aggregate every packet on the wire."
+    },
+    {
+      "id": "lua-varargs-count",
+      "title": "ARG COUNT",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "How many arguments came in?",
+      "prompt": "Define **arg_count(...)** that returns how many arguments it was given, using **select(\"#\", ...)**.\n~~~lua\narg_count(\"a\", \"b\", \"c\")   -- 3\narg_count()                 -- 0\n~~~",
+      "starter": "function arg_count(...)\n  -- TODO: return the number of arguments\n  return 0\nend\n",
+      "solution": "function arg_count(...)\n  return select(\"#\", ...)\nend\n",
+      "tests": [
+        {
+          "name": "three args -> 3",
+          "code": "assert(arg_count(\"a\", \"b\", \"c\") == 3)"
+        },
+        {
+          "name": "no args -> 0",
+          "code": "assert(arg_count() == 0)"
+        },
+        {
+          "name": "counts nil holes too",
+          "code": "assert(arg_count(1, nil, 3) == 3, \"select(#) counts nils\")"
+        }
+      ],
+      "hint": "return select(\"#\", ...) — the \"#\" is a literal string.",
+      "lore": "Count the incoming signals before you decode them."
+    },
+    {
+      "id": "lua-compose",
+      "title": "COMPOSE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Chain two functions into one.",
+      "prompt": "Define **compose(f, g)** that returns a NEW function. Calling that function with `x` should first apply `g`, then apply `f` to that result — i.e. it returns `f(g(x))`.\n~~~lua\nlocal function inc(n) return n + 1 end\nlocal function dbl(n) return n * 2 end\nlocal h = compose(dbl, inc)\nh(5)   -- 12   (inc(5)=6, then dbl(6)=12)\n~~~",
+      "starter": "function compose(f, g)\n  -- TODO: return a function that does f(g(x))\n  return function(x)\n    return x\n  end\nend\n",
+      "solution": "function compose(f, g)\n  return function(x)\n    return f(g(x))\n  end\nend\n",
+      "tests": [
+        {
+          "name": "compose returns a function",
+          "code": "local function id(x) return x end\nassert(type(compose(id, id)) == \"function\")"
+        },
+        {
+          "name": "applies g then f",
+          "code": "local function inc(n) return n + 1 end\nlocal function dbl(n) return n * 2 end\nlocal h = compose(dbl, inc)\nassert(h(5) == 12, \"inc(5)=6 then dbl(6)=12\")"
+        },
+        {
+          "name": "order matters",
+          "code": "local function inc(n) return n + 1 end\nlocal function dbl(n) return n * 2 end\nlocal h = compose(inc, dbl)\nassert(h(5) == 11, \"dbl(5)=10 then inc(10)=11\")"
+        }
+      ],
+      "hint": "Return function(x) return f(g(x)) end — inner g runs first.",
+      "lore": "Two routines welded into a single pipeline."
+    }
+  ]
+}
