@@ -1,0 +1,81 @@
+{
+  "type": "fill",
+  "modId": "sqlm01-select",
+  "exercises": [
+    {
+      "id": "sql-roster",
+      "title": "FULL ROSTER",
+      "kind": "query",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Pull the whole file, in order.",
+      "prompt": "The **bounties(id, name, reward, planet)** table is your active case file. Return **all columns** for **every** bounty, ordered by **id** (lowest first).\n",
+      "setup": "CREATE TABLE bounties (id INTEGER, name TEXT, reward INTEGER, planet TEXT);INSERT INTO bounties VALUES (1,'Asimov',2500000,'Mars'),(2,'Teddy',1000000,'Mars'),(3,'Hex',800000,'Ganymede'),(4,'Pierrot',7000000,'Earth');",
+      "starter": "SELECT name FROM bounties;\n",
+      "solution": "SELECT * FROM bounties ORDER BY id;\n",
+      "orderMatters": true,
+      "hint": "Use SELECT * for all columns, then ORDER BY id.",
+      "lore": "Every face in the file gets a number before it gets a price."
+    },
+    {
+      "id": "sql-planets",
+      "title": "KNOWN HIDEOUTS",
+      "kind": "query",
+      "difficulty": 2,
+      "xp": 150,
+      "brief": "List each hideout world once.",
+      "prompt": "From **bounties(id, name, reward, planet)**, return the list of **distinct planet** values — each planet exactly once. No specific order is required.\n",
+      "setup": "CREATE TABLE bounties (id INTEGER, name TEXT, reward INTEGER, planet TEXT);INSERT INTO bounties VALUES (1,'Asimov',2500000,'Mars'),(2,'Teddy',1000000,'Mars'),(3,'Hex',800000,'Ganymede'),(4,'Pierrot',7000000,'Earth');",
+      "starter": "SELECT planet FROM bounties;\n",
+      "solution": "SELECT DISTINCT planet FROM bounties;\n",
+      "orderMatters": false,
+      "hint": "SELECT DISTINCT planet collapses repeats into one row each.",
+      "lore": "Mars shows up twice in the logs, but it's still one red rock."
+    },
+    {
+      "id": "sql-offworld",
+      "title": "OFF MARS",
+      "kind": "query",
+      "difficulty": 2,
+      "xp": 150,
+      "brief": "Everyone who isn't on Mars.",
+      "prompt": "From **bounties(id, name, reward, planet)**, return the **name** and **planet** of every bounty whose **planet is not 'Mars'**, sorted by **name** alphabetically (A->Z).\n",
+      "setup": "CREATE TABLE bounties (id INTEGER, name TEXT, reward INTEGER, planet TEXT);INSERT INTO bounties VALUES (1,'Asimov',2500000,'Mars'),(2,'Teddy',1000000,'Mars'),(3,'Hex',800000,'Ganymede'),(4,'Pierrot',7000000,'Earth');",
+      "starter": "SELECT name, planet FROM bounties WHERE planet = 'Mars';\n",
+      "solution": "SELECT name, planet FROM bounties WHERE planet <> 'Mars' ORDER BY name;\n",
+      "orderMatters": true,
+      "hint": "Use WHERE planet <> 'Mars' (or !=), then ORDER BY name.",
+      "lore": "The smart ones never linger on the same rock as the law."
+    },
+    {
+      "id": "sql-midrange",
+      "title": "MID-TIER MARKS",
+      "kind": "query",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Bounties inside a pay band.",
+      "prompt": "From **bounties(id, name, reward, planet)**, return **name** and **reward** for every bounty whose **reward is between 1,000,000 and 3,000,000 inclusive**, ordered by **reward** ascending (lowest first).\n",
+      "setup": "CREATE TABLE bounties (id INTEGER, name TEXT, reward INTEGER, planet TEXT);INSERT INTO bounties VALUES (1,'Asimov',2500000,'Mars'),(2,'Teddy',1000000,'Mars'),(3,'Hex',800000,'Ganymede'),(4,'Pierrot',7000000,'Earth');",
+      "starter": "SELECT name, reward FROM bounties ORDER BY reward;\n",
+      "solution": "SELECT name, reward FROM bounties WHERE reward BETWEEN 1000000 AND 3000000 ORDER BY reward;\n",
+      "orderMatters": true,
+      "hint": "WHERE reward BETWEEN 1000000 AND 3000000 keeps the band, then ORDER BY reward.",
+      "lore": "Not chump change, not a fortune. Just enough to refuel."
+    },
+    {
+      "id": "sql-cheapmars",
+      "title": "CHEAP ON MARS",
+      "kind": "query",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Low-reward marks on the red planet.",
+      "prompt": "From **bounties(id, name, reward, planet)**, return the **name** of every bounty that is **on Mars AND worth less than 2,000,000**, sorted by **name** alphabetically (A->Z).\n",
+      "setup": "CREATE TABLE bounties (id INTEGER, name TEXT, reward INTEGER, planet TEXT);INSERT INTO bounties VALUES (1,'Asimov',2500000,'Mars'),(2,'Teddy',1000000,'Mars'),(3,'Hex',800000,'Ganymede'),(4,'Pierrot',7000000,'Earth');",
+      "starter": "SELECT name FROM bounties WHERE planet = 'Mars';\n",
+      "solution": "SELECT name FROM bounties WHERE planet = 'Mars' AND reward < 2000000 ORDER BY name;\n",
+      "orderMatters": true,
+      "hint": "Chain two conditions with AND: planet = 'Mars' AND reward < 2000000.",
+      "lore": "Barely worth the fuel, but Mars dust is cheap to walk through."
+    }
+  ]
+}

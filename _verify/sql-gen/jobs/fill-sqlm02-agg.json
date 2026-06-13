@@ -1,0 +1,81 @@
+{
+  "type": "fill",
+  "modId": "sqlm02-agg",
+  "exercises": [
+    {
+      "id": "sql-avgbpm",
+      "title": "MEAN TEMPO",
+      "kind": "query",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Average tempo across the whole crate.",
+      "prompt": "From **tracks(title, artist, bpm, genre)**, return a **single value**: the **average bpm** across **all** tracks. No specific order is required.\n",
+      "setup": "CREATE TABLE tracks (title TEXT, artist TEXT, bpm INTEGER, genre TEXT);INSERT INTO tracks VALUES ('Da Funk','Daft Punk',112,'house'),('Aerodynamic','Daft Punk',123,'house'),('Windowlicker','Aphex Twin',100,'idm'),('Avril 14th','Aphex Twin',60,'ambient'),('Awake','Tycho',120,'synthwave');",
+      "starter": "SELECT bpm FROM tracks;\n",
+      "solution": "SELECT AVG(bpm) FROM tracks;\n",
+      "orderMatters": false,
+      "hint": "AVG(bpm) collapses every row into one mean value.",
+      "lore": "The deck finds the heartbeat of the whole set in one pulse."
+    },
+    {
+      "id": "sql-tempobounds",
+      "title": "SLOWEST AND FASTEST",
+      "kind": "query",
+      "difficulty": 2,
+      "xp": 150,
+      "brief": "The tempo floor and ceiling in one row.",
+      "prompt": "From **tracks(title, artist, bpm, genre)**, return **two values in one row**: the **minimum bpm** and the **maximum bpm** across all tracks (min first, then max). No specific order is required.\n",
+      "setup": "CREATE TABLE tracks (title TEXT, artist TEXT, bpm INTEGER, genre TEXT);INSERT INTO tracks VALUES ('Da Funk','Daft Punk',112,'house'),('Aerodynamic','Daft Punk',123,'house'),('Windowlicker','Aphex Twin',100,'idm'),('Avril 14th','Aphex Twin',60,'ambient'),('Awake','Tycho',120,'synthwave');",
+      "starter": "SELECT MIN(bpm) FROM tracks;\n",
+      "solution": "SELECT MIN(bpm), MAX(bpm) FROM tracks;\n",
+      "orderMatters": false,
+      "hint": "Put both MIN(bpm) and MAX(bpm) in the same SELECT list.",
+      "lore": "Drag the slowest crawl and the hardest sprint into the same readout."
+    },
+    {
+      "id": "sql-genreavg",
+      "title": "TEMPO BY GENRE",
+      "kind": "query",
+      "difficulty": 2,
+      "xp": 150,
+      "brief": "Average tempo, grouped per genre.",
+      "prompt": "From **tracks(title, artist, bpm, genre)**, return **genre** and the **average bpm** for that genre, one row **per genre**. Sort by **genre** alphabetically (A->Z).\n",
+      "setup": "CREATE TABLE tracks (title TEXT, artist TEXT, bpm INTEGER, genre TEXT);INSERT INTO tracks VALUES ('Da Funk','Daft Punk',112,'house'),('Aerodynamic','Daft Punk',123,'house'),('Windowlicker','Aphex Twin',100,'idm'),('Avril 14th','Aphex Twin',60,'ambient'),('Awake','Tycho',120,'synthwave');",
+      "starter": "SELECT genre, AVG(bpm) FROM tracks;\n",
+      "solution": "SELECT genre, AVG(bpm) FROM tracks GROUP BY genre ORDER BY genre;\n",
+      "orderMatters": true,
+      "hint": "GROUP BY genre makes one row per genre, then ORDER BY genre.",
+      "lore": "Each sound-clan reports its own collective pulse to the grid."
+    },
+    {
+      "id": "sql-bpmsum",
+      "title": "GENRE TOTALS",
+      "kind": "query",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Count and summed tempo per genre, only multi-track genres.",
+      "prompt": "From **tracks(title, artist, bpm, genre)**, return **genre**, the **number of tracks** in that genre, and the **total (summed) bpm** of that genre — but only for genres holding **more than one track**. Sort by **genre** alphabetically (A->Z).\n",
+      "setup": "CREATE TABLE tracks (title TEXT, artist TEXT, bpm INTEGER, genre TEXT);INSERT INTO tracks VALUES ('Da Funk','Daft Punk',112,'house'),('Aerodynamic','Daft Punk',123,'house'),('Windowlicker','Aphex Twin',100,'idm'),('Avril 14th','Aphex Twin',60,'ambient'),('Awake','Tycho',120,'synthwave');",
+      "starter": "SELECT genre, COUNT(*), SUM(bpm) FROM tracks GROUP BY genre ORDER BY genre;\n",
+      "solution": "SELECT genre, COUNT(*), SUM(bpm) FROM tracks GROUP BY genre HAVING COUNT(*) > 1 ORDER BY genre;\n",
+      "orderMatters": true,
+      "hint": "Group by genre, then filter the groups with HAVING COUNT(*) > 1.",
+      "lore": "Only the crews deep enough to field a pair make the totals board."
+    },
+    {
+      "id": "sql-fastfloor",
+      "title": "FAST FLOORS ONLY",
+      "kind": "query",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Artists whose slowest track still hits hard.",
+      "prompt": "From **tracks(title, artist, bpm, genre)**, return **artist** and that artist's **minimum bpm**, keeping only artists whose **minimum bpm is at least 100**. Sort by **artist** alphabetically (A->Z).\n",
+      "setup": "CREATE TABLE tracks (title TEXT, artist TEXT, bpm INTEGER, genre TEXT);INSERT INTO tracks VALUES ('Da Funk','Daft Punk',112,'house'),('Aerodynamic','Daft Punk',123,'house'),('Windowlicker','Aphex Twin',100,'idm'),('Avril 14th','Aphex Twin',60,'ambient'),('Awake','Tycho',120,'synthwave');",
+      "starter": "SELECT artist, MIN(bpm) FROM tracks GROUP BY artist ORDER BY artist;\n",
+      "solution": "SELECT artist, MIN(bpm) FROM tracks GROUP BY artist HAVING MIN(bpm) >= 100 ORDER BY artist;\n",
+      "orderMatters": true,
+      "hint": "Group by artist, then use HAVING MIN(bpm) >= 100 to drop the slow crews.",
+      "lore": "If even your sleepiest track keeps the floor moving, you're on the list."
+    }
+  ]
+}

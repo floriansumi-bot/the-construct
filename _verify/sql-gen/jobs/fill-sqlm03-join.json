@@ -1,0 +1,83 @@
+{
+  "type": "fill",
+  "modId": "sqlm03-join",
+  "exercises": [
+    {
+      "id": "sql-hunters-ship",
+      "title": "HUNTERS ABOARD",
+      "kind": "query",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Ship name for every hunter.",
+      "prompt": "Join **crew** to **ships** on crew.ship_id = ships.id. Return each **hunter's name** and their **ship's name** (two columns), keeping only rows where the crew member's **role** is **'hunter'**. Sort by crew **name** (A->Z).\n",
+      "setup": "CREATE TABLE ships (id INTEGER, name TEXT);INSERT INTO ships VALUES (1,'Bebop'),(2,'Swordfish');CREATE TABLE crew (name TEXT, ship_id INTEGER, role TEXT);INSERT INTO crew VALUES ('Spike',1,'hunter'),('Jet',1,'captain'),('Faye',1,'hunter'),('Ed',1,'hacker');",
+      "starter": "SELECT crew.name, ships.name FROM crew JOIN ships ON crew.ship_id = ships.id ORDER BY crew.name;\n",
+      "solution": "SELECT crew.name, ships.name FROM crew JOIN ships ON crew.ship_id = ships.id WHERE crew.role = 'hunter' ORDER BY crew.name;\n",
+      "orderMatters": true,
+      "hint": "Add WHERE crew.role = 'hunter' to the JOIN so only the bounty hunters show.",
+      "lore": "Two trigger fingers, one deck. The hunters log their berth."
+    },
+    {
+      "id": "sql-crew-count",
+      "title": "HEADCOUNT BY HULL",
+      "kind": "query",
+      "difficulty": 2,
+      "xp": 150,
+      "brief": "How many hands each ship carries.",
+      "prompt": "Join **crew** to **ships** on crew.ship_id = ships.id, then return each **ship's name** and the **number of crew** aboard it, one row **per ship that has crew**. Sort by ship **name** (A->Z).\n",
+      "setup": "CREATE TABLE ships (id INTEGER, name TEXT);INSERT INTO ships VALUES (1,'Bebop'),(2,'Swordfish');CREATE TABLE crew (name TEXT, ship_id INTEGER, role TEXT);INSERT INTO crew VALUES ('Spike',1,'hunter'),('Jet',1,'captain'),('Faye',1,'hunter'),('Ed',1,'hacker');",
+      "starter": "SELECT ships.name FROM crew JOIN ships ON crew.ship_id = ships.id ORDER BY ships.name;\n",
+      "solution": "SELECT ships.name, COUNT(*) FROM crew JOIN ships ON crew.ship_id = ships.id GROUP BY ships.name ORDER BY ships.name;\n",
+      "orderMatters": true,
+      "hint": "After the JOIN, GROUP BY ships.name so COUNT(*) gives one tally per ship.",
+      "lore": "The manifest tallies itself, hull by hull."
+    },
+    {
+      "id": "sql-board-swordfish",
+      "title": "BOARD THE SWORDFISH",
+      "kind": "mutation",
+      "difficulty": 2,
+      "xp": 150,
+      "brief": "Sign a pilot onto the empty ship.",
+      "prompt": "The **Swordfish** (ship id **2**) flies with no crew. INSERT a new row into **crew**: name **Vicious**, ship_id **2**, role **pilot**. Add nobody else.\n\nThe verifier then runs: SELECT name, role FROM crew WHERE ship_id = 2.\n",
+      "setup": "CREATE TABLE ships (id INTEGER, name TEXT);INSERT INTO ships VALUES (1,'Bebop'),(2,'Swordfish');CREATE TABLE crew (name TEXT, ship_id INTEGER, role TEXT);INSERT INTO crew VALUES ('Spike',1,'hunter'),('Jet',1,'captain'),('Faye',1,'hunter'),('Ed',1,'hacker');",
+      "check": "SELECT name, role FROM crew WHERE ship_id = 2;",
+      "starter": "-- INSERT the new pilot onto ship 2 here\n",
+      "solution": "INSERT INTO crew (name, ship_id, role) VALUES ('Vicious', 2, 'pilot');\n",
+      "orderMatters": false,
+      "hint": "INSERT INTO crew (name, ship_id, role) VALUES ('Vicious', 2, 'pilot');",
+      "lore": "The lone fighter finally takes a hand at the stick."
+    },
+    {
+      "id": "sql-empty-hulls",
+      "title": "EMPTY HULLS",
+      "kind": "query",
+      "difficulty": 3,
+      "xp": 180,
+      "brief": "Every ship and its crew tally, even the empty ones.",
+      "prompt": "Use a **LEFT JOIN** from **ships** to **crew** on ships.id = crew.ship_id so that **every ship appears** — including ones with no crew. Return each **ship's name** and the **number of crew** aboard (use COUNT on a crew column so empty ships show **0**), one row per ship. Sort by ship **name** (A->Z).\n",
+      "setup": "CREATE TABLE ships (id INTEGER, name TEXT);INSERT INTO ships VALUES (1,'Bebop'),(2,'Swordfish');CREATE TABLE crew (name TEXT, ship_id INTEGER, role TEXT);INSERT INTO crew VALUES ('Spike',1,'hunter'),('Jet',1,'captain'),('Faye',1,'hunter'),('Ed',1,'hacker');",
+      "starter": "SELECT ships.name, COUNT(*) FROM ships JOIN crew ON ships.id = crew.ship_id GROUP BY ships.name ORDER BY ships.name;\n",
+      "solution": "SELECT ships.name, COUNT(crew.name) FROM ships LEFT JOIN crew ON ships.id = crew.ship_id GROUP BY ships.name ORDER BY ships.name;\n",
+      "orderMatters": true,
+      "hint": "LEFT JOIN keeps empty ships; COUNT(crew.name) counts 0 for them, while COUNT(*) would wrongly count 1.",
+      "lore": "Even the ghost hull reports in: zero souls aboard."
+    },
+    {
+      "id": "sql-transfer-fleet",
+      "title": "FLEET TRANSFER",
+      "kind": "mutation",
+      "difficulty": 3,
+      "xp": 180,
+      "brief": "Move every Bebop hand to the Swordfish by name.",
+      "prompt": "Command reassigns the whole Bebop crew. UPDATE **crew**: set **ship_id** to the id of the ship named **'Swordfish'** for every crew member currently assigned to the ship named **'Bebop'**. Do not hard-code the numbers 1 or 2 — look both ids up from the **ships** table with subqueries.\n\nThe verifier then runs: SELECT crew.name, ships.name FROM crew JOIN ships ON crew.ship_id = ships.id ORDER BY crew.name.\n",
+      "setup": "CREATE TABLE ships (id INTEGER, name TEXT);INSERT INTO ships VALUES (1,'Bebop'),(2,'Swordfish');CREATE TABLE crew (name TEXT, ship_id INTEGER, role TEXT);INSERT INTO crew VALUES ('Spike',1,'hunter'),('Jet',1,'captain'),('Faye',1,'hunter'),('Ed',1,'hacker');",
+      "check": "SELECT crew.name, ships.name FROM crew JOIN ships ON crew.ship_id = ships.id ORDER BY crew.name;",
+      "starter": "UPDATE crew SET ship_id = (SELECT id FROM ships WHERE name = 'Swordfish') WHERE name = 'Spike';\n",
+      "solution": "UPDATE crew SET ship_id = (SELECT id FROM ships WHERE name = 'Swordfish') WHERE ship_id = (SELECT id FROM ships WHERE name = 'Bebop');\n",
+      "orderMatters": false,
+      "hint": "SET ship_id = (SELECT id FROM ships WHERE name = 'Swordfish') WHERE ship_id = (SELECT id FROM ships WHERE name = 'Bebop').",
+      "lore": "Papers stamped: the whole deck wakes up on a different ship."
+    }
+  ]
+}

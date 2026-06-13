@@ -8,6 +8,7 @@ global.window = {};
 function load(f) { (0, eval)(fs.readFileSync(path.join(base, "js", f), "utf8")); }
 load("tracks.js");
 load("curriculum-sql.js");
+load("curriculum-sql-pack-1.js");
 
 function execLast(db, sql) { const r = db.exec(sql); if (!r || !r.length) return { cols: [], rows: [] }; const l = r[r.length - 1]; return { cols: l.columns || [], rows: l.values || [] }; }
 function runUser(SQL, ex, sql) {
