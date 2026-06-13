@@ -1,0 +1,187 @@
+{
+  "modId": "jsm08-errors",
+  "exercises": [
+    {
+      "id": "js-requirepos",
+      "title": "GATEKEEPER",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 160,
+      "brief": "Reject any non-positive power draw.",
+      "promptLines": [
+        "Define **requirePositive(n)** that returns `n` when `n > 0`, but **throws** an `Error` when `n <= 0`.",
+        "~~~js",
+        "requirePositive(5)   // 5",
+        "requirePositive(0)   // throws",
+        "requirePositive(-3)  // throws",
+        "~~~"
+      ],
+      "starterLines": [
+        "function requirePositive(n) {",
+        "  // TODO: throw when n <= 0, else return n",
+        "}"
+      ],
+      "solutionLines": [
+        "function requirePositive(n) {",
+        "  if (n <= 0) throw new Error('must be positive');",
+        "  return n;",
+        "}"
+      ],
+      "tests": [
+        { "name": "passes positive", "code": "assertEqual(requirePositive(5), 5, 'requirePositive(5) should be 5');" },
+        { "name": "passes large positive", "code": "assertEqual(requirePositive(9000), 9000, 'requirePositive(9000) should be 9000');" },
+        { "name": "throws on zero", "code": "assertThrows(function () { requirePositive(0); }, 'should throw on 0');" },
+        { "name": "throws on negative", "code": "assertThrows(function () { requirePositive(-3); }, 'should throw on -3');" }
+      ],
+      "hint": "if (n <= 0) throw new Error(...); return n;",
+      "lore": "None shall pass the reactor gate without a positive charge."
+    },
+    {
+      "id": "js-validatename",
+      "title": "CHECKPOINT",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Demand a real handle, trimmed clean.",
+      "promptLines": [
+        "Define **validateName(s)** that returns the name with surrounding whitespace removed.",
+        "If the trimmed name is empty (blank or all spaces), **throw** an `Error` instead.",
+        "~~~js",
+        "validateName('  Neo ')  // 'Neo'",
+        "validateName('   ')     // throws",
+        "validateName('')        // throws",
+        "~~~"
+      ],
+      "starterLines": [
+        "function validateName(s) {",
+        "  // TODO: trim s; throw if empty, else return it",
+        "}"
+      ],
+      "solutionLines": [
+        "function validateName(s) {",
+        "  var name = s.trim();",
+        "  if (name === '') throw new Error('name required');",
+        "  return name;",
+        "}"
+      ],
+      "tests": [
+        { "name": "trims padding", "code": "assertEqual(validateName('  Neo '), 'Neo', 'should trim to Neo');" },
+        { "name": "keeps inner content", "code": "assertEqual(validateName('Trinity'), 'Trinity', 'should return Trinity');" },
+        { "name": "throws on blank spaces", "code": "assertThrows(function () { validateName('   '); }, 'should throw on blanks');" },
+        { "name": "throws on empty string", "code": "assertThrows(function () { validateName(''); }, 'should throw on empty');" }
+      ],
+      "hint": "var name = s.trim(); if (name === '') throw new Error(...); return name;",
+      "lore": "A blank ID badge gets you nowhere at the checkpoint."
+    },
+    {
+      "id": "js-safedivide",
+      "title": "SAFE PORT",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Divide without ever blowing the fuse.",
+      "promptLines": [
+        "Define **safeDivide(a, b)** that returns `a / b`, but returns `null` instead of dividing by zero.",
+        "It must **never throw** — when `b` is `0`, fail safe with `null`.",
+        "~~~js",
+        "safeDivide(10, 2)  // 5",
+        "safeDivide(7, 0)   // null",
+        "~~~"
+      ],
+      "starterLines": [
+        "function safeDivide(a, b) {",
+        "  // TODO: return a / b, or null when b is 0",
+        "}"
+      ],
+      "solutionLines": [
+        "function safeDivide(a, b) {",
+        "  if (b === 0) return null;",
+        "  return a / b;",
+        "}"
+      ],
+      "tests": [
+        { "name": "divides evenly", "code": "assertEqual(safeDivide(10, 2), 5, 'safeDivide(10, 2) should be 5');" },
+        { "name": "divides to fraction", "code": "assertEqual(safeDivide(3, 4), 0.75, 'safeDivide(3, 4) should be 0.75');" },
+        { "name": "zero divisor returns null", "code": "assertEqual(safeDivide(7, 0), null, 'safeDivide(7, 0) should be null');" },
+        { "name": "zero over zero returns null", "code": "assertEqual(safeDivide(0, 0), null, 'safeDivide(0, 0) should be null');" }
+      ],
+      "hint": "if (b === 0) return null; return a / b;",
+      "lore": "The safe port routes a zero-load to ground instead of frying the deck."
+    },
+    {
+      "id": "js-getordefault",
+      "title": "FALLBACK CACHE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Trust the function, but keep a backup ready.",
+      "promptLines": [
+        "Define **getOrDefault(fn, fallback)** that calls `fn()` and returns its value.",
+        "If `fn()` **throws**, swallow the error and return `fallback` instead. Use `try` / `catch`.",
+        "~~~js",
+        "getOrDefault(function () { return 42; }, 0)            // 42",
+        "getOrDefault(function () { throw new Error('x'); }, 0)  // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function getOrDefault(fn, fallback) {",
+        "  // TODO: return fn(), or fallback if it throws",
+        "}"
+      ],
+      "solutionLines": [
+        "function getOrDefault(fn, fallback) {",
+        "  try {",
+        "    return fn();",
+        "  } catch (e) {",
+        "    return fallback;",
+        "  }",
+        "}"
+      ],
+      "tests": [
+        { "name": "returns fn value", "code": "assertEqual(getOrDefault(function () { return 42; }, 0), 42, 'should return 42');" },
+        { "name": "falls back on throw", "code": "assertEqual(getOrDefault(function () { throw new Error('boom'); }, 0), 0, 'should fall back to 0');" },
+        { "name": "fallback can be a string", "code": "assertEqual(getOrDefault(function () { throw new Error('down'); }, 'OFFLINE'), 'OFFLINE', 'should fall back to OFFLINE');" },
+        { "name": "does not throw on failure", "code": "assertEqual(getOrDefault(function () { throw new Error('e'); }, null), null, 'should swallow the error');" }
+      ],
+      "hint": "try { return fn(); } catch (e) { return fallback; }",
+      "lore": "When the live feed dies, the cache keeps the deck breathing."
+    },
+    {
+      "id": "js-assertrange",
+      "title": "RANGE LOCK",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Clamp the dial — or trip the alarm.",
+      "promptLines": [
+        "Define **assertRange(x, lo, hi)** that returns `x` when it sits within `lo` and `hi` (inclusive).",
+        "If `x` is below `lo` **or** above `hi`, **throw** an `Error`.",
+        "~~~js",
+        "assertRange(5, 0, 10)   // 5",
+        "assertRange(0, 0, 10)   // 0  (boundary is allowed)",
+        "assertRange(11, 0, 10)  // throws",
+        "~~~"
+      ],
+      "starterLines": [
+        "function assertRange(x, lo, hi) {",
+        "  // TODO: throw if x < lo or x > hi, else return x",
+        "}"
+      ],
+      "solutionLines": [
+        "function assertRange(x, lo, hi) {",
+        "  if (x < lo || x > hi) throw new Error('out of range');",
+        "  return x;",
+        "}"
+      ],
+      "tests": [
+        { "name": "passes inside range", "code": "assertEqual(assertRange(5, 0, 10), 5, 'assertRange(5, 0, 10) should be 5');" },
+        { "name": "low boundary allowed", "code": "assertEqual(assertRange(0, 0, 10), 0, 'lower bound should pass');" },
+        { "name": "high boundary allowed", "code": "assertEqual(assertRange(10, 0, 10), 10, 'upper bound should pass');" },
+        { "name": "throws below range", "code": "assertThrows(function () { assertRange(-1, 0, 10); }, 'should throw below lo');" },
+        { "name": "throws above range", "code": "assertThrows(function () { assertRange(11, 0, 10); }, 'should throw above hi');" }
+      ],
+      "hint": "if (x < lo || x > hi) throw new Error(...); return x;",
+      "lore": "Push the dial past the redline and the range lock slams shut."
+    }
+  ]
+}

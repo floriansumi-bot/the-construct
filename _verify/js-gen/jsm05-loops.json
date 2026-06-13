@@ -1,0 +1,187 @@
+{
+  "modId": "jsm05-loops",
+  "exercises": [
+    {
+      "id": "js-rangearr",
+      "title": "SCAN RANGE",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 130,
+      "brief": "Sweep every sector from a to b.",
+      "promptLines": [
+        "Define **rangeArr(a, b)** returning an **array** of the integers from `a` up to `b`, **inclusive** (assume `a <= b`). Build it with a loop.",
+        "~~~js",
+        "rangeArr(2, 5)  // [2, 3, 4, 5]",
+        "rangeArr(4, 4)  // [4]",
+        "~~~"
+      ],
+      "starterLines": [
+        "function rangeArr(a, b) {",
+        "  // TODO: push i from a through b into an array",
+        "}"
+      ],
+      "solutionLines": [
+        "function rangeArr(a, b) {",
+        "  const out = [];",
+        "  for (let i = a; i <= b; i++) { out.push(i); }",
+        "  return out;",
+        "}"
+      ],
+      "tests": [
+        { "name": "spans the range", "code": "assertEqual(rangeArr(2, 5), [2, 3, 4, 5]);" },
+        { "name": "single sector", "code": "assertEqual(rangeArr(4, 4), [4]);" },
+        { "name": "crosses zero", "code": "assertEqual(rangeArr(-1, 2), [-1, 0, 1, 2]);" }
+      ],
+      "hint": "Start out = [], then for (let i = a; i <= b; i++) out.push(i).",
+      "lore": "Paint the grid one sector at a time. Miss nothing."
+    },
+    {
+      "id": "js-maxof",
+      "title": "TALLEST SPIKE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 150,
+      "brief": "Track the biggest reading in one pass.",
+      "promptLines": [
+        "Define **maxOf(nums)** returning the largest number in the array. Do **not** use `Math.max`; walk the array with a loop. An **empty** array returns **null**.",
+        "~~~js",
+        "maxOf([3, 7, 2])  // 7",
+        "maxOf([])         // null",
+        "~~~"
+      ],
+      "starterLines": [
+        "function maxOf(nums) {",
+        "  // TODO: track the biggest value seen so far",
+        "}"
+      ],
+      "solutionLines": [
+        "function maxOf(nums) {",
+        "  if (nums.length === 0) return null;",
+        "  let best = nums[0];",
+        "  for (const n of nums) { if (n > best) { best = n; } }",
+        "  return best;",
+        "}"
+      ],
+      "tests": [
+        { "name": "finds the peak", "code": "assertEqual(maxOf([3, 7, 2]), 7);" },
+        { "name": "all negative", "code": "assertEqual(maxOf([-5, -2, -9]), -2);" },
+        { "name": "single reading", "code": "assertEqual(maxOf([4]), 4);" },
+        { "name": "empty -> null", "code": "assertEqual(maxOf([]), null, 'no readings, no max');" }
+      ],
+      "hint": "Guard the empty case with null, seed best = nums[0], then raise it whenever n > best.",
+      "lore": "Somewhere in the noise, one spike towers. Pin it."
+    },
+    {
+      "id": "js-countmatches",
+      "title": "SIGNAL TALLY",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 160,
+      "brief": "Count how often the target shows up.",
+      "promptLines": [
+        "Define **countMatches(arr, target)** returning how many elements **strictly equal** `target` (`===`). Count them with a loop.",
+        "~~~js",
+        "countMatches([1, 2, 2, 3, 2], 2)  // 3",
+        "countMatches([], 5)               // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function countMatches(arr, target) {",
+        "  // TODO: count elements equal to target",
+        "}"
+      ],
+      "solutionLines": [
+        "function countMatches(arr, target) {",
+        "  let count = 0;",
+        "  for (const x of arr) { if (x === target) { count++; } }",
+        "  return count;",
+        "}"
+      ],
+      "tests": [
+        { "name": "counts repeats", "code": "assertEqual(countMatches([1, 2, 2, 3, 2], 2), 3);" },
+        { "name": "no matches", "code": "assertEqual(countMatches([9, 9], 1), 0);" },
+        { "name": "strings too", "code": "assertEqual(countMatches(['a', 'b', 'a'], 'a'), 2);" },
+        { "name": "empty -> 0", "code": "assertEqual(countMatches([], 5), 0);" }
+      ],
+      "hint": "Start count = 0, loop with for...of, and count++ whenever x === target.",
+      "lore": "How many times did that ghost ping the net? Count every hit."
+    },
+    {
+      "id": "js-digitssum",
+      "title": "DIGIT CRUSH",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 190,
+      "brief": "Fold a number down to its digit sum.",
+      "promptLines": [
+        "Define **digitsSum(n)** returning the sum of the decimal digits of a non-negative integer `n`. Use a **while** loop with `% 10` and `Math.floor(n / 10)` — no string conversion.",
+        "~~~js",
+        "digitsSum(123)  // 6",
+        "digitsSum(0)    // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function digitsSum(n) {",
+        "  // TODO: peel off n % 10 while n > 0",
+        "}"
+      ],
+      "solutionLines": [
+        "function digitsSum(n) {",
+        "  let sum = 0;",
+        "  while (n > 0) {",
+        "    sum += n % 10;",
+        "    n = Math.floor(n / 10);",
+        "  }",
+        "  return sum;",
+        "}"
+      ],
+      "tests": [
+        { "name": "123 -> 6", "code": "assertEqual(digitsSum(123), 6);" },
+        { "name": "all nines", "code": "assertEqual(digitsSum(9999), 36);" },
+        { "name": "trailing zero", "code": "assertEqual(digitsSum(40), 4);" },
+        { "name": "zero -> 0", "code": "assertEqual(digitsSum(0), 0, 'the loop should not run for 0');" }
+      ],
+      "hint": "Loop while n > 0: add n % 10 to the sum, then n = Math.floor(n / 10).",
+      "lore": "Crush the address down to a single resonance. The grid hums back."
+    },
+    {
+      "id": "js-fizzlist",
+      "title": "BUZZ GRID",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Stamp the classic fizz/buzz pattern across a range.",
+      "promptLines": [
+        "Define **fizzList(n)** returning an **array** for `1..n`: multiples of **15** become `'FB'`, multiples of **3** become `'F'`, multiples of **5** become `'B'`, otherwise the number itself. `fizzList(0)` is `[]`.",
+        "~~~js",
+        "fizzList(5)  // [1, 2, 'F', 4, 'B']",
+        "~~~"
+      ],
+      "starterLines": [
+        "function fizzList(n) {",
+        "  // TODO: loop 1..n, push 'FB' / 'F' / 'B' / the number",
+        "}"
+      ],
+      "solutionLines": [
+        "function fizzList(n) {",
+        "  const out = [];",
+        "  for (let i = 1; i <= n; i++) {",
+        "    if (i % 15 === 0) { out.push('FB'); }",
+        "    else if (i % 3 === 0) { out.push('F'); }",
+        "    else if (i % 5 === 0) { out.push('B'); }",
+        "    else { out.push(i); }",
+        "  }",
+        "  return out;",
+        "}"
+      ],
+      "tests": [
+        { "name": "first five", "code": "assertEqual(fizzList(5), [1, 2, 'F', 4, 'B']);" },
+        { "name": "fifteen lands on FB", "code": "assertEqual(fizzList(15), [1, 2, 'F', 4, 'B', 'F', 7, 8, 'F', 'B', 11, 'F', 13, 14, 'FB']);" },
+        { "name": "numbers stay numbers", "code": "assertEqual(fizzList(2), [1, 2], 'non-multiples keep their numeric value');" },
+        { "name": "zero -> empty", "code": "assertEqual(fizzList(0), []);" }
+      ],
+      "hint": "Check i % 15 first, then i % 3, then i % 5, else push the number — order matters.",
+      "lore": "Three and five collide on fifteen. The grid lights up double."
+    }
+  ]
+}

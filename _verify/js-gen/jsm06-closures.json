@@ -1,0 +1,206 @@
+{
+  "modId": "jsm06-closures",
+  "exercises": [
+    {
+      "id": "js-accum",
+      "title": "RUNNING TALLY",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 130,
+      "brief": "A function that remembers its running total.",
+      "promptLines": [
+        "Define **makeAccumulator()** returning a function. Each call **adds** its argument to a running total kept inside the closure and returns the **new** total. A fresh accumulator starts at **0**.",
+        "~~~js",
+        "const acc = makeAccumulator();",
+        "acc(10)  // 10",
+        "acc(5)   // 15",
+        "acc(-3)  // 12",
+        "~~~"
+      ],
+      "starterLines": [
+        "function makeAccumulator() {",
+        "  // TODO: keep a total, return a function that adds to it",
+        "}"
+      ],
+      "solutionLines": [
+        "function makeAccumulator() {",
+        "  let total = 0;",
+        "  return function (n) {",
+        "    total += n;",
+        "    return total;",
+        "  };",
+        "}"
+      ],
+      "tests": [
+        { "name": "accumulates across calls", "code": "var acc = makeAccumulator();\nassert(acc(10) === 10, 'first call returns 10');\nassert(acc(5) === 15, 'then 15');\nassert(acc(-3) === 12, 'then 12');" },
+        { "name": "first call returns its arg", "code": "var acc = makeAccumulator();\nassertEqual(acc(7), 7);" },
+        { "name": "instances are independent", "code": "var a = makeAccumulator(), b = makeAccumulator();\na(100);\nassert(b(1) === 1, 'b has its own total, untouched by a');" }
+      ],
+      "hint": "let total = 0 outside the returned function; inside do total += n; return total.",
+      "lore": "The meter never resets. Every credit you burn, it remembers."
+    },
+    {
+      "id": "js-toggle",
+      "title": "FLIP-FLOP RELAY",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 160,
+      "brief": "A switch that flips on every pull.",
+      "promptLines": [
+        "Define **toggle(a, b)** returning a function that **alternates** its return value each call: `a`, then `b`, then `a`, then `b`, and so on. The **first** call returns `a`.",
+        "~~~js",
+        "const sw = toggle('ON', 'OFF');",
+        "sw()  // 'ON'",
+        "sw()  // 'OFF'",
+        "sw()  // 'ON'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function toggle(a, b) {",
+        "  // TODO: remember which side is next, then flip",
+        "}"
+      ],
+      "solutionLines": [
+        "function toggle(a, b) {",
+        "  let onA = true;",
+        "  return function () {",
+        "    const value = onA ? a : b;",
+        "    onA = !onA;",
+        "    return value;",
+        "  };",
+        "}"
+      ],
+      "tests": [
+        { "name": "alternates a then b", "code": "var sw = toggle('ON', 'OFF');\nassert(sw() === 'ON', '1st is a');\nassert(sw() === 'OFF', '2nd is b');\nassert(sw() === 'ON', '3rd is a again');\nassert(sw() === 'OFF', '4th is b again');" },
+        { "name": "works with numbers", "code": "var f = toggle(1, 0);\nassertEqual([f(), f(), f(), f(), f()], [1, 0, 1, 0, 1]);" },
+        { "name": "instances flip independently", "code": "var x = toggle('a', 'b'), y = toggle('a', 'b');\nx();\nassert(y() === 'a', 'y still starts on a even after x advanced');" }
+      ],
+      "hint": "Keep a boolean flag in the closure; read the value, then invert the flag before returning.",
+      "lore": "Pull the relay: light, dark, light, dark. The grid breathes in two states."
+    },
+    {
+      "id": "js-limiter",
+      "title": "RATE GATE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Allow a fixed number of passes, then deny.",
+      "promptLines": [
+        "Define **limiter(max)** returning a function that returns `true` for its first `max` calls, then `false` for every call after that.",
+        "~~~js",
+        "const gate = limiter(2);",
+        "gate()  // true",
+        "gate()  // true",
+        "gate()  // false",
+        "gate()  // false",
+        "~~~"
+      ],
+      "starterLines": [
+        "function limiter(max) {",
+        "  // TODO: count the calls, allow only the first max",
+        "}"
+      ],
+      "solutionLines": [
+        "function limiter(max) {",
+        "  let used = 0;",
+        "  return function () {",
+        "    if (used < max) {",
+        "      used += 1;",
+        "      return true;",
+        "    }",
+        "    return false;",
+        "  };",
+        "}"
+      ],
+      "tests": [
+        { "name": "allows max then denies", "code": "var gate = limiter(2);\nassert(gate() === true, '1st pass');\nassert(gate() === true, '2nd pass');\nassert(gate() === false, '3rd denied');\nassert(gate() === false, '4th denied');" },
+        { "name": "limit of 0 denies immediately", "code": "var gate = limiter(0);\nassert(gate() === false, 'with max 0 the very first call is denied');" },
+        { "name": "separate gates count separately", "code": "var g1 = limiter(1), g2 = limiter(1);\ng1();\nassert(g2() === true, 'g2 still has its own pass left');" }
+      ],
+      "hint": "Track a used count; while used < max increment and return true, otherwise return false.",
+      "lore": "The turnstile clicks twice, then locks. After that you climb the fence."
+    },
+    {
+      "id": "js-once",
+      "title": "SINGLE FIRE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 190,
+      "brief": "Run it once; cache the result forever.",
+      "promptLines": [
+        "Define **once(fn)** returning a wrapper. The **first** time the wrapper is called it runs `fn` (passing along the argument) and remembers the result. Every later call returns that **same** first result **without** calling `fn` again.",
+        "~~~js",
+        "let runs = 0;",
+        "const boot = once(function (x) { runs++; return x * 2; });",
+        "boot(5)  // 10  (runs === 1)",
+        "boot(9)  // 10  (runs still 1)",
+        "~~~"
+      ],
+      "starterLines": [
+        "function once(fn) {",
+        "  // TODO: return a wrapper that calls fn at most one time",
+        "}"
+      ],
+      "solutionLines": [
+        "function once(fn) {",
+        "  let called = false;",
+        "  let result;",
+        "  return function (x) {",
+        "    if (!called) {",
+        "      called = true;",
+        "      result = fn(x);",
+        "    }",
+        "    return result;",
+        "  };",
+        "}"
+      ],
+      "tests": [
+        { "name": "returns first result every time", "code": "var boot = once(function (x) { return x * 2; });\nassert(boot(5) === 10, 'first call computes');\nassert(boot(9) === 10, 'later calls reuse the first result');\nassert(boot(100) === 10, 'still the first result');" },
+        { "name": "fn runs at most once", "code": "var runs = 0;\nvar f = once(function () { runs += 1; return 'done'; });\nf(); f(); f();\nassert(runs === 1, 'the wrapped fn must execute exactly once');" },
+        { "name": "caches non-number results", "code": "var f = once(function () { return { id: 7 }; });\nassertEqual(f(), { id: 7 });\nassertEqual(f(), { id: 7 });" }
+      ],
+      "hint": "Keep a called flag and a saved result; on the first call set the flag and store fn(x), then always return result.",
+      "lore": "The ignition sequence runs one time. After that the engine just hums the same note."
+    },
+    {
+      "id": "js-applyn",
+      "title": "ITERATED CHAIN",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Compose a function with itself n times.",
+      "promptLines": [
+        "Define **applyN(fn, n)** returning a function that applies `fn` to its input **n** times in a row. With `n === 0` it returns the input unchanged (identity).",
+        "~~~js",
+        "const inc = function (x) { return x + 1; };",
+        "applyN(inc, 3)(0)   // 3",
+        "applyN(inc, 0)(42)  // 42",
+        "~~~"
+      ],
+      "starterLines": [
+        "function applyN(fn, n) {",
+        "  // TODO: return a function that runs fn on its input n times",
+        "}"
+      ],
+      "solutionLines": [
+        "function applyN(fn, n) {",
+        "  return function (x) {",
+        "    let value = x;",
+        "    for (let i = 0; i < n; i++) {",
+        "      value = fn(value);",
+        "    }",
+        "    return value;",
+        "  };",
+        "}"
+      ],
+      "tests": [
+        { "name": "applies fn n times", "code": "var inc = function (x) { return x + 1; };\nassert(applyN(inc, 3)(0) === 3, 'inc applied 3 times to 0 is 3');\nassert(applyN(inc, 5)(10) === 15, 'inc applied 5 times to 10 is 15');" },
+        { "name": "n = 0 is identity", "code": "var dbl = function (x) { return x * 2; };\nassert(applyN(dbl, 0)(42) === 42, 'zero applications returns the input');" },
+        { "name": "works for any fn", "code": "var dbl = function (x) { return x * 2; };\nassertEqual(applyN(dbl, 4)(1), 16);" },
+        { "name": "reusable on different inputs", "code": "var inc = function (x) { return x + 1; };\nvar plus2 = applyN(inc, 2);\nassert(plus2(0) === 2 && plus2(40) === 42, 'the returned function can be called many times');" }
+      ],
+      "hint": "Return (x) => { let v = x; loop n times v = fn(v); return v; }. When n is 0 the loop never runs.",
+      "lore": "Feed the signal back through the same gate, again and again. Each pass bends it further."
+    }
+  ]
+}

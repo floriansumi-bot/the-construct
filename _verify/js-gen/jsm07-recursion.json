@@ -1,0 +1,179 @@
+{
+  "modId": "jsm07-recursion",
+  "exercises": [
+    {
+      "id": "js-sumdigits",
+      "title": "DIGIT BLEED",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Bleed an integer down one digit at a time and sum the drops.",
+      "promptLines": [
+        "Define **sumDigits(n)** returning the sum of the decimal digits of a non-negative integer `n` — **recursively**, no loops. Base case: a single digit (`n < 10`) returns itself.",
+        "~~~js",
+        "sumDigits(123)  // 6",
+        "sumDigits(0)    // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function sumDigits(n) {",
+        "  // TODO: if n < 10 return n; else (n % 10) + sumDigits(Math.floor(n / 10))",
+        "}"
+      ],
+      "solutionLines": [
+        "function sumDigits(n) {",
+        "  if (n < 10) return n;",
+        "  return (n % 10) + sumDigits(Math.floor(n / 10));",
+        "}"
+      ],
+      "tests": [
+        { "name": "123 -> 6", "code": "assertEqual(sumDigits(123), 6, 'digits 1+2+3 = 6');" },
+        { "name": "single digit", "code": "assertEqual(sumDigits(7), 7, 'one digit is its own sum');" },
+        { "name": "zero -> 0", "code": "assertEqual(sumDigits(0), 0, 'base case 0');" },
+        { "name": "99 -> 18", "code": "assertEqual(sumDigits(99), 18, '9+9 = 18');" },
+        { "name": "ten -> 1", "code": "assertEqual(sumDigits(10), 1, '1+0 = 1');" }
+      ],
+      "hint": "Base: n < 10 -> n. Else (n % 10) + sumDigits(Math.floor(n / 10)).",
+      "lore": "Peel one digit off the wire, let the rest bleed out below."
+    },
+    {
+      "id": "js-reversestr",
+      "title": "BACKMASK",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Spin the signal backwards, one character at a time.",
+      "promptLines": [
+        "Define **reverseStr(s)** returning the string reversed — **recursively**, no loops or `.reverse()`. Base case: the empty string returns `''`.",
+        "~~~js",
+        "reverseStr('neo')  // 'oen'",
+        "reverseStr('')     // ''",
+        "~~~"
+      ],
+      "starterLines": [
+        "function reverseStr(s) {",
+        "  // TODO: if empty return ''; else reverseStr(rest) + first char",
+        "}"
+      ],
+      "solutionLines": [
+        "function reverseStr(s) {",
+        "  if (s === '') return '';",
+        "  return reverseStr(s.slice(1)) + s[0];",
+        "}"
+      ],
+      "tests": [
+        { "name": "reverses word", "code": "assertEqual(reverseStr('neo'), 'oen', 'characters come back flipped');" },
+        { "name": "empty -> empty", "code": "assertEqual(reverseStr(''), '', 'base case empty string');" },
+        { "name": "single char", "code": "assertEqual(reverseStr('x'), 'x', 'one char reversed is itself');" },
+        { "name": "longer string", "code": "assertEqual(reverseStr('matrix'), 'xirtam', 'full string reversed');" }
+      ],
+      "hint": "Base: '' -> ''. Else reverseStr(s.slice(1)) + s[0].",
+      "lore": "Run the tape backwards and the message reads true."
+    },
+    {
+      "id": "js-repeatstr",
+      "title": "ECHO LOOP",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 175,
+      "brief": "Stack the same fragment n deep without a single loop.",
+      "promptLines": [
+        "Define **repeatStr(s, n)** returning `s` concatenated `n` times — **recursively**, no loops or `.repeat()`. Base case: `n === 0` returns `''`.",
+        "~~~js",
+        "repeatStr('ab', 3)  // 'ababab'",
+        "repeatStr('x', 0)   // ''",
+        "~~~"
+      ],
+      "starterLines": [
+        "function repeatStr(s, n) {",
+        "  // TODO: if n === 0 return ''; else s + repeatStr(s, n - 1)",
+        "}"
+      ],
+      "solutionLines": [
+        "function repeatStr(s, n) {",
+        "  if (n === 0) return '';",
+        "  return s + repeatStr(s, n - 1);",
+        "}"
+      ],
+      "tests": [
+        { "name": "three copies", "code": "assertEqual(repeatStr('ab', 3), 'ababab', 'ab three times');" },
+        { "name": "zero -> empty", "code": "assertEqual(repeatStr('x', 0), '', 'base case n = 0');" },
+        { "name": "single copy", "code": "assertEqual(repeatStr('hi', 1), 'hi', 'one copy is the string itself');" },
+        { "name": "five copies", "code": "assertEqual(repeatStr('z', 5), 'zzzzz', 'five z chars');" }
+      ],
+      "hint": "Base: n === 0 -> ''. Else s + repeatStr(s, n - 1).",
+      "lore": "Each call leaves an echo, stacked until the count hits zero."
+    },
+    {
+      "id": "js-palindrome-rec",
+      "title": "MIRROR PROBE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 195,
+      "brief": "Probe a string from both ends, collapsing toward the middle.",
+      "promptLines": [
+        "Define **isPalindrome(s)** returning `true` if `s` reads the same forwards and backwards — **recursively**, no loops or `.reverse()`. Compare the two ends, then recurse on the middle. Base case: length `<= 1` is `true`.",
+        "~~~js",
+        "isPalindrome('racecar')  // true",
+        "isPalindrome('hello')    // false",
+        "~~~"
+      ],
+      "starterLines": [
+        "function isPalindrome(s) {",
+        "  // TODO: if length <= 1 return true; if ends differ return false; else recurse on the middle",
+        "}"
+      ],
+      "solutionLines": [
+        "function isPalindrome(s) {",
+        "  if (s.length <= 1) return true;",
+        "  if (s[0] !== s[s.length - 1]) return false;",
+        "  return isPalindrome(s.slice(1, -1));",
+        "}"
+      ],
+      "tests": [
+        { "name": "racecar -> true", "code": "assert(isPalindrome('racecar') === true, 'racecar is a palindrome');" },
+        { "name": "hello -> false", "code": "assert(isPalindrome('hello') === false, 'hello is not a palindrome');" },
+        { "name": "empty -> true", "code": "assert(isPalindrome('') === true, 'base case empty is true');" },
+        { "name": "single char", "code": "assert(isPalindrome('a') === true, 'one char is a palindrome');" },
+        { "name": "even length", "code": "assert(isPalindrome('abba') === true, 'even-length palindrome');" },
+        { "name": "two differ", "code": "assert(isPalindrome('ab') === false, 'mismatched ends fail');" }
+      ],
+      "hint": "Base: length <= 1 -> true. Else if s[0] !== last char -> false; else isPalindrome(s.slice(1, -1)).",
+      "lore": "Touch both ends to the mirror; if they match, fall inward."
+    },
+    {
+      "id": "js-countdownarr",
+      "title": "LAUNCH SEQUENCE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Build the launch sequence n..1 by stacking the descent.",
+      "promptLines": [
+        "Define **countDownArr(n)** returning an array counting down from `n` to `1` — **recursively**, no loops. Base case: `n <= 0` returns `[]`.",
+        "~~~js",
+        "countDownArr(3)  // [3, 2, 1]",
+        "countDownArr(0)  // []",
+        "~~~"
+      ],
+      "starterLines": [
+        "function countDownArr(n) {",
+        "  // TODO: if n <= 0 return []; else [n].concat(countDownArr(n - 1))",
+        "}"
+      ],
+      "solutionLines": [
+        "function countDownArr(n) {",
+        "  if (n <= 0) return [];",
+        "  return [n].concat(countDownArr(n - 1));",
+        "}"
+      ],
+      "tests": [
+        { "name": "3 -> [3,2,1]", "code": "assertEqual(countDownArr(3), [3, 2, 1], 'counts down from 3');" },
+        { "name": "zero -> []", "code": "assertEqual(countDownArr(0), [], 'base case empty array');" },
+        { "name": "one -> [1]", "code": "assertEqual(countDownArr(1), [1], 'single step sequence');" },
+        { "name": "5 -> [5,4,3,2,1]", "code": "assertEqual(countDownArr(5), [5, 4, 3, 2, 1], 'five-step descent');" }
+      ],
+      "hint": "Base: n <= 0 -> []. Else [n].concat(countDownArr(n - 1)).",
+      "lore": "Each call drops a rung; the floor of the descent is the empty array."
+    }
+  ]
+}
