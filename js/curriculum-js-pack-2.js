@@ -18,19 +18,22 @@
       subtitle: "a function that calls itself · base case · the descent",
       theory: J(
         "## The descent",
-        "A **recursive** function calls itself on a **smaller** input until it hits a **base case** that stops the fall.",
+        "**Recursion** is when a function calls **itself**. Instead of looping, you solve a big problem by solving a slightly **smaller** version of the same problem, then the next-smaller, and so on.",
+        "Each call keeps shrinking the input until it reaches a **base case** — a value so simple the answer is known outright, no more recursing. The base case is what stops the fall.",
         "~~~js",
         "function factorial(n) {",
-        "  if (n <= 1) return 1;          // base case",
+        "  if (n <= 1) return 1;          // base case: stop here",
         "  return n * factorial(n - 1);   // smaller subproblem",
         "}",
         "~~~",
         "## Two rules, always",
-        "1. A **base case** that returns without recursing (or you fall forever — stack overflow).",
-        "2. Every recursive call must move **toward** that base case.",
-        "## Trace it",
+        "1. A **base case** that returns a value **without** calling itself again.",
+        "2. Every recursive call must move **toward** that base case (here, `n` gets smaller each time).",
+        "## Trace the descent and the unwind",
+        "Calls stack up going **down**, then resolve coming back **up**:",
         "`factorial(3)` → `3 * factorial(2)` → `3 * 2 * factorial(1)` → `3 * 2 * 1` → **6**.",
-        "> INTEL — Anything a loop can do, recursion can too. Pick whichever reads clearer."
+        "> INTEL — Anything a loop can do, recursion can too. Reach for recursion when the problem is naturally self-similar — trees, nested menus, folders inside folders.",
+        "> WARNING — Forget the base case (or write one the input never reaches) and the function calls itself forever: **stack overflow**, the program crashes. Always check the base case fires first."
       ),
       exercises: [
         {
@@ -100,23 +103,27 @@
       subtitle: "throw · try / catch · failing safe",
       theory: J(
         "## Throwing",
-        "When input is invalid, **throw** an Error instead of returning a wrong answer that poisons everything downstream.",
+        "When something goes wrong — bad input, a missing value — you can **throw** an error. Throwing stops the function immediately and signals 'I can't continue' instead of returning a wrong answer that quietly poisons everything downstream.",
+        "Use `throw new Error('message')`. The `Error` object carries a readable `.message` and a stack trace that shows where it blew up.",
         "~~~js",
         "function root(x) {",
-        "  if (x < 0) throw new Error('negative');",
+        "  if (x < 0) throw new Error('negative input');  // guard clause",
         "  return Math.sqrt(x);",
         "}",
         "~~~",
         "## Catching",
-        "Wrap risky code in **try / catch** to recover instead of crashing.",
+        "An uncaught error crashes the program. Wrap risky code in **try / catch** so you can recover and keep running. Code in `try` runs; if it throws, control jumps to `catch`, which receives the error.",
         "~~~js",
         "try {",
         "  risky();",
         "} catch (e) {",
-        "  console.log('contained:', e.message);",
+        "  console.log('contained:', e.message);  // fail safe: handle it",
         "}",
         "~~~",
-        "> INTEL — Throw early on bad input (a 'guard clause'); catch only where you can actually recover."
+        "## Failing safe",
+        "A good fallback lets the program continue with a sensible default instead of dying — return a cached value, a zero, an empty list.",
+        "> INTEL — Throw **early** on bad input (a 'guard clause'); catch only where you can actually do something useful about it.",
+        "> WARNING — Always `throw new Error(...)`, never a bare string (`throw 'oops'`) — strings carry no `.message` or stack. And don't wrap huge blocks in one `catch`: catching too broadly hides real bugs you'd rather see."
       ),
       exercises: [
         {
