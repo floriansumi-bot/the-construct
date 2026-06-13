@@ -1,0 +1,180 @@
+{
+  "modId": "jsm10-math",
+  "exercises": [
+    {
+      "id": "js-lcm",
+      "title": "LEAST COMMON MULTIPLE",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 150,
+      "brief": "Smallest number divisible by both inputs.",
+      "promptLines": [
+        "Define **lcm(a, b)** returning the least common multiple of two positive integers. Use the identity `a * b / gcd(a, b)`.",
+        "~~~js",
+        "lcm(4, 6)   // 12",
+        "lcm(3, 5)   // 15",
+        "~~~"
+      ],
+      "starterLines": [
+        "function lcm(a, b) {",
+        "  // TODO: divide the product by the gcd",
+        "}"
+      ],
+      "solutionLines": [
+        "function lcm(a, b) {",
+        "  function gcd(x, y) { return y === 0 ? x : gcd(y, x % y); }",
+        "  return a / gcd(a, b) * b;",
+        "}"
+      ],
+      "tests": [
+        { "name": "lcm(4,6) = 12", "code": "assertEqual(lcm(4, 6), 12);" },
+        { "name": "coprime multiplies", "code": "assertEqual(lcm(3, 5), 15);" },
+        { "name": "lcm(12,18) = 36", "code": "assertEqual(lcm(12, 18), 36);" },
+        { "name": "shared factor", "code": "assertEqual(lcm(6, 6), 6);" }
+      ],
+      "hint": "Compute gcd first, then a / gcd(a,b) * b avoids overflow.",
+      "lore": "Two clock cycles realign only at their shared beat."
+    },
+    {
+      "id": "js-digitalroot",
+      "title": "DIGITAL ROOT",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Collapse a number to a single digit.",
+      "promptLines": [
+        "Define **digitalRoot(n)** that repeatedly sums the digits of `n` (n >= 0) until a single digit remains.",
+        "~~~js",
+        "digitalRoot(942)  // 9+4+2=15 -> 1+5=6",
+        "digitalRoot(0)    // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function digitalRoot(n) {",
+        "  // TODO: loop until n is a single digit",
+        "}"
+      ],
+      "solutionLines": [
+        "function digitalRoot(n) {",
+        "  while (n >= 10) {",
+        "    let s = 0;",
+        "    while (n > 0) { s += n % 10; n = Math.floor(n / 10); }",
+        "    n = s;",
+        "  }",
+        "  return n;",
+        "}"
+      ],
+      "tests": [
+        { "name": "942 -> 6", "code": "assertEqual(digitalRoot(942), 6);" },
+        { "name": "single digit stays", "code": "assert(digitalRoot(0) === 0 && digitalRoot(7) === 7);" },
+        { "name": "99 -> 9", "code": "assertEqual(digitalRoot(99), 9);" }
+      ],
+      "hint": "Outer loop while n>=10; inner loop sums digits.",
+      "lore": "Every number folds to one."
+    },
+    {
+      "id": "js-ispoweroftwo",
+      "title": "POWER OF TWO",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Detect exact powers of two.",
+      "promptLines": [
+        "Define **isPowerOfTwo(n)** returning `true` only when `n` is a positive power of two (1, 2, 4, 8, 16, ...).",
+        "~~~js",
+        "isPowerOfTwo(8)   // true",
+        "isPowerOfTwo(6)   // false",
+        "~~~"
+      ],
+      "starterLines": [
+        "function isPowerOfTwo(n) {",
+        "  // TODO: a power of two has exactly one set bit",
+        "}"
+      ],
+      "solutionLines": [
+        "function isPowerOfTwo(n) {",
+        "  return n > 0 && (n & (n - 1)) === 0;",
+        "}"
+      ],
+      "tests": [
+        { "name": "1 is 2^0", "code": "assert(isPowerOfTwo(1) === true);" },
+        { "name": "8 is a power", "code": "assert(isPowerOfTwo(8) === true);" },
+        { "name": "1024 is a power", "code": "assert(isPowerOfTwo(1024) === true);" },
+        { "name": "6 is not", "code": "assert(isPowerOfTwo(6) === false);" },
+        { "name": "zero is not", "code": "assert(isPowerOfTwo(0) === false);" }
+      ],
+      "hint": "n > 0 AND (n & (n - 1)) === 0 clears the lone set bit.",
+      "lore": "Powers of two: a single lit bit in the dark register."
+    },
+    {
+      "id": "js-roundto",
+      "title": "ROUND TO PLACES",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Round to a fixed number of decimals.",
+      "promptLines": [
+        "Define **roundTo(n, places)** that rounds `n` to `places` decimal places and returns a Number. Scale up, round, scale back down.",
+        "~~~js",
+        "roundTo(3.14159, 2)  // 3.14",
+        "roundTo(2.5, 0)      // 3",
+        "~~~"
+      ],
+      "starterLines": [
+        "function roundTo(n, places) {",
+        "  // TODO: scale by 10**places, round, then unscale",
+        "}"
+      ],
+      "solutionLines": [
+        "function roundTo(n, places) {",
+        "  return Math.round(n * 10 ** places) / 10 ** places;",
+        "}"
+      ],
+      "tests": [
+        { "name": "pi to 2 places", "code": "assertEqual(roundTo(3.14159, 2), 3.14);" },
+        { "name": "half rounds up", "code": "assertEqual(roundTo(2.5, 0), 3);" },
+        { "name": "one place", "code": "assertEqual(roundTo(123.456, 1), 123.5);" },
+        { "name": "rounds up to integer", "code": "assertEqual(roundTo(9.999, 2), 10);" }
+      ],
+      "hint": "Math.round(n * 10 ** places) / 10 ** places.",
+      "lore": "Trim the signal's noise to the decimals that matter."
+    },
+    {
+      "id": "js-sumdivisors",
+      "title": "SUM OF DIVISORS",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Add up every divisor of n.",
+      "promptLines": [
+        "Define **sumDivisors(n)** returning the sum of all positive divisors of `n` (n >= 1), including 1 and n itself.",
+        "~~~js",
+        "sumDivisors(6)   // 1+2+3+6 = 12",
+        "sumDivisors(7)   // 1+7 = 8",
+        "~~~"
+      ],
+      "starterLines": [
+        "function sumDivisors(n) {",
+        "  // TODO: add every i from 1..n that divides n",
+        "}"
+      ],
+      "solutionLines": [
+        "function sumDivisors(n) {",
+        "  let s = 0;",
+        "  for (let i = 1; i <= n; i++) {",
+        "    if (n % i === 0) s += i;",
+        "  }",
+        "  return s;",
+        "}"
+      ],
+      "tests": [
+        { "name": "1 has only itself", "code": "assertEqual(sumDivisors(1), 1);" },
+        { "name": "perfect number 6", "code": "assertEqual(sumDivisors(6), 12);" },
+        { "name": "12 -> 28", "code": "assertEqual(sumDivisors(12), 28);" },
+        { "name": "prime 7 -> 8", "code": "assertEqual(sumDivisors(7), 8);" }
+      ],
+      "hint": "Loop i from 1 to n; when n % i === 0, add i to the total.",
+      "lore": "Tally a number's factors; if they sum to itself, it is perfect."
+    }
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "modId": "jsm09-sets",
+  "exercises": [
+    {
+      "id": "js-union",
+      "title": "MERGE NETS",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 140,
+      "brief": "Fuse two node lists, no repeats.",
+      "promptLines": [
+        "Define **union(a, b)** returning the unique values from both arrays — a's order first, then values from b not already present.",
+        "~~~js",
+        "union([1, 2], [2, 3])  // [1, 2, 3]",
+        "~~~"
+      ],
+      "starterLines": [
+        "function union(a, b) {",
+        "  // TODO: collect a's values, then new ones from b",
+        "}"
+      ],
+      "solutionLines": [
+        "function union(a, b) {",
+        "  const out = [];",
+        "  const seen = new Set();",
+        "  for (const x of a.concat(b)) {",
+        "    if (!seen.has(x)) { seen.add(x); out.push(x); }",
+        "  }",
+        "  return out;",
+        "}"
+      ],
+      "tests": [
+        { "name": "merges unique", "code": "assertEqual(union([1, 2], [2, 3]), [1, 2, 3]);" },
+        { "name": "drops repeats in b", "code": "assertEqual(union([], [5, 5]), [5]);" },
+        { "name": "no overlap", "code": "assertEqual(union([1], [2]), [1, 2]);" },
+        { "name": "preserves a then b order", "code": "assertEqual(union(['x', 'y'], ['y', 'z']), ['x', 'y', 'z']);" },
+        { "name": "both empty -> empty", "code": "assertEqual(union([], []), []);" }
+      ],
+      "hint": "Walk a.concat(b), push each value not already in a Set.",
+      "lore": "Two nets, one mesh."
+    },
+    {
+      "id": "js-difference",
+      "title": "PURGE LIST",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Keep only the nodes b never claimed.",
+      "promptLines": [
+        "Define **difference(a, b)** returning the values from `a` that do **not** appear in `b`, in a's original order. Duplicates in `a` are kept.",
+        "~~~js",
+        "difference([1, 2, 3], [2])  // [1, 3]",
+        "~~~"
+      ],
+      "starterLines": [
+        "function difference(a, b) {",
+        "  // TODO: keep a's values that are not in b",
+        "}"
+      ],
+      "solutionLines": [
+        "function difference(a, b) {",
+        "  const block = new Set(b);",
+        "  const out = [];",
+        "  for (const x of a) {",
+        "    if (!block.has(x)) { out.push(x); }",
+        "  }",
+        "  return out;",
+        "}"
+      ],
+      "tests": [
+        { "name": "removes shared", "code": "assertEqual(difference([1, 2, 3], [2]), [1, 3]);" },
+        { "name": "keeps duplicates", "code": "assertEqual(difference([1, 1, 2], [2]), [1, 1]);" },
+        { "name": "nothing removed", "code": "assertEqual(difference([1, 2], [9]), [1, 2]);" },
+        { "name": "everything removed", "code": "assertEqual(difference([4, 5], [4, 5]), []);" },
+        { "name": "empty a -> empty", "code": "assertEqual(difference([], [1, 2]), []);" }
+      ],
+      "hint": "Put b in a Set, then push each x of a that the Set lacks.",
+      "lore": "Scrub the roster clean of anyone they already own."
+    },
+    {
+      "id": "js-hasdupes",
+      "title": "CLONE ALARM",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 175,
+      "brief": "Trip the alarm if any value repeats.",
+      "promptLines": [
+        "Define **hasDuplicates(arr)** returning **true** if any value appears more than once, else **false**. Compare a `Set`'s size to the array length.",
+        "~~~js",
+        "hasDuplicates([1, 2, 1])  // true",
+        "hasDuplicates([1, 2, 3])  // false",
+        "~~~"
+      ],
+      "starterLines": [
+        "function hasDuplicates(arr) {",
+        "  // TODO: compare unique count to total count",
+        "}"
+      ],
+      "solutionLines": [
+        "function hasDuplicates(arr) {",
+        "  return new Set(arr).size !== arr.length;",
+        "}"
+      ],
+      "tests": [
+        { "name": "detects a repeat", "code": "assert(hasDuplicates([1, 2, 1]) === true, 'should flag the clone');" },
+        { "name": "all unique -> false", "code": "assert(hasDuplicates([1, 2, 3]) === false, 'no clones here');" },
+        { "name": "strings repeat", "code": "assert(hasDuplicates(['a', 'b', 'a']) === true, 'should flag duplicate strings');" },
+        { "name": "single value -> false", "code": "assert(hasDuplicates([7]) === false, 'one value cannot repeat');" },
+        { "name": "empty -> false", "code": "assert(hasDuplicates([]) === false, 'empty has no duplicates');" }
+      ],
+      "hint": "If new Set(arr).size is smaller than arr.length, something repeated.",
+      "lore": "Two signatures, one ID. The clone alarm screams."
+    },
+    {
+      "id": "js-firstrepeat",
+      "title": "ECHO TRACE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Catch the first signal that pings twice.",
+      "promptLines": [
+        "Define **firstRepeat(arr)** returning the first value that is seen a **second** time as you scan left to right. If nothing repeats, return **null**.",
+        "~~~js",
+        "firstRepeat([2, 1, 3, 1, 2])  // 1",
+        "firstRepeat([1, 2, 3])        // null",
+        "~~~"
+      ],
+      "starterLines": [
+        "function firstRepeat(arr) {",
+        "  // TODO: return the first value seen twice, else null",
+        "}"
+      ],
+      "solutionLines": [
+        "function firstRepeat(arr) {",
+        "  const seen = new Set();",
+        "  for (const x of arr) {",
+        "    if (seen.has(x)) { return x; }",
+        "    seen.add(x);",
+        "  }",
+        "  return null;",
+        "}"
+      ],
+      "tests": [
+        { "name": "first echo wins", "code": "assertEqual(firstRepeat([2, 1, 3, 1, 2]), 1);" },
+        { "name": "adjacent repeat", "code": "assertEqual(firstRepeat([5, 5, 9]), 5);" },
+        { "name": "strings too", "code": "assertEqual(firstRepeat(['a', 'b', 'b', 'a']), 'b');" },
+        { "name": "no repeat -> null", "code": "assertEqual(firstRepeat([1, 2, 3]), null);" },
+        { "name": "empty -> null", "code": "assertEqual(firstRepeat([]), null);" }
+      ],
+      "hint": "Track seen values in a Set; the first x already in it is your answer.",
+      "lore": "The grid remembers every ping. The first echo gives the ghost away."
+    },
+    {
+      "id": "js-mostcommon",
+      "title": "DOMINANT FREQ",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Find the value that drowns out the rest.",
+      "promptLines": [
+        "Define **mostCommon(arr)** returning the value with the highest count. On a tie, return the value that **first reaches** that winning count as you scan left to right. Empty array returns **null**.",
+        "~~~js",
+        "mostCommon([1, 2, 2, 3, 2])  // 2",
+        "mostCommon([1, 2, 2, 1])     // 2",
+        "~~~"
+      ],
+      "starterLines": [
+        "function mostCommon(arr) {",
+        "  // TODO: tally counts, track the running leader",
+        "}"
+      ],
+      "solutionLines": [
+        "function mostCommon(arr) {",
+        "  const counts = new Map();",
+        "  let best = null;",
+        "  let bestCount = 0;",
+        "  for (const x of arr) {",
+        "    const c = (counts.get(x) || 0) + 1;",
+        "    counts.set(x, c);",
+        "    if (c > bestCount) { bestCount = c; best = x; }",
+        "  }",
+        "  return best;",
+        "}"
+      ],
+      "tests": [
+        { "name": "clear winner", "code": "assertEqual(mostCommon([1, 2, 2, 3, 2]), 2);" },
+        { "name": "tie -> first to reach count", "code": "assertEqual(mostCommon([1, 2, 2, 1]), 2);" },
+        { "name": "all distinct -> first", "code": "assertEqual(mostCommon([7, 8, 9]), 7);" },
+        { "name": "strings", "code": "assertEqual(mostCommon(['a', 'b', 'a', 'b', 'a']), 'a');" },
+        { "name": "single value", "code": "assertEqual(mostCommon([5]), 5);" },
+        { "name": "empty -> null", "code": "assertEqual(mostCommon([]), null);" }
+      ],
+      "hint": "Build a Map of counts; update the leader only when a count strictly beats the best so far.",
+      "lore": "One frequency rises above the static and owns the channel."
+    }
+  ]
+}

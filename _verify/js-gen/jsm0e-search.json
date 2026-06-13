@@ -1,0 +1,194 @@
+{
+  "modId": "jsm0e-search",
+  "exercises": [
+    {
+      "id": "js-contains",
+      "title": "ICE PROBE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Is the key inside the sorted vault?",
+      "promptLines": [
+        "`sorted` is ascending. Define **contains(sorted, x)** returning `true`/`false` using **binary search** (halve the range each step).",
+        "~~~js",
+        "contains([1, 3, 5, 7], 5)  // true",
+        "contains([1, 3, 5, 7], 4)  // false",
+        "~~~"
+      ],
+      "starterLines": [
+        "function contains(sorted, x) {",
+        "  // TODO: lo/hi pointers, halve each step",
+        "}"
+      ],
+      "solutionLines": [
+        "function contains(sorted, x) {",
+        "  let lo = 0, hi = sorted.length - 1;",
+        "  while (lo <= hi) {",
+        "    const mid = (lo + hi) >> 1;",
+        "    if (sorted[mid] === x) return true;",
+        "    if (sorted[mid] < x) lo = mid + 1; else hi = mid - 1;",
+        "  }",
+        "  return false;",
+        "}"
+      ],
+      "tests": [
+        { "name": "present", "code": "assert(contains([1, 3, 5, 7], 5) === true && contains([1, 3, 5, 7], 1) === true);" },
+        { "name": "absent", "code": "assert(contains([1, 3, 5, 7], 4) === false && contains([], 9) === false);" },
+        { "name": "ends", "code": "assert(contains([2, 4, 6], 6) === true && contains([2, 4, 6], 7) === false);" },
+        { "name": "single element", "code": "assert(contains([8], 8) === true && contains([8], 3) === false);" }
+      ],
+      "hint": "lo<=hi loop; compare midpoint; move lo or hi.",
+      "lore": "Halve the search space until the ICE cracks."
+    },
+    {
+      "id": "js-countocc",
+      "title": "SIGNAL TALLY",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Count how many times the ping repeats.",
+      "promptLines": [
+        "Define **countOccurrences(arr, x)** returning how many times `x` appears in `arr`. A single left-to-right scan is fine.",
+        "~~~js",
+        "countOccurrences([1, 2, 2, 3, 2], 2)  // 3",
+        "countOccurrences([1, 2, 3], 5)        // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function countOccurrences(arr, x) {",
+        "  // TODO: tally each match",
+        "}"
+      ],
+      "solutionLines": [
+        "function countOccurrences(arr, x) {",
+        "  let count = 0;",
+        "  for (const v of arr) {",
+        "    if (v === x) count++;",
+        "  }",
+        "  return count;",
+        "}"
+      ],
+      "tests": [
+        { "name": "counts repeats", "code": "assertEqual(countOccurrences([1, 2, 2, 3, 2], 2), 3);" },
+        { "name": "missing -> 0", "code": "assertEqual(countOccurrences([1, 2, 3], 5), 0);" },
+        { "name": "strings", "code": "assertEqual(countOccurrences(['a', 'b', 'a'], 'a'), 2);" },
+        { "name": "all match", "code": "assertEqual(countOccurrences([7, 7, 7], 7), 3);" },
+        { "name": "empty -> 0", "code": "assertEqual(countOccurrences([], 9), 0);" }
+      ],
+      "hint": "Start a counter at 0 and add 1 for every value equal to x.",
+      "lore": "Every echo of the signal logged on the tally board."
+    },
+    {
+      "id": "js-firstindex",
+      "title": "FIRST TRACE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Pin the first slot holding the target.",
+      "promptLines": [
+        "Define **firstIndex(arr, x)** returning the index of the **first** element equal to `x`, or **-1** if none. Write the loop yourself — no `indexOf`.",
+        "~~~js",
+        "firstIndex([5, 3, 5, 7], 5)  // 0",
+        "firstIndex([1, 2, 3], 9)     // -1",
+        "~~~"
+      ],
+      "starterLines": [
+        "function firstIndex(arr, x) {",
+        "  // TODO: scan and return the first matching index, else -1",
+        "}"
+      ],
+      "solutionLines": [
+        "function firstIndex(arr, x) {",
+        "  for (let i = 0; i < arr.length; i++) {",
+        "    if (arr[i] === x) return i;",
+        "  }",
+        "  return -1;",
+        "}"
+      ],
+      "tests": [
+        { "name": "first wins", "code": "assertEqual(firstIndex([5, 3, 5, 7], 5), 0);" },
+        { "name": "middle hit", "code": "assertEqual(firstIndex([1, 2, 3], 3), 2);" },
+        { "name": "strings", "code": "assertEqual(firstIndex(['a', 'b', 'c'], 'c'), 2);" },
+        { "name": "not found -> -1", "code": "assertEqual(firstIndex([1, 2, 3], 9), -1);" },
+        { "name": "empty -> -1", "code": "assertEqual(firstIndex([], 1), -1);" }
+      ],
+      "hint": "Loop by index; return i on the first match; return -1 after the loop.",
+      "lore": "The scanner stops at the first slot that lights up."
+    },
+    {
+      "id": "js-kthsmallest",
+      "title": "RANK CIPHER",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Pull the k-th smallest from the heap.",
+      "promptLines": [
+        "Define **kthSmallest(arr, k)** returning the **k-th smallest** value (1-based) by sorting a **copy** of the array ascending. `arr` always has at least `k` numbers. Do not mutate the input.",
+        "~~~js",
+        "kthSmallest([3, 1, 2], 1)     // 1",
+        "kthSmallest([5, 5, 2, 8], 2)  // 5",
+        "~~~"
+      ],
+      "starterLines": [
+        "function kthSmallest(arr, k) {",
+        "  // TODO: sort a copy ascending, then take position k",
+        "}"
+      ],
+      "solutionLines": [
+        "function kthSmallest(arr, k) {",
+        "  const copy = arr.slice().sort((a, b) => a - b);",
+        "  return copy[k - 1];",
+        "}"
+      ],
+      "tests": [
+        { "name": "smallest (k=1)", "code": "assertEqual(kthSmallest([3, 1, 2], 1), 1);" },
+        { "name": "largest (k=n)", "code": "assertEqual(kthSmallest([3, 1, 2], 3), 3);" },
+        { "name": "with duplicates + no mutation", "code": "const a = [5, 5, 2, 8]; assertEqual(kthSmallest(a, 2), 5); assertEqual(a, [5, 5, 2, 8]);" },
+        { "name": "negatives", "code": "assertEqual(kthSmallest([-1, -5, 3], 1), -5);" },
+        { "name": "single element", "code": "assertEqual(kthSmallest([10], 1), 10);" }
+      ],
+      "hint": "arr.slice().sort((a,b)=>a-b) then index k-1 — slice keeps the original intact.",
+      "lore": "Sort the stolen keys; the k-th one unlocks the rank cipher."
+    },
+    {
+      "id": "js-findpeak",
+      "title": "SIGNAL CREST",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Find a slot no lower than its neighbors.",
+      "promptLines": [
+        "Define **findPeakIndex(arr)** returning the index of the **first** element that is `>=` both its neighbors (edges count, comparing only the side that exists). `arr` has at least one element, so a peak always exists.",
+        "~~~js",
+        "findPeakIndex([1, 3, 2])  // 1",
+        "findPeakIndex([5, 4, 3])  // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function findPeakIndex(arr) {",
+        "  // TODO: return first index >= its existing neighbors",
+        "}"
+      ],
+      "solutionLines": [
+        "function findPeakIndex(arr) {",
+        "  const n = arr.length;",
+        "  for (let i = 0; i < n; i++) {",
+        "    const okLeft = i === 0 || arr[i] >= arr[i - 1];",
+        "    const okRight = i === n - 1 || arr[i] >= arr[i + 1];",
+        "    if (okLeft && okRight) return i;",
+        "  }",
+        "  return -1;",
+        "}"
+      ],
+      "tests": [
+        { "name": "interior peak", "code": "assertEqual(findPeakIndex([1, 3, 2]), 1);" },
+        { "name": "descending -> first", "code": "assertEqual(findPeakIndex([5, 4, 3]), 0);" },
+        { "name": "ascending -> last", "code": "assertEqual(findPeakIndex([1, 2, 3]), 2);" },
+        { "name": "plateau counts", "code": "assertEqual(findPeakIndex([2, 2, 1]), 0);" },
+        { "name": "single element", "code": "assertEqual(findPeakIndex([7]), 0);" }
+      ],
+      "hint": "Scan left to right; an element is a peak when it's >= every neighbor that exists.",
+      "lore": "Climb the signal until no neighbor rises above the crest."
+    }
+  ]
+}

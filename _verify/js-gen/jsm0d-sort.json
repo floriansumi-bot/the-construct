@@ -1,0 +1,194 @@
+{
+  "modId": "jsm0d-sort",
+  "exercises": [
+    {
+      "id": "js-sortasc",
+      "title": "ASCENDING SWEEP",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 150,
+      "brief": "Order the signal low to high.",
+      "promptLines": [
+        "Define **sortAsc(nums)** returning a NEW array sorted numerically ascending. Don't mutate the input.",
+        "~~~js",
+        "sortAsc([3,1,2])    // [1,2,3]",
+        "sortAsc([10,9,100]) // [9,10,100]  (numeric, not '10' < '100' < '9')",
+        "~~~"
+      ],
+      "starterLines": [
+        "function sortAsc(nums) {",
+        "  // TODO: copy, then sort with a numeric comparator",
+        "}"
+      ],
+      "solutionLines": [
+        "function sortAsc(nums) {",
+        "  return nums.slice().sort(function (a, b) { return a - b; });",
+        "}"
+      ],
+      "tests": [
+        { "name": "sorts ascending", "code": "assertEqual(sortAsc([3,1,2]), [1,2,3]);" },
+        { "name": "numeric not lexical", "code": "assertEqual(sortAsc([10,9,100]), [9,10,100]);" },
+        { "name": "handles negatives", "code": "assertEqual(sortAsc([0,-5,3,-1]), [-5,-1,0,3]);" },
+        { "name": "empty stays empty", "code": "assertEqual(sortAsc([]), []);" },
+        { "name": "does not mutate", "code": "var src = [2,1];\nsortAsc(src);\nassertEqual(src, [2,1]);" }
+      ],
+      "hint": "nums.slice().sort((a,b) => a - b)",
+      "lore": "Default sort is alphabetical — give it a comparator and the stream lines up."
+    },
+    {
+      "id": "js-median",
+      "title": "MIDPOINT LOCK",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Find the value dead-center in the data.",
+      "promptLines": [
+        "Define **median(nums)** returning the middle value of the sorted numbers. If the length is even, return the **average of the two middle values**. An empty array returns **0**. Don't mutate the input.",
+        "~~~js",
+        "median([3,1,2])     // 2",
+        "median([4,1,3,2])   // 2.5  (average of 2 and 3)",
+        "median([])          // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function median(nums) {",
+        "  // TODO: sort a copy numerically, then pick the middle",
+        "}"
+      ],
+      "solutionLines": [
+        "function median(nums) {",
+        "  if (nums.length === 0) { return 0; }",
+        "  var s = nums.slice().sort(function (a, b) { return a - b; });",
+        "  var mid = Math.floor(s.length / 2);",
+        "  if (s.length % 2 === 1) { return s[mid]; }",
+        "  return (s[mid - 1] + s[mid]) / 2;",
+        "}"
+      ],
+      "tests": [
+        { "name": "odd length middle", "code": "assertEqual(median([3,1,2]), 2);" },
+        { "name": "even length averages", "code": "assertEqual(median([4,1,3,2]), 2.5);" },
+        { "name": "single value", "code": "assertEqual(median([7]), 7);" },
+        { "name": "empty -> 0", "code": "assertEqual(median([]), 0);" },
+        { "name": "unsorted even", "code": "assertEqual(median([10,2,8,4]), 6);" },
+        { "name": "does not mutate", "code": "var src = [3,1,2];\nmedian(src);\nassertEqual(src, [3,1,2]);" }
+      ],
+      "hint": "Sort a copy, take Math.floor(len/2); for even length average s[mid-1] and s[mid].",
+      "lore": "Half the readings sit above, half below. The midpoint is the truth."
+    },
+    {
+      "id": "js-sortbylength",
+      "title": "SHORTEST FIRST",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 175,
+      "brief": "Queue the strings by size, stable on ties.",
+      "promptLines": [
+        "Define **sortByLength(words)** returning a NEW array sorted ascending by **string length**. Strings of equal length keep their original input order (stable). Don't mutate the input.",
+        "~~~js",
+        "sortByLength(['ccc','a','bb'])      // ['a','bb','ccc']",
+        "sortByLength(['bb','dd','a','cc'])   // ['a','bb','dd','cc']  (ties keep order)",
+        "~~~"
+      ],
+      "starterLines": [
+        "function sortByLength(words) {",
+        "  // TODO: copy, then sort by length with a numeric comparator",
+        "}"
+      ],
+      "solutionLines": [
+        "function sortByLength(words) {",
+        "  return words.slice().sort(function (a, b) { return a.length - b.length; });",
+        "}"
+      ],
+      "tests": [
+        { "name": "sorts by length", "code": "assertEqual(sortByLength(['ccc','a','bb']), ['a','bb','ccc']);" },
+        { "name": "stable on ties", "code": "assertEqual(sortByLength(['bb','dd','a','cc']), ['a','bb','dd','cc']);" },
+        { "name": "includes empty string", "code": "assertEqual(sortByLength(['ab','','x']), ['','x','ab']);" },
+        { "name": "empty stays empty", "code": "assertEqual(sortByLength([]), []);" },
+        { "name": "does not mutate", "code": "var src = ['ccc','a','bb'];\nsortByLength(src);\nassertEqual(src, ['ccc','a','bb']);" }
+      ],
+      "hint": "words.slice().sort((a,b) => a.length - b.length) — V8's sort is stable for equal keys.",
+      "lore": "Shortest packets clear the gate first; equal sizes hold their slot in line."
+    },
+    {
+      "id": "js-secondlargest",
+      "title": "RUNNER-UP",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Find the second-highest distinct signal.",
+      "promptLines": [
+        "Define **secondLargest(nums)** returning the **2nd largest distinct** value. Repeated values count once. If there are fewer than 2 distinct values, return **null**. Don't mutate the input.",
+        "~~~js",
+        "secondLargest([3,1,2])    // 2",
+        "secondLargest([5,5,4])    // 4  (5 counts once)",
+        "secondLargest([7,7,7])    // null",
+        "~~~"
+      ],
+      "starterLines": [
+        "function secondLargest(nums) {",
+        "  // TODO: drop duplicates, sort descending, take index 1",
+        "}"
+      ],
+      "solutionLines": [
+        "function secondLargest(nums) {",
+        "  var distinct = [];",
+        "  var seen = new Set();",
+        "  for (var i = 0; i < nums.length; i++) {",
+        "    if (!seen.has(nums[i])) { seen.add(nums[i]); distinct.push(nums[i]); }",
+        "  }",
+        "  if (distinct.length < 2) { return null; }",
+        "  distinct.sort(function (a, b) { return b - a; });",
+        "  return distinct[1];",
+        "}"
+      ],
+      "tests": [
+        { "name": "plain runner-up", "code": "assertEqual(secondLargest([3,1,2]), 2);" },
+        { "name": "ignores duplicates", "code": "assertEqual(secondLargest([5,5,4]), 4);" },
+        { "name": "all same -> null", "code": "assertEqual(secondLargest([7,7,7]), null);" },
+        { "name": "single value -> null", "code": "assertEqual(secondLargest([9]), null);" },
+        { "name": "empty -> null", "code": "assertEqual(secondLargest([]), null);" },
+        { "name": "negatives", "code": "assertEqual(secondLargest([-1,-2,-3]), -2);" },
+        { "name": "does not mutate", "code": "var src = [5,5,4];\nsecondLargest(src);\nassertEqual(src, [5,5,4]);" }
+      ],
+      "hint": "Collect distinct values into a Set-backed array, sort descending, return index 1 (or null if fewer than 2).",
+      "lore": "The throne's taken — but who's next in line? Strip the clones and read second place."
+    },
+    {
+      "id": "js-bottomn",
+      "title": "WEAKEST LINKS",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Pull the n smallest readings, low to high.",
+      "promptLines": [
+        "Define **bottomN(nums, n)** returning a NEW array of the **n smallest** values in **ascending** order. If n is 0 or less, return `[]`. If n exceeds the length, return all values sorted. Don't mutate the input.",
+        "~~~js",
+        "bottomN([5,3,9,1], 2)  // [1,3]",
+        "bottomN([5,3,9,1], 0)  // []",
+        "bottomN([2,1], 9)      // [1,2]",
+        "~~~"
+      ],
+      "starterLines": [
+        "function bottomN(nums, n) {",
+        "  // TODO: sort a copy ascending, then take the first n",
+        "}"
+      ],
+      "solutionLines": [
+        "function bottomN(nums, n) {",
+        "  if (n <= 0) { return []; }",
+        "  return nums.slice().sort(function (a, b) { return a - b; }).slice(0, n);",
+        "}"
+      ],
+      "tests": [
+        { "name": "two smallest", "code": "assertEqual(bottomN([5,3,9,1], 2), [1,3]);" },
+        { "name": "n zero -> empty", "code": "assertEqual(bottomN([5,3,9,1], 0), []);" },
+        { "name": "n exceeds length", "code": "assertEqual(bottomN([2,1], 9), [1,2]);" },
+        { "name": "negative n -> empty", "code": "assertEqual(bottomN([4,2,6], -1), []);" },
+        { "name": "negatives sorted", "code": "assertEqual(bottomN([0,-3,2,-1], 3), [-3,-1,0]);" },
+        { "name": "does not mutate", "code": "var src = [5,3,9,1];\nbottomN(src, 2);\nassertEqual(src, [5,3,9,1]);" }
+      ],
+      "hint": "nums.slice().sort((a,b) => a - b).slice(0, n) — guard n <= 0 first.",
+      "lore": "Triage runs bottom-up: the faintest signals get flagged before they flatline."
+    }
+  ]
+}

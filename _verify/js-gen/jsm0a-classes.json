@@ -1,0 +1,199 @@
+{
+  "modId": "jsm0a-classes",
+  "exercises": [
+    {
+      "id": "js-toggle-cls",
+      "title": "POWER RELAY",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 130,
+      "brief": "A switch that flips between two states.",
+      "promptLines": [
+        "Define a class **Toggle** with `constructor(on = false)`, `flip()` (inverts the state), and `isOn()` (returns the current boolean). A fresh `Toggle()` starts **off**.",
+        "~~~js",
+        "const t = new Toggle();",
+        "t.isOn()   // false",
+        "t.flip();",
+        "t.isOn()   // true",
+        "~~~"
+      ],
+      "starterLines": [
+        "class Toggle {",
+        "  // TODO: constructor + flip + isOn",
+        "}"
+      ],
+      "solutionLines": [
+        "class Toggle {",
+        "  constructor(on = false) { this.on = on; }",
+        "  flip() { this.on = !this.on; }",
+        "  isOn() { return this.on; }",
+        "}"
+      ],
+      "tests": [
+        { "name": "starts off by default", "code": "var t = new Toggle();\nassertEqual(t.isOn(), false);" },
+        { "name": "flip turns it on", "code": "var t = new Toggle();\nt.flip();\nassertEqual(t.isOn(), true);" },
+        { "name": "flips back and forth", "code": "var t = new Toggle();\nt.flip();\nt.flip();\nassertEqual(t.isOn(), false);" },
+        { "name": "honors a true start state", "code": "var t = new Toggle(true);\nassert(t.isOn() === true);\nt.flip();\nassert(t.isOn() === false);" },
+        { "name": "instances are independent", "code": "var a = new Toggle(), b = new Toggle();\na.flip();\nassert(a.isOn() === true && b.isOn() === false, 'b is untouched by a');" }
+      ],
+      "hint": "Store this.on in the constructor; flip sets this.on = !this.on; isOn returns it.",
+      "lore": "Pull the relay: light, dark, light. The grid breathes in two states."
+    },
+    {
+      "id": "js-accum-cls",
+      "title": "TALLY CORE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 160,
+      "brief": "Keep a running total across every hit.",
+      "promptLines": [
+        "Define a class **Accumulator** with `constructor()` (total starts at **0**), `add(n)` (adds `n` and **returns** the new running total), and `total()` (returns the current total).",
+        "~~~js",
+        "const acc = new Accumulator();",
+        "acc.add(10)   // 10",
+        "acc.add(5)    // 15",
+        "acc.total()   // 15",
+        "~~~"
+      ],
+      "starterLines": [
+        "class Accumulator {",
+        "  // TODO: constructor + add + total",
+        "}"
+      ],
+      "solutionLines": [
+        "class Accumulator {",
+        "  constructor() { this.sum = 0; }",
+        "  add(n) { this.sum += n; return this.sum; }",
+        "  total() { return this.sum; }",
+        "}"
+      ],
+      "tests": [
+        { "name": "add returns the new total", "code": "var acc = new Accumulator();\nassert(acc.add(10) === 10, 'first add returns 10');\nassert(acc.add(5) === 15, 'then 15');" },
+        { "name": "total reflects all adds", "code": "var acc = new Accumulator();\nacc.add(3);\nacc.add(4);\nassertEqual(acc.total(), 7);" },
+        { "name": "starts at zero", "code": "var acc = new Accumulator();\nassertEqual(acc.total(), 0);" },
+        { "name": "handles negative deltas", "code": "var acc = new Accumulator();\nacc.add(20);\nassert(acc.add(-8) === 12, 'subtracting works too');" },
+        { "name": "instances are independent", "code": "var a = new Accumulator(), b = new Accumulator();\na.add(100);\nassert(b.total() === 0, 'b keeps its own total');" }
+      ],
+      "hint": "Init this.sum = 0 in the constructor; add does this.sum += n; return this.sum.",
+      "lore": "The core counts every credit that passes through. It never forgets a single unit."
+    },
+    {
+      "id": "js-inventory-cls",
+      "title": "CARGO HOLD",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 175,
+      "brief": "Track distinct items in the hold.",
+      "promptLines": [
+        "Define a class **Inventory** with `constructor()` (starts empty), `add(item)` (stores the item), `has(item)` (returns `true`/`false`), and `count()` (returns the number of **distinct** items — duplicates do not increase the count).",
+        "~~~js",
+        "const inv = new Inventory();",
+        "inv.add('ammo'); inv.add('ammo'); inv.add('medkit');",
+        "inv.has('ammo')   // true",
+        "inv.count()       // 2",
+        "~~~"
+      ],
+      "starterLines": [
+        "class Inventory {",
+        "  // TODO: constructor + add + has + count",
+        "}"
+      ],
+      "solutionLines": [
+        "class Inventory {",
+        "  constructor() { this.items = new Set(); }",
+        "  add(item) { this.items.add(item); }",
+        "  has(item) { return this.items.has(item); }",
+        "  count() { return this.items.size; }",
+        "}"
+      ],
+      "tests": [
+        { "name": "has finds an added item", "code": "var inv = new Inventory();\ninv.add('ammo');\nassertEqual(inv.has('ammo'), true);" },
+        { "name": "has is false for missing item", "code": "var inv = new Inventory();\ninv.add('ammo');\nassertEqual(inv.has('medkit'), false);" },
+        { "name": "count is distinct", "code": "var inv = new Inventory();\ninv.add('ammo');\ninv.add('ammo');\ninv.add('medkit');\nassertEqual(inv.count(), 2);" },
+        { "name": "empty hold counts zero", "code": "var inv = new Inventory();\nassert(inv.count() === 0 && inv.has('x') === false);" },
+        { "name": "instances are independent", "code": "var a = new Inventory(), b = new Inventory();\na.add('scrap');\nassert(b.has('scrap') === false && b.count() === 0, 'b has its own hold');" }
+      ],
+      "hint": "Back it with a Set: add -> this.items.add(item); count -> this.items.size; has -> this.items.has(item).",
+      "lore": "The cargo manifest logs each unique crate once. Stack ten of the same and it still reads one line."
+    },
+    {
+      "id": "js-queue-cls",
+      "title": "SIGNAL QUEUE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "First in, first out — the packet buffer.",
+      "promptLines": [
+        "Define a class **Queue** with `enqueue(x)` (adds to the back), `dequeue()` (removes and returns the **front** item, or `null` when empty), and `size()` (number of items waiting). It is **FIFO**: the first item enqueued is the first dequeued.",
+        "~~~js",
+        "const q = new Queue();",
+        "q.enqueue(1); q.enqueue(2);",
+        "q.dequeue()  // 1",
+        "q.size()     // 1",
+        "~~~"
+      ],
+      "starterLines": [
+        "class Queue {",
+        "  // TODO: constructor + enqueue + dequeue + size",
+        "}"
+      ],
+      "solutionLines": [
+        "class Queue {",
+        "  constructor() { this.items = []; }",
+        "  enqueue(x) { this.items.push(x); }",
+        "  dequeue() { return this.items.length === 0 ? null : this.items.shift(); }",
+        "  size() { return this.items.length; }",
+        "}"
+      ],
+      "tests": [
+        { "name": "dequeues in FIFO order", "code": "var q = new Queue();\nq.enqueue(1);\nq.enqueue(2);\nassert(q.dequeue() === 1, 'front first');\nassert(q.dequeue() === 2, 'then the next');" },
+        { "name": "size tracks pending items", "code": "var q = new Queue();\nq.enqueue('a');\nq.enqueue('b');\nq.dequeue();\nassertEqual(q.size(), 1);" },
+        { "name": "empty dequeue returns null", "code": "var q = new Queue();\nassertEqual(q.dequeue(), null);" },
+        { "name": "drains then refills", "code": "var q = new Queue();\nq.enqueue(7);\nq.dequeue();\nassert(q.dequeue() === null, 'empty again after draining');\nq.enqueue(9);\nassert(q.dequeue() === 9 && q.size() === 0);" },
+        { "name": "instances are independent", "code": "var a = new Queue(), b = new Queue();\na.enqueue(1);\nassert(b.size() === 0 && b.dequeue() === null, 'b has its own buffer');" }
+      ],
+      "hint": "Back it with an array: enqueue pushes; dequeue returns null when empty else shift(); size is items.length.",
+      "lore": "Packets line up at the relay. The buffer spits them out in the order they arrived — no jumping the line."
+    },
+    {
+      "id": "js-wallet-cls",
+      "title": "CRED WALLET",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Hold cred; refuse any overdraft.",
+      "promptLines": [
+        "Define a class **Wallet** with `constructor(start = 0)`, `deposit(n)` (adds to the balance), `withdraw(n)` (returns `false` and changes **nothing** if `n` exceeds the balance, otherwise subtracts and returns `true`), and `balance()`.",
+        "~~~js",
+        "const w = new Wallet(10);",
+        "w.withdraw(4)   // true",
+        "w.balance()     // 6",
+        "w.withdraw(99)  // false  (balance unchanged)",
+        "~~~"
+      ],
+      "starterLines": [
+        "class Wallet {",
+        "  // TODO: constructor + deposit + withdraw + balance",
+        "}"
+      ],
+      "solutionLines": [
+        "class Wallet {",
+        "  constructor(start = 0) { this.bal = start; }",
+        "  deposit(n) { this.bal += n; }",
+        "  withdraw(n) { if (n > this.bal) return false; this.bal -= n; return true; }",
+        "  balance() { return this.bal; }",
+        "}"
+      ],
+      "tests": [
+        { "name": "deposit raises balance", "code": "var w = new Wallet(10);\nw.deposit(5);\nassertEqual(w.balance(), 15);" },
+        { "name": "withdraw succeeds when funded", "code": "var w = new Wallet(10);\nassert(w.withdraw(4) === true && w.balance() === 6);" },
+        { "name": "overdraft is refused", "code": "var w = new Wallet(3);\nassert(w.withdraw(9) === false && w.balance() === 3, 'no change on refusal');" },
+        { "name": "default start is zero", "code": "var w = new Wallet();\nassert(w.balance() === 0 && w.withdraw(1) === false);" },
+        { "name": "exact balance withdraws fully", "code": "var w = new Wallet(5);\nassert(w.withdraw(5) === true && w.balance() === 0);" },
+        { "name": "instances are independent", "code": "var a = new Wallet(100), b = new Wallet(0);\na.withdraw(50);\nassert(b.balance() === 0, 'b keeps its own balance');" }
+      ],
+      "hint": "Store this.bal in the constructor; in withdraw guard with if (n > this.bal) return false before subtracting.",
+      "lore": "No overdraft in Night City. The wallet bounces you cold before it lets you go negative."
+    }
+  ]
+}

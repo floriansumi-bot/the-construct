@@ -1,0 +1,178 @@
+{
+  "modId": "jsm0c-json",
+  "exercises": [
+    {
+      "id": "js-parsescore",
+      "title": "DECRYPT",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 150,
+      "brief": "Parse a JSON packet and read its score.",
+      "promptLines": [
+        "A sensor sends its reading as a JSON **string** like `'{\"score\":42}'`. Define **parseScore(jsonStr)** that parses the string with `JSON.parse` and returns the value of the `score` field.",
+        "~~~js",
+        "parseScore('{\"score\":42}')   // 42",
+        "parseScore('{\"score\":0}')    // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function parseScore(jsonStr) {",
+        "  // TODO: JSON.parse the string, return its score field",
+        "}"
+      ],
+      "solutionLines": [
+        "function parseScore(jsonStr) {",
+        "  const obj = JSON.parse(jsonStr);",
+        "  return obj.score;",
+        "}"
+      ],
+      "tests": [
+        { "name": "reads score 42", "code": "assertEqual(parseScore('{\"score\":42}'), 42, 'should parse score 42');" },
+        { "name": "reads score 0", "code": "assertEqual(parseScore('{\"score\":0}'), 0, 'should parse score 0');" },
+        { "name": "ignores other fields", "code": "assertEqual(parseScore('{\"id\":7,\"score\":99}'), 99, 'should pick score, not id');" },
+        { "name": "handles spaced json", "code": "assertEqual(parseScore('{ \"score\" : 13 }'), 13, 'should parse spaced json');" }
+      ],
+      "hint": "const obj = JSON.parse(jsonStr); return obj.score;",
+      "lore": "Crack the packet's seal and the score bleeds out in plaintext."
+    },
+    {
+      "id": "js-sumfield",
+      "title": "TALLY CORE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Reduce a column of records to one total.",
+      "promptLines": [
+        "`records` is an array of objects. Define **sumField(records, key)** that returns the sum of the numeric value at `key` across every record. An empty array totals `0`.",
+        "~~~js",
+        "sumField([{n:1},{n:2},{n:3}], 'n')   // 6",
+        "sumField([], 'n')                    // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function sumField(records, key) {",
+        "  // TODO: reduce the records, summing each record[key]",
+        "}"
+      ],
+      "solutionLines": [
+        "function sumField(records, key) {",
+        "  return records.reduce(function (acc, r) { return acc + r[key]; }, 0);",
+        "}"
+      ],
+      "tests": [
+        { "name": "sums three records", "code": "assertEqual(sumField([{n:1},{n:2},{n:3}], 'n'), 6, 'should sum to 6');" },
+        { "name": "empty -> 0", "code": "assertEqual(sumField([], 'n'), 0, 'empty array should total 0');" },
+        { "name": "sums by chosen key", "code": "assertEqual(sumField([{hp:10},{hp:5},{hp:25}], 'hp'), 40, 'should sum hp to 40');" },
+        { "name": "single record", "code": "assertEqual(sumField([{watts:7}], 'watts'), 7, 'single record sums to 7');" }
+      ],
+      "hint": "records.reduce((acc, r) => acc + r[key], 0)",
+      "lore": "The tally core melts a whole ledger column into a single glowing number."
+    },
+    {
+      "id": "js-averagefield",
+      "title": "MEAN FILTER",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Average a field across all records.",
+      "promptLines": [
+        "`records` is an array of objects. Define **averageField(records, key)** that returns the mean (average) of the value at `key`. Sum the field, then divide by the record count. An empty array returns `0` (never divide by zero).",
+        "~~~js",
+        "averageField([{n:2},{n:4},{n:6}], 'n')   // 4",
+        "averageField([], 'n')                    // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function averageField(records, key) {",
+        "  // TODO: return the mean of record[key]; empty -> 0",
+        "}"
+      ],
+      "solutionLines": [
+        "function averageField(records, key) {",
+        "  if (records.length === 0) return 0;",
+        "  const total = records.reduce(function (acc, r) { return acc + r[key]; }, 0);",
+        "  return total / records.length;",
+        "}"
+      ],
+      "tests": [
+        { "name": "averages to 4", "code": "assertEqual(averageField([{n:2},{n:4},{n:6}], 'n'), 4, 'mean should be 4');" },
+        { "name": "empty -> 0", "code": "assertEqual(averageField([], 'n'), 0, 'empty array should average 0');" },
+        { "name": "fractional mean", "code": "assertEqual(averageField([{v:1},{v:2}], 'v'), 1.5, 'mean should be 1.5');" },
+        { "name": "single record", "code": "assertEqual(averageField([{ping:50}], 'ping'), 50, 'single record averages itself');" }
+      ],
+      "hint": "Guard length 0, then sum / records.length.",
+      "lore": "The mean filter smooths a thousand noisy pings into one steady reading."
+    },
+    {
+      "id": "js-countbyfield",
+      "title": "CENSUS",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Tally records by a field.",
+      "promptLines": [
+        "`records` is an array of objects. Define **countByField(records, key)** returning an object mapping each distinct value at `key` to the count of records having it. An empty array returns `{}`.",
+        "~~~js",
+        "countByField([{c:'a'},{c:'b'},{c:'a'}], 'c')  // { a: 2, b: 1 }",
+        "~~~"
+      ],
+      "starterLines": [
+        "function countByField(records, key) {",
+        "  // TODO",
+        "}"
+      ],
+      "solutionLines": [
+        "function countByField(records, key) {",
+        "  const out = {};",
+        "  for (const r of records) { const v = r[key]; out[v] = (out[v] || 0) + 1; }",
+        "  return out;",
+        "}"
+      ],
+      "tests": [
+        { "name": "counts by value", "code": "assertEqual(countByField([{c:'a'},{c:'b'},{c:'a'}], 'c'), { a: 2, b: 1 });" },
+        { "name": "empty -> {}", "code": "assertEqual(countByField([], 'c'), {});" },
+        { "name": "single bucket", "code": "assertEqual(countByField([{t:'x'},{t:'x'}], 't'), { x: 2 });" },
+        { "name": "three distinct factions", "code": "assertEqual(countByField([{f:'zion'},{f:'agent'},{f:'zion'},{f:'oracle'}], 'f'), { zion: 2, agent: 1, oracle: 1 });" }
+      ],
+      "hint": "out[v] = (out[v] || 0) + 1 in a loop.",
+      "lore": "Headcount the datastream, faction by faction."
+    },
+    {
+      "id": "js-maxbyfield",
+      "title": "APEX SCAN",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Find the record topping a field.",
+      "promptLines": [
+        "`records` is an array of objects. Define **maxByField(records, key)** that returns the whole record whose value at `key` is the largest. On an empty array, return `null`.",
+        "~~~js",
+        "maxByField([{name:'a',hp:5},{name:'b',hp:9}], 'hp')  // {name:'b',hp:9}",
+        "maxByField([], 'hp')                                 // null",
+        "~~~"
+      ],
+      "starterLines": [
+        "function maxByField(records, key) {",
+        "  // TODO: return the record with the largest record[key]; empty -> null",
+        "}"
+      ],
+      "solutionLines": [
+        "function maxByField(records, key) {",
+        "  if (records.length === 0) return null;",
+        "  let best = records[0];",
+        "  for (const r of records) { if (r[key] > best[key]) best = r; }",
+        "  return best;",
+        "}"
+      ],
+      "tests": [
+        { "name": "picks highest hp", "code": "assertEqual(maxByField([{name:'a',hp:5},{name:'b',hp:9}], 'hp'), {name:'b',hp:9});" },
+        { "name": "empty -> null", "code": "assertEqual(maxByField([], 'hp'), null);" },
+        { "name": "single record", "code": "assertEqual(maxByField([{id:1,v:7}], 'v'), {id:1,v:7});" },
+        { "name": "max in the middle", "code": "assertEqual(maxByField([{v:3},{v:42},{v:8}], 'v'), {v:42});" },
+        { "name": "keeps first on tie", "code": "assertEqual(maxByField([{tag:'x',v:5},{tag:'y',v:5}], 'v'), {tag:'x',v:5});" }
+      ],
+      "hint": "Guard empty -> null, seed best = records[0], loop keeping the larger record[key].",
+      "lore": "The apex scan locks onto the strongest signal in the swarm and ignores the rest."
+    }
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "modId": "jsm0f-stralgo",
+  "exercises": [
+    {
+      "id": "js-normalize",
+      "title": "SIGNAL NORMALIZE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Clean a noisy transmission: lowercase, trim, collapse the gaps.",
+      "promptLines": [
+        "Define **normalize(s)** that lower-cases the text, trims the ends, and collapses every run of internal whitespace down to a single space.",
+        "~~~js",
+        "normalize('  Hello   WORLD ')  // 'hello world'",
+        "normalize('JACK   IN')         // 'jack in'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function normalize(s) {",
+        "  // TODO: lowercase, trim, then squeeze runs of whitespace to one space",
+        "}"
+      ],
+      "solutionLines": [
+        "function normalize(s) {",
+        "  return s.trim().toLowerCase().replace(/\\s+/g, ' ');",
+        "}"
+      ],
+      "tests": [
+        { "name": "lower and collapse", "code": "assertEqual(normalize('  Hello   WORLD '), 'hello world', 'lowercase, trim, single spaces');" },
+        { "name": "multiple gaps", "code": "assertEqual(normalize('JACK   IN'), 'jack in', 'internal run becomes one space');" },
+        { "name": "single word", "code": "assertEqual(normalize('  Neo  '), 'neo', 'trim and lowercase one word');" },
+        { "name": "empty string", "code": "assertEqual(normalize(''), '', 'empty stays empty');" }
+      ],
+      "hint": "s.trim().toLowerCase().replace(/\\s+/g, ' ')",
+      "lore": "Raw feeds are full of jitter. Normalize before you parse."
+    },
+    {
+      "id": "js-longword",
+      "title": "LONGEST CALLSIGN",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Find the longest space-separated word in a string.",
+      "promptLines": [
+        "Define **longestWord(s)** that returns the longest space-separated word. On a tie, return the **first** word that reaches the maximum length.",
+        "~~~js",
+        "longestWord('hack the planet')   // 'planet'",
+        "longestWord('neo trinity tank')  // 'trinity'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function longestWord(s) {",
+        "  // TODO: split on spaces, keep the longest (first wins ties)",
+        "}"
+      ],
+      "solutionLines": [
+        "function longestWord(s) {",
+        "  var words = s.split(' ');",
+        "  var best = '';",
+        "  for (var i = 0; i < words.length; i++) {",
+        "    if (words[i].length > best.length) { best = words[i]; }",
+        "  }",
+        "  return best;",
+        "}"
+      ],
+      "tests": [
+        { "name": "picks longest", "code": "assertEqual(longestWord('hack the planet'), 'planet', 'planet is longest');" },
+        { "name": "middle word", "code": "assertEqual(longestWord('neo trinity tank'), 'trinity', 'trinity beats the rest');" },
+        { "name": "tie keeps first", "code": "assertEqual(longestWord('a bb cc'), 'bb', 'first word at max length wins');" },
+        { "name": "single word", "code": "assertEqual(longestWord('solo'), 'solo', 'one word is the longest');" }
+      ],
+      "hint": "Split on ' ', loop keeping a word only when length is strictly greater.",
+      "lore": "On a crowded channel, the longest callsign cuts through."
+    },
+    {
+      "id": "js-pangram",
+      "title": "PANGRAM PROBE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Check whether a line uses every letter of the alphabet.",
+      "promptLines": [
+        "Define **isPangram(s)** returning `true` only if the string contains every letter **a-z** at least once, case-insensitively.",
+        "~~~js",
+        "isPangram('The quick brown fox jumps over the lazy dog')  // true",
+        "isPangram('hello world')                                 // false",
+        "~~~"
+      ],
+      "starterLines": [
+        "function isPangram(s) {",
+        "  // TODO: lowercase, then confirm a..z each appear at least once",
+        "}"
+      ],
+      "solutionLines": [
+        "function isPangram(s) {",
+        "  var t = s.toLowerCase();",
+        "  for (var c = 97; c <= 122; c++) {",
+        "    if (t.indexOf(String.fromCharCode(c)) === -1) { return false; }",
+        "  }",
+        "  return true;",
+        "}"
+      ],
+      "tests": [
+        { "name": "classic pangram", "code": "assert(isPangram('The quick brown fox jumps over the lazy dog') === true, 'full alphabet is a pangram');" },
+        { "name": "missing letters", "code": "assert(isPangram('hello world') === false, 'not every letter present');" },
+        { "name": "bare alphabet", "code": "assert(isPangram('abcdefghijklmnopqrstuvwxyz') === true, 'exactly a-z counts');" },
+        { "name": "one letter short", "code": "assert(isPangram('abcdefghijklmnopqrstuvwxy') === false, 'missing z fails');" }
+      ],
+      "hint": "Lowercase, then loop char codes 97..122; if any indexOf is -1, return false.",
+      "lore": "A clean keymap test: every glyph must fire at least once."
+    },
+    {
+      "id": "js-freqchar",
+      "title": "DOMINANT GLYPH",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Find the character that shows up the most, spaces excluded.",
+      "promptLines": [
+        "Define **mostFrequentChar(s)** returning the character that appears most often, **ignoring spaces**. On a tie, return the character that **first** reaches the maximum count. Assume at least one non-space character.",
+        "~~~js",
+        "mostFrequentChar('aabbbc')  // 'b'",
+        "mostFrequentChar('hello')   // 'l'",
+        "mostFrequentChar('a b a')   // 'a'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function mostFrequentChar(s) {",
+        "  // TODO: tally each non-space char, track the first to hit the running max",
+        "}"
+      ],
+      "solutionLines": [
+        "function mostFrequentChar(s) {",
+        "  var counts = {};",
+        "  var best = '';",
+        "  var max = 0;",
+        "  for (var i = 0; i < s.length; i++) {",
+        "    var ch = s[i];",
+        "    if (ch === ' ') { continue; }",
+        "    counts[ch] = (counts[ch] || 0) + 1;",
+        "    if (counts[ch] > max) { max = counts[ch]; best = ch; }",
+        "  }",
+        "  return best;",
+        "}"
+      ],
+      "tests": [
+        { "name": "clear winner", "code": "assertEqual(mostFrequentChar('aabbbc'), 'b', 'b appears three times');" },
+        { "name": "double letter", "code": "assertEqual(mostFrequentChar('hello'), 'l', 'l is the most frequent');" },
+        { "name": "ignores spaces", "code": "assertEqual(mostFrequentChar('a b a'), 'a', 'spaces are not counted');" },
+        { "name": "single char", "code": "assertEqual(mostFrequentChar('z'), 'z', 'only one character');" }
+      ],
+      "hint": "Skip ' ', count in an object, and update best only when the new count is strictly greater than max.",
+      "lore": "Trace the traffic: one glyph always dominates the wire."
+    },
+    {
+      "id": "js-caesar",
+      "title": "CAESAR CIPHER",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Shift the lowercase alphabet forward, wrapping past z.",
+      "promptLines": [
+        "Define **caesar(s, n)** that shifts each lowercase letter a-z forward by `n` (wrapping z→a). Leave every other character unchanged. Assume `n` is 0..25.",
+        "~~~js",
+        "caesar('abc', 1)   // 'bcd'",
+        "caesar('xyz', 3)   // 'abc'",
+        "caesar('a-b', 1)   // 'b-c'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function caesar(s, n) {",
+        "  // TODO: shift only a-z within 0..25, wrap with % 26, keep the rest",
+        "}"
+      ],
+      "solutionLines": [
+        "function caesar(s, n) {",
+        "  var out = '';",
+        "  for (var i = 0; i < s.length; i++) {",
+        "    var c = s.charCodeAt(i);",
+        "    if (c >= 97 && c <= 122) { out += String.fromCharCode((c - 97 + n) % 26 + 97); }",
+        "    else { out += s[i]; }",
+        "  }",
+        "  return out;",
+        "}"
+      ],
+      "tests": [
+        { "name": "shifts by one", "code": "assertEqual(caesar('abc', 1), 'bcd', 'each letter moves forward one');" },
+        { "name": "wraps past z", "code": "assertEqual(caesar('xyz', 3), 'abc', 'z wraps around to a');" },
+        { "name": "leaves others", "code": "assertEqual(caesar('a-b', 1), 'b-c', 'non-letters untouched');" },
+        { "name": "rot thirteen", "code": "assertEqual(caesar('hello', 13), 'uryyb', 'classic ROT13 of hello');" },
+        { "name": "zero shift", "code": "assertEqual(caesar('abc', 0), 'abc', 'shift of zero changes nothing');" }
+      ],
+      "hint": "For codes 97..122 use (c - 97 + n) % 26 + 97; otherwise copy the char.",
+      "lore": "Old crypto from a dead empire. Still fun to crack at runtime."
+    }
+  ]
+}

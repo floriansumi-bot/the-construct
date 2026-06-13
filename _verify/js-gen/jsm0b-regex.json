@@ -1,0 +1,176 @@
+{
+  "modId": "jsm0b-regex",
+  "exercises": [
+    {
+      "id": "js-maskdigits",
+      "title": "DIGIT REDACT",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 150,
+      "brief": "Black out every digit in the feed.",
+      "promptLines": [
+        "Define **maskDigits(s)** returning `s` with **every digit** replaced by a `'#'`. Non-digits are untouched.",
+        "~~~js",
+        "maskDigits('a1b2')      // 'a#b#'",
+        "maskDigits('CASE 0451') // 'CASE ####'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function maskDigits(s) {",
+        "  // TODO: replace each digit with '#'",
+        "}"
+      ],
+      "solutionLines": [
+        "function maskDigits(s) {",
+        "  return s.replace(/\\d/g, '#');",
+        "}"
+      ],
+      "tests": [
+        { "name": "masks digits", "code": "assertEqual(maskDigits('a1b2'), 'a#b#');" },
+        { "name": "keeps letters/spaces", "code": "assertEqual(maskDigits('CASE 0451'), 'CASE ####');" },
+        { "name": "no digits unchanged", "code": "assertEqual(maskDigits('wired'), 'wired');" },
+        { "name": "empty stays empty", "code": "assertEqual(maskDigits(''), '');" }
+      ],
+      "hint": "s.replace(/\\\\d/g, '#') — the g flag hits every digit.",
+      "lore": "Scrub the IDs before the trace locks on."
+    },
+    {
+      "id": "js-istag",
+      "title": "HASHTAG GATE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 175,
+      "brief": "Admit only clean lowercase hashtags.",
+      "promptLines": [
+        "Define **isTag(s)** returning `true` only when `s` is a `#` followed by **one or more** lowercase letters or digits — and nothing else.",
+        "~~~js",
+        "isTag('#neo7')  // true",
+        "isTag('#Neo')   // false (uppercase)",
+        "isTag('#')      // false (needs 1+ chars)",
+        "isTag('neo')    // false (no #)",
+        "~~~"
+      ],
+      "starterLines": [
+        "function isTag(s) {",
+        "  // TODO: anchor ^#[a-z0-9]+$ and test it",
+        "}"
+      ],
+      "solutionLines": [
+        "function isTag(s) {",
+        "  return /^#[a-z0-9]+$/.test(s);",
+        "}"
+      ],
+      "tests": [
+        { "name": "valid tags", "code": "assert(isTag('#neo7') === true && isTag('#abc') === true && isTag('#0') === true);" },
+        { "name": "uppercase rejected", "code": "assertEqual(isTag('#Neo'), false);" },
+        { "name": "hash alone rejected", "code": "assertEqual(isTag('#'), false);" },
+        { "name": "missing hash / empty", "code": "assert(isTag('neo') === false && isTag('') === false);" }
+      ],
+      "hint": "/^#[a-z0-9]+$/.test(s) — ^ and $ pin both ends, + means one-or-more.",
+      "lore": "Only the lowercase sigils open the channel."
+    },
+    {
+      "id": "js-countvowels",
+      "title": "VOWEL COUNTER",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Tally the vowels, any case.",
+      "promptLines": [
+        "Define **countVowels(s)** returning how many vowels (`a e i o u`, **case-insensitive**) are in `s`.",
+        "~~~js",
+        "countVowels('Neo')   // 2",
+        "countVowels('AEIOU') // 5",
+        "countVowels('xyz')   // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function countVowels(s) {",
+        "  // TODO: match all vowels (case-insensitive) and count them",
+        "}"
+      ],
+      "solutionLines": [
+        "function countVowels(s) {",
+        "  return (s.match(/[aeiou]/gi) || []).length;",
+        "}"
+      ],
+      "tests": [
+        { "name": "mixed case", "code": "assertEqual(countVowels('Neo'), 2);" },
+        { "name": "all five upper", "code": "assertEqual(countVowels('AEIOU'), 5);" },
+        { "name": "no vowels", "code": "assertEqual(countVowels('xyz'), 0);" },
+        { "name": "empty string", "code": "assertEqual(countVowels(''), 0);" }
+      ],
+      "hint": "(s.match(/[aeiou]/gi) || []).length — guard the null when there are none.",
+      "lore": "Strip the consonants; count what sings."
+    },
+    {
+      "id": "js-collapsespaces",
+      "title": "WHITESPACE CRUSH",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Squeeze runs of whitespace into single gaps.",
+      "promptLines": [
+        "Define **collapseSpaces(s)** that replaces every run of whitespace with a single space `' '`, then trims the ends.",
+        "A blank or whitespace-only string returns `''`.",
+        "~~~js",
+        "collapseSpaces('  hack   the  planet ')  // 'hack the planet'",
+        "collapseSpaces('   ')                    // ''",
+        "~~~"
+      ],
+      "starterLines": [
+        "function collapseSpaces(s) {",
+        "  // TODO: collapse whitespace runs to one space, then trim",
+        "}"
+      ],
+      "solutionLines": [
+        "function collapseSpaces(s) {",
+        "  return s.replace(/\\s+/g, ' ').trim();",
+        "}"
+      ],
+      "tests": [
+        { "name": "collapses runs", "code": "assertEqual(collapseSpaces('  hack   the  planet '), 'hack the planet');" },
+        { "name": "whitespace only", "code": "assertEqual(collapseSpaces('   '), '');" },
+        { "name": "tabs and newlines", "code": "assertEqual(collapseSpaces('a\\t\\tb\\nc'), 'a b c');" },
+        { "name": "empty string", "code": "assertEqual(collapseSpaces(''), '');" },
+        { "name": "already clean", "code": "assertEqual(collapseSpaces('neo'), 'neo');" }
+      ],
+      "hint": "s.replace(/\\\\s+/g, ' ').trim() — \\\\s+ is one-or-more whitespace.",
+      "lore": "Compress the dead air; keep the signal tight."
+    },
+    {
+      "id": "js-extractnums",
+      "title": "NUMBER HARVEST",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Pull every number out of the noise.",
+      "promptLines": [
+        "Define **extractNumbers(s)** returning an array of all runs of digits as **numbers**, in order. No digits → empty array.",
+        "~~~js",
+        "extractNumbers('a12b3')  // [12, 3]",
+        "extractNumbers('none')   // []",
+        "~~~"
+      ],
+      "starterLines": [
+        "function extractNumbers(s) {",
+        "  // TODO: match all digit runs, convert to numbers",
+        "}"
+      ],
+      "solutionLines": [
+        "function extractNumbers(s) {",
+        "  const m = s.match(/\\d+/g);",
+        "  return m ? m.map(Number) : [];",
+        "}"
+      ],
+      "tests": [
+        { "name": "pulls numbers", "code": "assertEqual(extractNumbers('a12b3'), [12, 3]);" },
+        { "name": "none -> empty", "code": "assertEqual(extractNumbers('none'), []);" },
+        { "name": "multi-digit", "code": "assertEqual(extractNumbers('ip 192 then 8'), [192, 8]);" },
+        { "name": "empty string", "code": "assertEqual(extractNumbers(''), []);" }
+      ],
+      "hint": "s.match(/\\\\d+/g) returns matches or null; map(Number).",
+      "lore": "Sift the datastream for digits."
+    }
+  ]
+}
