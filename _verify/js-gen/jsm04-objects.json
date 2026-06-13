@@ -1,0 +1,169 @@
+{
+  "modId": "jsm04-objects",
+  "exercises": [
+    {
+      "id": "js-maxcell",
+      "title": "PEAK OUTPUT",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 130,
+      "brief": "Find the hottest reactor cell.",
+      "promptLines": [
+        "Define **maxCell(cells)** returning the largest number in a non-empty array. Use **reduce**.",
+        "~~~js",
+        "maxCell([3, 7, 2])  // 7",
+        "~~~"
+      ],
+      "starterLines": [
+        "function maxCell(cells) {",
+        "  // TODO: reduce, keeping the bigger of the two",
+        "}"
+      ],
+      "solutionLines": [
+        "function maxCell(cells) {",
+        "  return cells.reduce(function (m, c) { return c > m ? c : m; });",
+        "}"
+      ],
+      "tests": [
+        { "name": "finds the peak", "code": "assertEqual(maxCell([3, 7, 2]), 7);" },
+        { "name": "single cell", "code": "assertEqual(maxCell([5]), 5);" },
+        { "name": "all negative", "code": "assertEqual(maxCell([-3, -1, -9]), -1);" }
+      ],
+      "hint": "cells.reduce((m, c) => (c > m ? c : m)) — with no seed, reduce starts from the first cell.",
+      "lore": "One cell always runs hottest. Find it before it blows."
+    },
+    {
+      "id": "js-average",
+      "title": "MEAN SIGNAL",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 150,
+      "brief": "Average the telemetry stream.",
+      "promptLines": [
+        "Define **average(nums)** returning the arithmetic mean of the array. An **empty** array averages to **0**.",
+        "~~~js",
+        "average([2, 4])  // 3",
+        "average([])     // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function average(nums) {",
+        "  // TODO: guard the empty case, then sum / length",
+        "}"
+      ],
+      "solutionLines": [
+        "function average(nums) {",
+        "  if (nums.length === 0) return 0;",
+        "  return nums.reduce(function (a, c) { return a + c; }, 0) / nums.length;",
+        "}"
+      ],
+      "tests": [
+        { "name": "mean of two", "code": "assertEqual(average([2, 4]), 3);" },
+        { "name": "mean of three", "code": "assertEqual(average([10, 20, 30]), 20);" },
+        { "name": "empty -> 0", "code": "assertEqual(average([]), 0, 'an empty stream averages to 0, not NaN');" }
+      ],
+      "hint": "Return 0 when nums.length is 0; otherwise nums.reduce((a, c) => a + c, 0) / nums.length.",
+      "lore": "Noise cancels. The mean is the only honest reading."
+    },
+    {
+      "id": "js-merge",
+      "title": "CONFIG OVERRIDE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Patch the defaults with overrides.",
+      "promptLines": [
+        "Define **mergeConfigs(a, b)** returning a **new** object with all keys of both, where `b`'s values win on conflicts. Do **not** mutate `a` or `b`.",
+        "~~~js",
+        "mergeConfigs({ hp: 100, mp: 30 }, { mp: 50, lvl: 9 })  // { hp: 100, mp: 50, lvl: 9 }",
+        "~~~"
+      ],
+      "starterLines": [
+        "function mergeConfigs(a, b) {",
+        "  const out = {};",
+        "  // TODO: copy a, then let b override",
+        "  return out;",
+        "}"
+      ],
+      "solutionLines": [
+        "function mergeConfigs(a, b) {",
+        "  return Object.assign({}, a, b);",
+        "}"
+      ],
+      "tests": [
+        { "name": "b overrides a", "code": "assertEqual(mergeConfigs({ hp: 100, mp: 30 }, { mp: 50, lvl: 9 }), { hp: 100, mp: 50, lvl: 9 });" },
+        { "name": "two empties -> empty", "code": "assertEqual(mergeConfigs({}, {}), {});" },
+        { "name": "does not mutate a", "code": "var a = { hp: 100 };\nmergeConfigs(a, { hp: 1 });\nassertEqual(a, { hp: 100 }, 'the original defaults must be untouched');" }
+      ],
+      "hint": "Object.assign({}, a, b) — later sources overwrite earlier ones, and the fresh {} keeps the inputs clean.",
+      "lore": "Defaults are a suggestion. The override is the law."
+    },
+    {
+      "id": "js-rewards",
+      "title": "BOUNTY LEDGER",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 190,
+      "brief": "Tally every reward on the board.",
+      "promptLines": [
+        "`board` is an object of `name -> reward`. Define **totalRewards(board)** returning the sum of all the rewards (the **values**). Use **Object.values** and **reduce**. An empty board totals **0**.",
+        "~~~js",
+        "totalRewards({ Spike: 2500000, Jet: 1000000 })  // 3500000",
+        "~~~"
+      ],
+      "starterLines": [
+        "function totalRewards(board) {",
+        "  // TODO: sum the object's values",
+        "}"
+      ],
+      "solutionLines": [
+        "function totalRewards(board) {",
+        "  return Object.values(board).reduce(function (a, c) { return a + c; }, 0);",
+        "}"
+      ],
+      "tests": [
+        { "name": "sums all rewards", "code": "assertEqual(totalRewards({ Spike: 2500000, Jet: 1000000 }), 3500000);" },
+        { "name": "single entry", "code": "assertEqual(totalRewards({ Asimov: 2500000 }), 2500000);" },
+        { "name": "empty board -> 0", "code": "assertEqual(totalRewards({}), 0);" }
+      ],
+      "hint": "Object.values(board).reduce((a, c) => a + c, 0) — pull the numbers out, then fold them.",
+      "lore": "Add up every head on the board. That is your year."
+    },
+    {
+      "id": "js-invert",
+      "title": "REVERSE LOOKUP",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Flip the codec table end for end.",
+      "promptLines": [
+        "Define **invert(obj)** returning a **new** object with keys and values swapped: each value becomes a key, mapping back to its original key. Assume values are unique. Use **Object.entries**.",
+        "~~~js",
+        "invert({ a: 'x', b: 'y' })  // { x: 'a', y: 'b' }",
+        "~~~"
+      ],
+      "starterLines": [
+        "function invert(obj) {",
+        "  const out = {};",
+        "  // TODO: for each [key, value], set out[value] = key",
+        "  return out;",
+        "}"
+      ],
+      "solutionLines": [
+        "function invert(obj) {",
+        "  return Object.entries(obj).reduce(function (acc, pair) {",
+        "    acc[pair[1]] = pair[0];",
+        "    return acc;",
+        "  }, {});",
+        "}"
+      ],
+      "tests": [
+        { "name": "swaps keys and values", "code": "assertEqual(invert({ a: 'x', b: 'y' }), { x: 'a', y: 'b' });" },
+        { "name": "round-trips a codec", "code": "assertEqual(invert({ north: 'cold' }), { cold: 'north' });" },
+        { "name": "empty -> empty", "code": "assertEqual(invert({}), {});" }
+      ],
+      "hint": "Object.entries(obj).reduce((acc, [k, v]) => { acc[v] = k; return acc; }, {})",
+      "lore": "Every codec runs both ways. Read it backward and the ghost speaks."
+    }
+  ]
+}

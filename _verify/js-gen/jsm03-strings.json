@@ -1,0 +1,177 @@
+{
+  "modId": "jsm03-strings",
+  "exercises": [
+    {
+      "id": "js-shout",
+      "title": "VOICE AMP",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Trim, shout it in caps, slam an exclamation on the end.",
+      "promptLines": [
+        "Define **shout(s)** that trims surrounding whitespace, converts the text to **upper case**, and appends a single `'!'`.",
+        "~~~js",
+        "shout('wake up')   // 'WAKE UP!'",
+        "shout('  neo ')    // 'NEO!'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function shout(s) {",
+        "  // TODO: trim, uppercase, then add '!'",
+        "}"
+      ],
+      "solutionLines": [
+        "function shout(s) {",
+        "  return s.trim().toUpperCase() + '!';",
+        "}"
+      ],
+      "tests": [
+        { "name": "basic phrase", "code": "assertEqual(shout('wake up'), 'WAKE UP!', 'phrase should be upper-cased with !');" },
+        { "name": "trims edges", "code": "assertEqual(shout('  neo '), 'NEO!', 'leading/trailing spaces must be trimmed');" },
+        { "name": "empty string", "code": "assertEqual(shout(''), '!', 'empty input yields just the bang');" }
+      ],
+      "hint": "s.trim().toUpperCase() + '!'",
+      "lore": "In the construct, volume is a weapon. Crank it."
+    },
+    {
+      "id": "js-mask",
+      "title": "CRED MASK",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 150,
+      "brief": "Hide a cred-stick number, leaving only the last four digits.",
+      "promptLines": [
+        "Define **mask(card)** that returns the number with every character except the **last 4** replaced by `'*'`.",
+        "If the input is 4 characters or shorter, return it unchanged.",
+        "~~~js",
+        "mask('1234567890123456')  // '************3456'",
+        "mask('4242')              // '4242'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function mask(card) {",
+        "  // TODO: keep the last 4, replace the rest with '*'",
+        "}"
+      ],
+      "solutionLines": [
+        "function mask(card) {",
+        "  if (card.length <= 4) return card;",
+        "  return '*'.repeat(card.length - 4) + card.slice(-4);",
+        "}"
+      ],
+      "tests": [
+        { "name": "16 digits", "code": "assertEqual(mask('1234567890123456'), '************3456', 'mask all but last 4');" },
+        { "name": "exactly four", "code": "assertEqual(mask('4242'), '4242', '4 chars stay visible');" },
+        { "name": "shorter than four", "code": "assertEqual(mask('42'), '42', 'short input is returned unchanged');" },
+        { "name": "empty string", "code": "assertEqual(mask(''), '', 'empty stays empty');" },
+        { "name": "nine digits", "code": "assertEqual(mask('123456789'), '*****6789', 'five stars then last four');" }
+      ],
+      "hint": "'*'.repeat(card.length - 4) + card.slice(-4), but guard length <= 4",
+      "lore": "Flash the stick, not the balance. Last four only."
+    },
+    {
+      "id": "js-wordcount",
+      "title": "TOKEN TALLY",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 165,
+      "brief": "Count the words in a transmission.",
+      "promptLines": [
+        "Define **wordCount(s)** that returns how many space-separated words the string holds.",
+        "An empty or whitespace-only string must return `0`.",
+        "~~~js",
+        "wordCount('hack the planet')  // 3",
+        "wordCount('')                 // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function wordCount(s) {",
+        "  // TODO: split on spaces and count, but handle the empty case",
+        "}"
+      ],
+      "solutionLines": [
+        "function wordCount(s) {",
+        "  var trimmed = s.trim();",
+        "  if (trimmed === '') return 0;",
+        "  return trimmed.split(' ').filter(function (w) { return w !== ''; }).length;",
+        "}"
+      ],
+      "tests": [
+        { "name": "three words", "code": "assertEqual(wordCount('hack the planet'), 3, 'three space-separated words');" },
+        { "name": "empty string", "code": "assertEqual(wordCount(''), 0, 'empty string is zero words');" },
+        { "name": "whitespace only", "code": "assertEqual(wordCount('   '), 0, 'spaces alone count as zero');" },
+        { "name": "single word", "code": "assertEqual(wordCount('solo'), 1, 'one word counts as one');" }
+      ],
+      "hint": "Trim first; if it's '' return 0, else split(' ').length (drop empty chunks).",
+      "lore": "Every token on the wire costs power. Count them."
+    },
+    {
+      "id": "js-screamcase",
+      "title": "SCREAM CASE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 190,
+      "brief": "Forge a screaming identifier from a list of words.",
+      "promptLines": [
+        "Define **screamCase(words)** that upper-cases every word and joins them with an underscore `'_'`.",
+        "An empty array returns the empty string.",
+        "~~~js",
+        "screamCase(['boot', 'up'])  // 'BOOT_UP'",
+        "screamCase([])             // ''",
+        "~~~"
+      ],
+      "starterLines": [
+        "function screamCase(words) {",
+        "  // TODO: map each word to upper case, then join with '_'",
+        "}"
+      ],
+      "solutionLines": [
+        "function screamCase(words) {",
+        "  return words.map(function (w) { return w.toUpperCase(); }).join('_');",
+        "}"
+      ],
+      "tests": [
+        { "name": "two words", "code": "assertEqual(screamCase(['boot', 'up']), 'BOOT_UP', 'upper-case and underscore-join');" },
+        { "name": "empty array", "code": "assertEqual(screamCase([]), '', 'no words gives empty string');" },
+        { "name": "single word", "code": "assertEqual(screamCase(['solo']), 'SOLO', 'one word, no underscore');" },
+        { "name": "three words", "code": "assertEqual(screamCase(['jack', 'in', 'now']), 'JACK_IN_NOW', 'three screamed tokens');" }
+      ],
+      "hint": "words.map(w => w.toUpperCase()).join('_')",
+      "lore": "Constants don't whisper. They SCREAM_LIKE_THIS."
+    },
+    {
+      "id": "js-longwords",
+      "title": "SIGNAL SIEVE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Keep only the long callsigns, drop the short noise.",
+      "promptLines": [
+        "Define **longWords(words)** that returns a new array containing only the words whose length is **5 or more**.",
+        "Order is preserved; an empty array returns an empty array.",
+        "~~~js",
+        "longWords(['neo', 'trinity', 'tank'])  // ['trinity']",
+        "longWords([])                          // []",
+        "~~~"
+      ],
+      "starterLines": [
+        "function longWords(words) {",
+        "  // TODO: filter the array down to words of length >= 5",
+        "}"
+      ],
+      "solutionLines": [
+        "function longWords(words) {",
+        "  return words.filter(function (w) { return w.length >= 5; });",
+        "}"
+      ],
+      "tests": [
+        { "name": "keeps one", "code": "assertEqual(longWords(['neo', 'trinity', 'tank']), ['trinity'], 'only words of length >= 5 survive');" },
+        { "name": "empty array", "code": "assertEqual(longWords([]), [], 'empty input gives empty output');" },
+        { "name": "all long", "code": "assertEqual(longWords(['cipher', 'dozer', 'mouse']), ['cipher', 'dozer', 'mouse'], 'all five-plus words kept');" },
+        { "name": "boundary length", "code": "assertEqual(longWords(['four', 'fives']), ['fives'], 'length 4 dropped, length 5 kept');" }
+      ],
+      "hint": "words.filter(w => w.length >= 5)",
+      "lore": "Short bursts are static. The sieve keeps the long signals."
+    }
+  ]
+}

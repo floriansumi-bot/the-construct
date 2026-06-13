@@ -1,0 +1,186 @@
+{
+  "modId": "jsm02-logic",
+  "exercises": [
+    {
+      "id": "js-absval",
+      "title": "MAGNITUDE",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Strip the sign from a voltage reading.",
+      "promptLines": [
+        "Define **absValue(n)** returning the distance of `n` from zero (its absolute value).",
+        "Do **not** use `Math.abs`. Use a ternary or `if`.",
+        "~~~js",
+        "absValue(-7)  // 7",
+        "absValue(7)   // 7",
+        "absValue(0)   // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function absValue(n) {",
+        "  // TODO: return n flipped positive when negative",
+        "}"
+      ],
+      "solutionLines": [
+        "function absValue(n) {",
+        "  return n < 0 ? -n : n;",
+        "}"
+      ],
+      "tests": [
+        { "name": "negative flips positive", "code": "assertEqual(absValue(-7), 7, 'absValue(-7) should be 7');" },
+        { "name": "positive unchanged", "code": "assertEqual(absValue(7), 7, 'absValue(7) should be 7');" },
+        { "name": "zero stays zero", "code": "assertEqual(absValue(0), 0, 'absValue(0) should be 0');" },
+        { "name": "large negative", "code": "assertEqual(absValue(-128), 128, 'absValue(-128) should be 128');" }
+      ],
+      "hint": "n < 0 ? -n : n",
+      "lore": "The grid only cares how far you spike, not which way."
+    },
+    {
+      "id": "js-tag",
+      "title": "POLARITY TAG",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 150,
+      "brief": "Label a signal by its polarity.",
+      "promptLines": [
+        "Define **tag(n)** returning the string `'POS'` if `n` is positive, `'NEG'` if negative, and `'ZERO'` if exactly 0.",
+        "Use a ternary chain (`?:`).",
+        "~~~js",
+        "tag(5)   // 'POS'",
+        "tag(-3)  // 'NEG'",
+        "tag(0)   // 'ZERO'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function tag(n) {",
+        "  // TODO: POS / NEG / ZERO",
+        "}"
+      ],
+      "solutionLines": [
+        "function tag(n) {",
+        "  return n > 0 ? 'POS' : n < 0 ? 'NEG' : 'ZERO';",
+        "}"
+      ],
+      "tests": [
+        { "name": "positive is POS", "code": "assertEqual(tag(5), 'POS', 'tag(5) should be POS');" },
+        { "name": "negative is NEG", "code": "assertEqual(tag(-3), 'NEG', 'tag(-3) should be NEG');" },
+        { "name": "zero is ZERO", "code": "assertEqual(tag(0), 'ZERO', 'tag(0) should be ZERO');" },
+        { "name": "tiny positive still POS", "code": "assertEqual(tag(0.0001), 'POS', 'tag(0.0001) should be POS');" }
+      ],
+      "hint": "n > 0 ? 'POS' : n < 0 ? 'NEG' : 'ZERO'",
+      "lore": "Every pulse on the wire wears a tag, or it gets quarantined."
+    },
+    {
+      "id": "js-bothonline",
+      "title": "DUAL UPLINK",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 160,
+      "brief": "Both nodes must be live to route traffic.",
+      "promptLines": [
+        "Define **bothOnline(a, b)** returning `true` only when **both** `a` and `b` are `true`, otherwise `false`.",
+        "Use the `&&` operator. Return an actual boolean.",
+        "~~~js",
+        "bothOnline(true, true)   // true",
+        "bothOnline(true, false)  // false",
+        "~~~"
+      ],
+      "starterLines": [
+        "function bothOnline(a, b) {",
+        "  // TODO: true only if both are true",
+        "}"
+      ],
+      "solutionLines": [
+        "function bothOnline(a, b) {",
+        "  return a === true && b === true;",
+        "}"
+      ],
+      "tests": [
+        { "name": "both true", "code": "assert(bothOnline(true, true) === true, 'both true should be true');" },
+        { "name": "first false", "code": "assert(bothOnline(false, true) === false, 'false,true should be false');" },
+        { "name": "second false", "code": "assert(bothOnline(true, false) === false, 'true,false should be false');" },
+        { "name": "both false", "code": "assert(bothOnline(false, false) === false, 'both false should be false');" }
+      ],
+      "hint": "a === true && b === true",
+      "lore": "One dead node and the whole route goes dark."
+    },
+    {
+      "id": "js-gradeletter",
+      "title": "THREAT GRADE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 190,
+      "brief": "Convert a 0-100 threat score into a letter grade.",
+      "promptLines": [
+        "Define **gradeLetter(score)** mapping a 0-100 number to a letter:",
+        "`>= 90` -> `'A'`, `>= 80` -> `'B'`, `>= 70` -> `'C'`, `>= 60` -> `'D'`, otherwise `'F'`.",
+        "Use `if / else if / else`.",
+        "~~~js",
+        "gradeLetter(95)  // 'A'",
+        "gradeLetter(72)  // 'C'",
+        "gradeLetter(40)  // 'F'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function gradeLetter(score) {",
+        "  // TODO: A / B / C / D / F bands",
+        "}"
+      ],
+      "solutionLines": [
+        "function gradeLetter(score) {",
+        "  if (score >= 90) return 'A';",
+        "  else if (score >= 80) return 'B';",
+        "  else if (score >= 70) return 'C';",
+        "  else if (score >= 60) return 'D';",
+        "  else return 'F';",
+        "}"
+      ],
+      "tests": [
+        { "name": "A band incl 90", "code": "assert(gradeLetter(100) === 'A' && gradeLetter(90) === 'A', 'A band');" },
+        { "name": "B band incl 80", "code": "assert(gradeLetter(89) === 'B' && gradeLetter(80) === 'B', 'B band');" },
+        { "name": "C band incl 70", "code": "assert(gradeLetter(79) === 'C' && gradeLetter(70) === 'C', 'C band');" },
+        { "name": "D band incl 60", "code": "assert(gradeLetter(69) === 'D' && gradeLetter(60) === 'D', 'D band');" },
+        { "name": "F below 60", "code": "assert(gradeLetter(59) === 'F' && gradeLetter(0) === 'F', 'F band');" }
+      ],
+      "hint": "Check the highest band first, then fall through with else if.",
+      "lore": "ICE rates every intruder before it decides how hard to bite."
+    },
+    {
+      "id": "js-isleap",
+      "title": "LEAP CYCLE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Decide if a year is a leap year.",
+      "promptLines": [
+        "Define **isLeap(year)** returning `true` if `year` is a leap year, else `false`.",
+        "Rule: divisible by 4 **and** not by 100 — **unless** also divisible by 400.",
+        "~~~js",
+        "isLeap(2024)  // true",
+        "isLeap(1900)  // false",
+        "isLeap(2000)  // true",
+        "~~~"
+      ],
+      "starterLines": [
+        "function isLeap(year) {",
+        "  // TODO: div by 4, not 100, except div by 400",
+        "}"
+      ],
+      "solutionLines": [
+        "function isLeap(year) {",
+        "  return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;",
+        "}"
+      ],
+      "tests": [
+        { "name": "common div-by-4 leap", "code": "assert(isLeap(2024) === true, 'isLeap(2024) should be true');" },
+        { "name": "century not by 400", "code": "assert(isLeap(1900) === false, 'isLeap(1900) should be false');" },
+        { "name": "century by 400", "code": "assert(isLeap(2000) === true, 'isLeap(2000) should be true');" },
+        { "name": "non-leap odd year", "code": "assert(isLeap(2023) === false, 'isLeap(2023) should be false');" },
+        { "name": "2100 not leap", "code": "assert(isLeap(2100) === false, 'isLeap(2100) should be false');" }
+      ],
+      "hint": "(year % 4 === 0 && year % 100 !== 0) || year % 400 === 0",
+      "lore": "The mainframe clock skips a beat every four cycles, but the centuries lie."
+    }
+  ]
+}

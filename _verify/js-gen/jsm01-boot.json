@@ -1,0 +1,175 @@
+{
+  "modId": "jsm01-boot",
+  "exercises": [
+    {
+      "id": "js-rootkit",
+      "title": "ROOT CHECK",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Verify an identity with strict equality.",
+      "promptLines": [
+        "Define **isRoot(name)** that returns `true` only when `name` is **exactly** the string `'root'`, otherwise `false`.",
+        "Use strict equality `===` — case matters, so `'Root'` is **not** root.",
+        "~~~js",
+        "isRoot('root')     // true",
+        "isRoot('Trinity')  // false",
+        "isRoot('Root')     // false",
+        "~~~"
+      ],
+      "starterLines": [
+        "function isRoot(name) {",
+        "  // TODO: return whether name === 'root'",
+        "}"
+      ],
+      "solutionLines": [
+        "function isRoot(name) {",
+        "  return name === 'root';",
+        "}"
+      ],
+      "tests": [
+        { "name": "root -> true", "code": "assertEqual(isRoot('root'), true, \"isRoot('root') should be true\");" },
+        { "name": "intruder -> false", "code": "assert(isRoot('Trinity') === false && isRoot('admin') === false, 'non-root names should be false');" },
+        { "name": "case-sensitive", "code": "assertEqual(isRoot('Root'), false, \"'Root' is not 'root' — === is case-sensitive\");" }
+      ],
+      "hint": "Return the comparison directly: name === 'root'.",
+      "lore": "Root access is earned, not guessed."
+    },
+    {
+      "id": "js-typeprobe",
+      "title": "TYPE PROBE",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 130,
+      "brief": "Scan a value and report its type.",
+      "promptLines": [
+        "Define **probe(value)** that returns the **type** of `value` as a string, using the `typeof` operator.",
+        "~~~js",
+        "probe('Neo')  // 'string'",
+        "probe(42)     // 'number'",
+        "probe(true)   // 'boolean'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function probe(value) {",
+        "  // TODO: return typeof value",
+        "}"
+      ],
+      "solutionLines": [
+        "function probe(value) {",
+        "  return typeof value;",
+        "}"
+      ],
+      "tests": [
+        { "name": "string -> 'string'", "code": "assertEqual(probe('Neo'), 'string');" },
+        { "name": "number -> 'number'", "code": "assertEqual(probe(42), 'number');" },
+        { "name": "boolean -> 'boolean'", "code": "assert(probe(true) === 'boolean' && probe(false) === 'boolean', 'booleans should report boolean');" }
+      ],
+      "hint": "return typeof value;",
+      "lore": "Every signal has a signature."
+    },
+    {
+      "id": "js-callsign",
+      "title": "CALLSIGN",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 160,
+      "brief": "Forge a callsign from two name parts.",
+      "promptLines": [
+        "Define **callsign(first, last)** that returns the **last** name and **first** name joined by a hyphen, using a template literal.",
+        "Format: `` `${last}-${first}` ``",
+        "~~~js",
+        "callsign('Motoko', 'Kusanagi')  // 'Kusanagi-Motoko'",
+        "callsign('Spike', 'Spiegel')    // 'Spiegel-Spike'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function callsign(first, last) {",
+        "  // TODO: return `${last}-${first}`",
+        "}"
+      ],
+      "solutionLines": [
+        "function callsign(first, last) {",
+        "  return `${last}-${first}`;",
+        "}"
+      ],
+      "tests": [
+        { "name": "Kusanagi-Motoko", "code": "assertEqual(callsign('Motoko', 'Kusanagi'), 'Kusanagi-Motoko');" },
+        { "name": "order: last then first", "code": "assertEqual(callsign('Spike', 'Spiegel'), 'Spiegel-Spike');" },
+        { "name": "single hyphen, exact", "code": "assertEqual(callsign('A', 'B'), 'B-A');" }
+      ],
+      "hint": "Backticks, last first: `${last}-${first}`.",
+      "lore": "On the net, your callsign is all they know."
+    },
+    {
+      "id": "js-roundpwr",
+      "title": "POWER GAUGE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Round a reading into a labelled gauge string.",
+      "promptLines": [
+        "Define **powerLabel(level)** that **rounds** `level` to the nearest whole number and returns it as a labelled string.",
+        "Format: `` `Power: ${rounded}%` `` — use `Math.round` and a template literal.",
+        "~~~js",
+        "powerLabel(87.6)  // 'Power: 88%'",
+        "powerLabel(50)    // 'Power: 50%'",
+        "powerLabel(33.2)  // 'Power: 33%'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function powerLabel(level) {",
+        "  // TODO: round level, then return `Power: ${...}%`",
+        "}"
+      ],
+      "solutionLines": [
+        "function powerLabel(level) {",
+        "  return `Power: ${Math.round(level)}%`;",
+        "}"
+      ],
+      "tests": [
+        { "name": "rounds up", "code": "assertEqual(powerLabel(87.6), 'Power: 88%');" },
+        { "name": "whole number stays put", "code": "assertEqual(powerLabel(50), 'Power: 50%');" },
+        { "name": "rounds down", "code": "assertEqual(powerLabel(33.2), 'Power: 33%');" }
+      ],
+      "hint": "Math.round(level) inside `Power: ${...}%`.",
+      "lore": "Reactor at eighty-eight percent. Hold."
+    },
+    {
+      "id": "js-banner",
+      "title": "BOOT BANNER",
+      "kind": "script",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Print a formatted login banner from variables.",
+      "promptLines": [
+        "Store the operator name and node number in variables, then `console.log` a **three-line banner** built with template literals.",
+        "Print these **three lines, exactly**:",
+        "~~~text",
+        "=== THE CONSTRUCT ===",
+        "USER: Neo",
+        "NODE: 7",
+        "~~~",
+        "Declare `const user = 'Neo'` and `const node = 7`, then interpolate them with `${...}` — don't hard-code the values into the USER/NODE lines."
+      ],
+      "starterLines": [
+        "const user = 'Neo';",
+        "const node = 7;",
+        "// TODO: console.log the three banner lines using ${user} and ${node}"
+      ],
+      "solutionLines": [
+        "const user = 'Neo';",
+        "const node = 7;",
+        "console.log('=== THE CONSTRUCT ===');",
+        "console.log(`USER: ${user}`);",
+        "console.log(`NODE: ${node}`);"
+      ],
+      "tests": [
+        { "name": "the banner is not silent", "code": "assert(stdout().trim().length > 0, 'Nothing logged — use console.log().');" },
+        { "name": "three lines, exact", "code": "var lines = stdout().trim().split('\\n').map(function (s) { return s.trim(); });\nassertEqual(lines, ['=== THE CONSTRUCT ===', 'USER: Neo', 'NODE: 7'], 'Match all three banner lines exactly.');" }
+      ],
+      "hint": "Three console.log calls: a literal title line, then `USER: ${user}` and `NODE: ${node}`.",
+      "lore": "Welcome back, operator. The Construct is yours."
+    }
+  ]
+}
