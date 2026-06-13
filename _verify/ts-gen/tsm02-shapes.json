@@ -1,0 +1,181 @@
+{
+  "modId": "tsm02-shapes",
+  "exercises": [
+    {
+      "id": "ts-agentid",
+      "title": "AGENT BADGE",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 170,
+      "brief": "Stamp an agent's name and clearance level.",
+      "promptLines": [
+        "Define `interface Agent { name: string; level: number }` and **label(a: Agent): string** returning `<name> L<level>` built with a **template literal**.",
+        "~~~ts",
+        "label({ name: 'Faye', level: 3 }) // 'Faye L3'",
+        "~~~"
+      ],
+      "starterLines": [
+        "interface Agent { name: string; level: number }",
+        "function label(a: Agent): string {",
+        "  // TODO: build `${name} L${level}` with a template literal",
+        "  return '';",
+        "}"
+      ],
+      "solutionLines": [
+        "interface Agent { name: string; level: number }",
+        "function label(a: Agent): string {",
+        "  return `${a.name} L${a.level}`;",
+        "}"
+      ],
+      "tests": [
+        { "name": "Faye L3", "code": "assertEqual(label({ name: 'Faye', level: 3 }), 'Faye L3');" },
+        { "name": "reads both fields", "code": "assertEqual(label({ name: 'Jet', level: 9 }), 'Jet L9');" },
+        { "name": "level zero", "code": "assertEqual(label({ name: 'Ein', level: 0 }), 'Ein L0');" }
+      ],
+      "hint": "return `${a.name} L${a.level}`; — the L sits between the two interpolations.",
+      "lore": "Every operator on the grid wears a badge. Yours just printed."
+    },
+    {
+      "id": "ts-topagent",
+      "title": "RANK SWEEP",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Name the highest-level agent in the array.",
+      "promptLines": [
+        "With `interface Agent { name: string; level: number }`, define **topAgent(agents: Agent[]): string** returning the **name** of the agent with the highest **level**. An **empty** array returns **''**.",
+        "~~~ts",
+        "topAgent([{ name: 'Faye', level: 3 }, { name: 'Spike', level: 8 }]) // 'Spike'",
+        "topAgent([]) // ''",
+        "~~~"
+      ],
+      "starterLines": [
+        "interface Agent { name: string; level: number }",
+        "function topAgent(agents: Agent[]): string {",
+        "  // TODO: guard the empty array, then find the highest level",
+        "  return '';",
+        "}"
+      ],
+      "solutionLines": [
+        "interface Agent { name: string; level: number }",
+        "function topAgent(agents: Agent[]): string {",
+        "  if (agents.length === 0) return '';",
+        "  let best = agents[0];",
+        "  for (const a of agents) {",
+        "    if (a.level > best.level) best = a;",
+        "  }",
+        "  return best.name;",
+        "}"
+      ],
+      "tests": [
+        { "name": "picks the highest level", "code": "assertEqual(topAgent([{ name: 'Faye', level: 3 }, { name: 'Spike', level: 8 }]), 'Spike');" },
+        { "name": "keeps the first on a tie", "code": "assertEqual(topAgent([{ name: 'Jet', level: 5 }, { name: 'Ed', level: 5 }]), 'Jet');" },
+        { "name": "single agent", "code": "assertEqual(topAgent([{ name: 'Vicious', level: 7 }]), 'Vicious');" },
+        { "name": "empty -> empty string", "code": "assertEqual(topAgent([]), '', 'no agents on the board means no name');" }
+      ],
+      "hint": "Return '' first if the array is empty, then loop keeping the agent whose level is strictly greater.",
+      "lore": "Scan the bounty board. The biggest head sets the price."
+    },
+    {
+      "id": "ts-swap",
+      "title": "TUPLE FLIP",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Flip a fixed-shape pair end for end.",
+      "promptLines": [
+        "Define **swap(p: [string, number]): [number, string]** that returns a new tuple with the two slots **flipped**: the number first, the string second.",
+        "~~~ts",
+        "swap(['hp', 100]) // [100, 'hp']",
+        "~~~"
+      ],
+      "starterLines": [
+        "function swap(p: [string, number]): [number, string] {",
+        "  // TODO: return the slots in the opposite order",
+        "  return [0, ''];",
+        "}"
+      ],
+      "solutionLines": [
+        "function swap(p: [string, number]): [number, string] {",
+        "  return [p[1], p[0]];",
+        "}"
+      ],
+      "tests": [
+        { "name": "flips label and value", "code": "assertEqual(swap(['hp', 100]), [100, 'hp']);" },
+        { "name": "another pair", "code": "assertEqual(swap(['mp', 30]), [30, 'mp']);" },
+        { "name": "zero and empty label", "code": "assertEqual(swap(['', 0]), [0, '']);" }
+      ],
+      "hint": "return [p[1], p[0]]; — slot 1 (the number) goes first, slot 0 (the string) second.",
+      "lore": "Reverse the packet's header and payload. The router never noticed."
+    },
+    {
+      "id": "ts-tag",
+      "title": "CORE SUFFIX",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 170,
+      "brief": "Append a callsign suffix, defaulting to the core.",
+      "promptLines": [
+        "Define **tag(name: string, suffix?: string): string** returning `name` with `suffix` appended. When `suffix` is **omitted**, default it to **'-CORE'** using the **`??`** operator.",
+        "~~~ts",
+        "tag('NODE')        // 'NODE-CORE'",
+        "tag('NODE', '-7')  // 'NODE-7'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function tag(name: string, suffix?: string): string {",
+        "  // TODO: fall back to '-CORE' when suffix is missing",
+        "  return name + (suffix ?? '');",
+        "}"
+      ],
+      "solutionLines": [
+        "function tag(name: string, suffix?: string): string {",
+        "  return name + (suffix ?? '-CORE');",
+        "}"
+      ],
+      "tests": [
+        { "name": "defaults to -CORE", "code": "assertEqual(tag('NODE'), 'NODE-CORE', 'a missing suffix becomes -CORE');" },
+        { "name": "uses the given suffix", "code": "assertEqual(tag('NODE', '-7'), 'NODE-7');" },
+        { "name": "empty string suffix is kept", "code": "assertEqual(tag('NODE', ''), 'NODE', 'an empty string is present, so ?? does not replace it');" }
+      ],
+      "hint": "return name + (suffix ?? '-CORE'); — ?? only falls back on null/undefined, so '' stays.",
+      "lore": "Unsigned packets get stamped -CORE and routed to the deep stack."
+    },
+    {
+      "id": "ts-manhattan",
+      "title": "GRID DISTANCE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 170,
+      "brief": "Measure a point's taxi distance from the origin.",
+      "promptLines": [
+        "Define `type Point = { x: number; y: number }` and **manhattan(p: Point): number** returning the **Manhattan distance** from the origin: `Math.abs(p.x) + Math.abs(p.y)`.",
+        "~~~ts",
+        "manhattan({ x: 3, y: 4 })   // 7",
+        "manhattan({ x: -2, y: 5 })  // 7",
+        "~~~"
+      ],
+      "starterLines": [
+        "type Point = { x: number; y: number };",
+        "function manhattan(p: Point): number {",
+        "  // TODO: sum the absolute values of x and y",
+        "  return 0;",
+        "}"
+      ],
+      "solutionLines": [
+        "type Point = { x: number; y: number };",
+        "function manhattan(p: Point): number {",
+        "  return Math.abs(p.x) + Math.abs(p.y);",
+        "}"
+      ],
+      "tests": [
+        { "name": "3 + 4 = 7", "code": "assertEqual(manhattan({ x: 3, y: 4 }), 7);" },
+        { "name": "absolute values", "code": "assertEqual(manhattan({ x: -2, y: 5 }), 7);" },
+        { "name": "both negative", "code": "assertEqual(manhattan({ x: -6, y: -1 }), 7);" },
+        { "name": "origin -> 0", "code": "assertEqual(manhattan({ x: 0, y: 0 }), 0);" }
+      ],
+      "hint": "return Math.abs(p.x) + Math.abs(p.y); — distance is never negative.",
+      "lore": "On the grid you move in right angles only. Count the blocks, not the line."
+    }
+  ]
+}

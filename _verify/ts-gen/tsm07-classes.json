@@ -1,0 +1,196 @@
+{
+  "modId": "tsm07-classes",
+  "exercises": [
+    {
+      "id": "ts-counter",
+      "title": "PULSE COUNTER",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 130,
+      "brief": "A private tally that only goes up.",
+      "promptLines": [
+        "Define a class **Counter** with a **private** number field that **starts at 0**, a method **tick(): void** that adds 1, and a method **value(): number** returning the current count.",
+        "~~~ts",
+        "const c = new Counter();",
+        "c.tick(); c.tick();",
+        "c.value() // 2",
+        "~~~"
+      ],
+      "starterLines": [
+        "class Counter {",
+        "  // TODO: private count field starting at 0",
+        "  tick(): void {}",
+        "  value(): number { return 0; }",
+        "}"
+      ],
+      "solutionLines": [
+        "class Counter {",
+        "  private count: number = 0;",
+        "  tick(): void { this.count += 1; }",
+        "  value(): number { return this.count; }",
+        "}"
+      ],
+      "tests": [
+        { "name": "starts at zero", "code": "assertEqual(new Counter().value(), 0);" },
+        { "name": "two ticks", "code": "var c = new Counter();\nc.tick();\nc.tick();\nassertEqual(c.value(), 2);" },
+        { "name": "instances are independent", "code": "var a = new Counter();\nvar b = new Counter();\na.tick();\nassert(a.value() === 1 && b.value() === 0, 'each counter keeps its own count');" }
+      ],
+      "hint": "private count: number = 0; then this.count += 1 in tick and return this.count in value.",
+      "lore": "Every heartbeat logged, none erased."
+    },
+    {
+      "id": "ts-box",
+      "title": "TYPED CRATE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Seal any payload in a typed crate.",
+      "promptLines": [
+        "Define a generic class **Box<T>** using constructor shorthand `constructor(private value: T)` and a method **get(): T** returning the stored value.",
+        "~~~ts",
+        "new Box(42).get() // 42",
+        "new Box('x').get() // 'x'",
+        "~~~"
+      ],
+      "starterLines": [
+        "class Box<T> {",
+        "  // TODO: constructor shorthand + get()",
+        "  get(): T { return undefined as any; }",
+        "}"
+      ],
+      "solutionLines": [
+        "class Box<T> {",
+        "  constructor(private value: T) {}",
+        "  get(): T { return this.value; }",
+        "}"
+      ],
+      "tests": [
+        { "name": "number box", "code": "assertEqual(new Box(42).get(), 42);" },
+        { "name": "string box", "code": "assertEqual(new Box('x').get(), 'x');" },
+        { "name": "holds an array", "code": "assertEqual(new Box([1, 2]).get(), [1, 2]);" }
+      ],
+      "hint": "constructor(private value: T) {} then return this.value;",
+      "lore": "Schrodinger's crate — typed."
+    },
+    {
+      "id": "ts-range",
+      "title": "ZONE CHECK",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 190,
+      "brief": "Is the target inside the perimeter?",
+      "promptLines": [
+        "Define a class **Range** using constructor shorthand `constructor(private lo: number, private hi: number)` and a method **contains(x: number): boolean** that is `true` when `x` is between `lo` and `hi` **inclusive**.",
+        "~~~ts",
+        "const r = new Range(1, 10);",
+        "r.contains(1)  // true",
+        "r.contains(11) // false",
+        "~~~"
+      ],
+      "starterLines": [
+        "class Range {",
+        "  constructor(private lo: number, private hi: number) {}",
+        "  contains(x: number): boolean { return false; }",
+        "}"
+      ],
+      "solutionLines": [
+        "class Range {",
+        "  constructor(private lo: number, private hi: number) {}",
+        "  contains(x: number): boolean { return x >= this.lo && x <= this.hi; }",
+        "}"
+      ],
+      "tests": [
+        { "name": "inside", "code": "assertEqual(new Range(1, 10).contains(5), true);" },
+        { "name": "low edge inclusive", "code": "assertEqual(new Range(1, 10).contains(1), true);" },
+        { "name": "high edge inclusive", "code": "assertEqual(new Range(1, 10).contains(10), true);" },
+        { "name": "outside", "code": "assert(new Range(1, 10).contains(11) === false && new Range(1, 10).contains(0) === false);" }
+      ],
+      "hint": "return x >= this.lo && x <= this.hi;",
+      "lore": "Cross the line and the turrets wake."
+    },
+    {
+      "id": "ts-wallet",
+      "title": "CRED WALLET",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 220,
+      "brief": "Spend only what you hold.",
+      "promptLines": [
+        "Define a class **Wallet** with a **private** balance. The constructor takes a starting amount (default 0). Add **deposit(n: number): void**, **withdraw(n: number): boolean** (return `false` and change nothing if `n` exceeds the balance, else subtract and return `true`), and **balance(): number**.",
+        "~~~ts",
+        "const w = new Wallet(100);",
+        "w.deposit(50);   // balance 150",
+        "w.withdraw(200); // false (insufficient)",
+        "~~~"
+      ],
+      "starterLines": [
+        "class Wallet {",
+        "  constructor(start: number = 0) {}",
+        "  deposit(n: number): void {}",
+        "  withdraw(n: number): boolean { return false; }",
+        "  balance(): number { return 0; }",
+        "}"
+      ],
+      "solutionLines": [
+        "class Wallet {",
+        "  private bal: number;",
+        "  constructor(start: number = 0) { this.bal = start; }",
+        "  deposit(n: number): void { this.bal += n; }",
+        "  withdraw(n: number): boolean {",
+        "    if (n > this.bal) return false;",
+        "    this.bal -= n;",
+        "    return true;",
+        "  }",
+        "  balance(): number { return this.bal; }",
+        "}"
+      ],
+      "tests": [
+        { "name": "defaults to empty", "code": "assertEqual(new Wallet().balance(), 0);" },
+        { "name": "deposit raises balance", "code": "var w = new Wallet(100);\nw.deposit(50);\nassertEqual(w.balance(), 150);" },
+        { "name": "overdraft refused", "code": "var w = new Wallet(100);\nassert(w.withdraw(200) === false && w.balance() === 100, 'no overdraft, balance unchanged');" },
+        { "name": "valid withdrawal", "code": "var w = new Wallet(100);\nassert(w.withdraw(60) === true && w.balance() === 40);" }
+      ],
+      "hint": "Store this.bal; withdraw checks n > this.bal and returns false before changing anything.",
+      "lore": "The street ledger never extends credit."
+    },
+    {
+      "id": "ts-accumulator",
+      "title": "RUNNING SUM",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 230,
+      "brief": "Fold a stream of numbers into one total.",
+      "promptLines": [
+        "Define a class **Accumulator** with a **private** total that **starts at 0**. Add **add(n: number): number** that adds `n` to the total and **returns the new running total**, and **total(): number** returning the current total.",
+        "~~~ts",
+        "const acc = new Accumulator();",
+        "acc.add(3) // 3",
+        "acc.add(4) // 7",
+        "acc.total() // 7",
+        "~~~"
+      ],
+      "starterLines": [
+        "class Accumulator {",
+        "  // TODO: private sum field starting at 0",
+        "  add(n: number): number { return 0; }",
+        "  total(): number { return 0; }",
+        "}"
+      ],
+      "solutionLines": [
+        "class Accumulator {",
+        "  private sum: number = 0;",
+        "  add(n: number): number { this.sum += n; return this.sum; }",
+        "  total(): number { return this.sum; }",
+        "}"
+      ],
+      "tests": [
+        { "name": "starts at zero", "code": "assertEqual(new Accumulator().total(), 0);" },
+        { "name": "add returns running total", "code": "var acc = new Accumulator();\nassert(acc.add(3) === 3 && acc.add(4) === 7, 'add returns the updated total');" },
+        { "name": "total reflects the sum", "code": "var acc = new Accumulator();\nacc.add(3);\nacc.add(4);\nassertEqual(acc.total(), 7);" },
+        { "name": "instances are independent", "code": "var a = new Accumulator();\nvar b = new Accumulator();\na.add(5);\nassert(a.total() === 5 && b.total() === 0, 'each accumulator keeps its own sum');" }
+      ],
+      "hint": "private sum = 0; in add do this.sum += n then return this.sum.",
+      "lore": "Drip by drip, the meter climbs."
+    }
+  ]
+}

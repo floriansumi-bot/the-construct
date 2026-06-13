@@ -1,0 +1,176 @@
+{
+  "modId": "tsm0b-nullsafe",
+  "exercises": [
+    {
+      "id": "ts-initial",
+      "title": "GLYPH STAMP",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Brand a callsign by its leading glyph.",
+      "promptLines": [
+        "Define **initial(name?: string): string** returning the **first character uppercased**, or `'?'` when the name is **missing or empty**. Use `?.` and `??`.",
+        "~~~ts",
+        "initial('neo')  // 'N'",
+        "initial('')     // '?'",
+        "initial()       // '?'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function initial(name?: string): string {",
+        "  // TODO: also UPPERCASE the first character",
+        "  return name?.[0] ?? '?';",
+        "}"
+      ],
+      "solutionLines": [
+        "function initial(name?: string): string {",
+        "  return name?.[0]?.toUpperCase() ?? '?';",
+        "}"
+      ],
+      "tests": [
+        { "name": "first char uppercased", "code": "assertEqual(initial('neo'), 'N');" },
+        { "name": "already uppercase stays", "code": "assertEqual(initial('Faye'), 'F');" },
+        { "name": "empty string -> ?", "code": "assertEqual(initial(''), '?', 'index 0 of an empty string is undefined');" },
+        { "name": "missing -> ?", "code": "assertEqual(initial(), '?');" }
+      ],
+      "hint": "name?.[0]?.toUpperCase() ?? '?'  — chain ?. so a missing name never throws.",
+      "lore": "Even a one-glyph mark must burn bright. The nameless get a question."
+    },
+    {
+      "id": "ts-safelen",
+      "title": "NULL PROBE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Measure a maybe-missing buffer.",
+      "promptLines": [
+        "Define **safeLen(xs?: unknown[]): number** returning the array length, or `0` if the argument is missing. Use `?.` and `??`.",
+        "~~~ts",
+        "safeLen([1,2,3]) // 3",
+        "safeLen() // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function safeLen(xs?: unknown[]): number {",
+        "  // TODO",
+        "  return -1;",
+        "}"
+      ],
+      "solutionLines": [
+        "function safeLen(xs?: unknown[]): number {",
+        "  return xs?.length ?? 0;",
+        "}"
+      ],
+      "tests": [
+        { "name": "counts", "code": "assertEqual(safeLen([1,2,3]), 3);" },
+        { "name": "missing -> 0", "code": "assertEqual(safeLen(), 0);" },
+        { "name": "empty -> 0", "code": "assertEqual(safeLen([]), 0);" }
+      ],
+      "hint": "xs?.length ?? 0",
+      "lore": "Trust nothing that might be null."
+    },
+    {
+      "id": "ts-debugon",
+      "title": "FLAG SWEEP",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Read a deeply optional debug flag.",
+      "promptLines": [
+        "Define **debugOn(cfg: { opts?: { debug?: boolean } }): boolean** returning whether debug is on, defaulting to `false` when `opts` or `debug` is missing. Use `?.` and `??`.",
+        "~~~ts",
+        "debugOn({ opts: { debug: true } })  // true",
+        "debugOn({})                         // false",
+        "~~~"
+      ],
+      "starterLines": [
+        "function debugOn(cfg: { opts?: { debug?: boolean } }): boolean {",
+        "  // TODO: the default should be false, not true",
+        "  return cfg.opts?.debug ?? true;",
+        "}"
+      ],
+      "solutionLines": [
+        "function debugOn(cfg: { opts?: { debug?: boolean } }): boolean {",
+        "  return cfg.opts?.debug ?? false;",
+        "}"
+      ],
+      "tests": [
+        { "name": "debug true", "code": "assertEqual(debugOn({ opts: { debug: true } }), true);" },
+        { "name": "missing opts -> false", "code": "assertEqual(debugOn({}), false);" },
+        { "name": "opts without debug -> false", "code": "assertEqual(debugOn({ opts: {} }), false);" },
+        { "name": "explicit false is kept", "code": "assertEqual(debugOn({ opts: { debug: false } }), false, '?? keeps a real false, it does not re-default it');" }
+      ],
+      "hint": "cfg.opts?.debug ?? false  — ?. tunnels through a missing opts in one read.",
+      "lore": "Two locks deep sits the debug switch. Default it dark."
+    },
+    {
+      "id": "ts-priceor",
+      "title": "PRICE TAG",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Default a price only when it is truly absent.",
+      "promptLines": [
+        "Define **priceOr(item: { price?: number }, d: number): number** returning the item's price, or the default `d` when `price` is **missing**. A price of **0** must be **kept**, never replaced. Use `??`.",
+        "~~~ts",
+        "priceOr({ price: 99 }, 10)  // 99",
+        "priceOr({}, 10)            // 10",
+        "priceOr({ price: 0 }, 10)  // 0  (kept!)",
+        "~~~"
+      ],
+      "starterLines": [
+        "function priceOr(item: { price?: number }, d: number): number {",
+        "  // TODO: fall back to d (not 0) when price is missing",
+        "  return item.price ?? 0;",
+        "}"
+      ],
+      "solutionLines": [
+        "function priceOr(item: { price?: number }, d: number): number {",
+        "  return item.price ?? d;",
+        "}"
+      ],
+      "tests": [
+        { "name": "uses the price", "code": "assertEqual(priceOr({ price: 99 }, 10), 99);" },
+        { "name": "missing -> default", "code": "assertEqual(priceOr({}, 10), 10);" },
+        { "name": "price of 0 is kept", "code": "assertEqual(priceOr({ price: 0 }, 10), 0, 'zero is a real price; ?? must not replace it with d');" }
+      ],
+      "hint": "item.price ?? d  — ?? only fires on null/undefined, so a price of 0 survives.",
+      "lore": "A free item still costs zero. Mark it zero, not the fallback."
+    },
+    {
+      "id": "ts-firstdef",
+      "title": "FIRST SIGNAL",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Take the first value that actually arrived.",
+      "promptLines": [
+        "Define a generic **firstDefined<T>(a: T | undefined, b: T | undefined, c: T | undefined): T | undefined** returning the **first argument that is not `undefined`**, or `undefined` if all three are. Use `??`. A value of `0` or `''` counts as present.",
+        "~~~ts",
+        "firstDefined(undefined, 'B', 'C')          // 'B'",
+        "firstDefined(undefined, undefined, undefined) // undefined",
+        "~~~"
+      ],
+      "starterLines": [
+        "function firstDefined<T>(a: T | undefined, b: T | undefined, c: T | undefined): T | undefined {",
+        "  // TODO: c must also be considered",
+        "  return a ?? b;",
+        "}"
+      ],
+      "solutionLines": [
+        "function firstDefined<T>(a: T | undefined, b: T | undefined, c: T | undefined): T | undefined {",
+        "  return a ?? b ?? c;",
+        "}"
+      ],
+      "tests": [
+        { "name": "first present wins", "code": "assertEqual(firstDefined('A', 'B', 'C'), 'A');" },
+        { "name": "skips leading undefined", "code": "assertEqual(firstDefined(undefined, 'B', 'C'), 'B');" },
+        { "name": "falls through to third", "code": "assertEqual(firstDefined(undefined, undefined, 'C'), 'C');" },
+        { "name": "all undefined -> undefined", "code": "assert(firstDefined(undefined, undefined, undefined) === undefined);" },
+        { "name": "a zero counts as present", "code": "assertEqual(firstDefined(0, 9, 9), 0, '0 is not undefined, so ?? returns it');" }
+      ],
+      "hint": "a ?? b ?? c  — ?? chains left to right, stopping at the first non-undefined.",
+      "lore": "Three relays, one packet. Trust whichever fires first."
+    }
+  ]
+}

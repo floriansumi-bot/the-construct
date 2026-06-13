@@ -1,0 +1,174 @@
+{
+  "modId": "tsm01-annotate",
+  "exercises": [
+    {
+      "id": "ts-greet",
+      "title": "HANDSHAKE",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 110,
+      "brief": "Open a channel by name.",
+      "promptLines": [
+        "Define **greet(name: string): string** returning `hi ` followed by the name.",
+        "~~~ts",
+        "greet('Spike') // 'hi Spike'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function greet(name: string): string {",
+        "  // TODO",
+        "  return '';",
+        "}"
+      ],
+      "solutionLines": [
+        "function greet(name: string): string {",
+        "  return 'hi ' + name;",
+        "}"
+      ],
+      "tests": [
+        { "name": "greets Spike", "code": "assertEqual(greet('Spike'), 'hi Spike');" },
+        { "name": "uses the arg", "code": "assertEqual(greet('Ed'), 'hi Ed');" }
+      ],
+      "hint": "return 'hi ' + name;",
+      "lore": "Channel open. Identify yourself, runner."
+    },
+    {
+      "id": "ts-adult",
+      "title": "AGE GATE",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Boolean gate on a numeric threshold.",
+      "promptLines": [
+        "Define **isAdult(age: number): boolean** that returns `true` when `age` is **18 or more**, else `false`.",
+        "~~~ts",
+        "isAdult(18) // true",
+        "isAdult(17) // false",
+        "~~~"
+      ],
+      "starterLines": [
+        "function isAdult(age: number): boolean {",
+        "  // TODO",
+        "  return false;",
+        "}"
+      ],
+      "solutionLines": [
+        "function isAdult(age: number): boolean {",
+        "  return age >= 18;",
+        "}"
+      ],
+      "tests": [
+        { "name": "18 is adult", "code": "assertEqual(isAdult(18), true);" },
+        { "name": "17 is not", "code": "assertEqual(isAdult(17), false);" },
+        { "name": "well over", "code": "assertEqual(isAdult(99), true);" }
+      ],
+      "hint": "return age >= 18;",
+      "lore": "ICE checks your birthdate before the door unlocks."
+    },
+    {
+      "id": "ts-credits",
+      "title": "CREDIT TICKER",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 150,
+      "brief": "Format a number as currency with two decimals.",
+      "promptLines": [
+        "Define **credits(n: number): string** returning `$` followed by `n` fixed to **two decimals**. Use `n.toFixed(2)`.",
+        "~~~ts",
+        "credits(5) // '$5.00'",
+        "credits(2.5) // '$2.50'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function credits(n: number): string {",
+        "  // TODO",
+        "  return '';",
+        "}"
+      ],
+      "solutionLines": [
+        "function credits(n: number): string {",
+        "  return '$' + n.toFixed(2);",
+        "}"
+      ],
+      "tests": [
+        { "name": "whole number", "code": "assertEqual(credits(5), '$5.00');" },
+        { "name": "half credit", "code": "assertEqual(credits(2.5), '$2.50');" },
+        { "name": "broke", "code": "assertEqual(credits(0), '$0.00');" }
+      ],
+      "hint": "return '$' + n.toFixed(2);",
+      "lore": "Your balance, jacked straight from the black market till."
+    },
+    {
+      "id": "ts-rank",
+      "title": "THREAT RANK",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 160,
+      "brief": "Map a union of literals to a numeric level.",
+      "promptLines": [
+        "A **union of string literals** pins the input to an exact set. Define type **Priority = 'LOW' | 'MED' | 'HIGH'** and a function **rank(p: Priority): number** returning:",
+        "- LOW -> 0",
+        "- MED -> 1",
+        "- HIGH -> 2",
+        "~~~ts",
+        "rank('HIGH') // 2",
+        "~~~"
+      ],
+      "starterLines": [
+        "type Priority = 'LOW' | 'MED' | 'HIGH';",
+        "function rank(p: Priority): number {",
+        "  // TODO",
+        "  return -1;",
+        "}"
+      ],
+      "solutionLines": [
+        "type Priority = 'LOW' | 'MED' | 'HIGH';",
+        "function rank(p: Priority): number {",
+        "  if (p === 'LOW') return 0;",
+        "  if (p === 'MED') return 1;",
+        "  return 2;",
+        "}"
+      ],
+      "tests": [
+        { "name": "LOW -> 0", "code": "assertEqual(rank('LOW'), 0);" },
+        { "name": "MED -> 1", "code": "assertEqual(rank('MED'), 1);" },
+        { "name": "HIGH -> 2", "code": "assertEqual(rank('HIGH'), 2);" }
+      ],
+      "hint": "Compare p against each literal with === and return 0, 1, or 2.",
+      "lore": "The grid colour-codes every soul it watches."
+    },
+    {
+      "id": "ts-flip",
+      "title": "KILL SWITCH",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 180,
+      "brief": "Invert a boolean and return the typed result.",
+      "promptLines": [
+        "Define **flip(b: boolean): boolean** that returns the **opposite** of `b`. Use the `!` operator.",
+        "~~~ts",
+        "flip(true) // false",
+        "flip(false) // true",
+        "~~~"
+      ],
+      "starterLines": [
+        "function flip(b: boolean): boolean {",
+        "  // TODO",
+        "  return b;",
+        "}"
+      ],
+      "solutionLines": [
+        "function flip(b: boolean): boolean {",
+        "  return !b;",
+        "}"
+      ],
+      "tests": [
+        { "name": "true flips to false", "code": "assertEqual(flip(true), false);" },
+        { "name": "false flips to true", "code": "assertEqual(flip(false), true);" },
+        { "name": "double flip is identity", "code": "assertEqual(flip(flip(true)), true);" }
+      ],
+      "hint": "return !b;",
+      "lore": "One toggle and the whole rig goes dark."
+    }
+  ]
+}

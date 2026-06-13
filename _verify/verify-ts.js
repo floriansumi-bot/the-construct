@@ -14,6 +14,8 @@ load("curriculum-ts-pack-3.js");
 load("curriculum-ts-pack-4.js");
 load("curriculum-ts-pack-5.js");
 load("curriculum-ts-pack-6.js");
+load("curriculum-ts-pack-7.js");
+load("curriculum-ts-pack-8.js");
 load("runtime-js.js");
 
 (async function () {

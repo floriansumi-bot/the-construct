@@ -1,0 +1,201 @@
+{
+  "modId": "tsm0c-errors",
+  "exercises": [
+    {
+      "id": "ts-requirepos",
+      "title": "GATEKEEPER",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Reject non-positive power.",
+      "promptLines": [
+        "Define **requirePositive(n: number): number** returning `n` when `n > 0`, otherwise **throwing** an Error.",
+        "~~~ts",
+        "requirePositive(5) // 5",
+        "requirePositive(0) // throws",
+        "~~~"
+      ],
+      "starterLines": [
+        "function requirePositive(n: number): number {",
+        "  // TODO: throw when n <= 0, else return n",
+        "  return n;",
+        "}"
+      ],
+      "solutionLines": [
+        "function requirePositive(n: number): number {",
+        "  if (n <= 0) throw new Error('must be positive');",
+        "  return n;",
+        "}"
+      ],
+      "tests": [
+        { "name": "passes positive", "code": "assertEqual(requirePositive(5), 5);" },
+        { "name": "passes large positive", "code": "assertEqual(requirePositive(9000), 9000);" },
+        { "name": "throws on zero", "code": "assertThrows(function () { requirePositive(0); });" },
+        { "name": "throws on negative", "code": "assertThrows(function () { requirePositive(-3); });" }
+      ],
+      "hint": "if (n <= 0) throw new Error(...); return n;",
+      "lore": "None pass the reactor gate without a positive charge."
+    },
+    {
+      "id": "ts-validatetag",
+      "title": "CHECKPOINT",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Demand a real tag, trimmed clean.",
+      "promptLines": [
+        "Define **validateTag(s: string): string** that **trims** surrounding whitespace and returns the result.",
+        "If the trimmed tag is empty (blank or all spaces), **throw** an Error instead.",
+        "~~~ts",
+        "validateTag('  neo ') // 'neo'",
+        "validateTag('   ')    // throws",
+        "~~~"
+      ],
+      "starterLines": [
+        "function validateTag(s: string): string {",
+        "  // TODO: trim s; throw if empty, else return it",
+        "  return s;",
+        "}"
+      ],
+      "solutionLines": [
+        "function validateTag(s: string): string {",
+        "  const t: string = s.trim();",
+        "  if (t === '') throw new Error('tag required');",
+        "  return t;",
+        "}"
+      ],
+      "tests": [
+        { "name": "trims padding", "code": "assertEqual(validateTag('  neo '), 'neo');" },
+        { "name": "keeps inner content", "code": "assertEqual(validateTag('trinity'), 'trinity');" },
+        { "name": "throws on blank spaces", "code": "assertThrows(function () { validateTag('   '); });" },
+        { "name": "throws on empty string", "code": "assertThrows(function () { validateTag(''); });" }
+      ],
+      "hint": "const t = s.trim(); if (t === '') throw new Error(...); return t;",
+      "lore": "A blank ID badge gets you nowhere at the checkpoint."
+    },
+    {
+      "id": "ts-getorelse",
+      "title": "FALLBACK CACHE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 190,
+      "brief": "Trust the function, keep a backup ready.",
+      "promptLines": [
+        "Define a generic **getOrElse<T>(fn: () => T, fallback: T): T** that calls `fn()` and returns its value.",
+        "If `fn()` **throws**, swallow the error with `try` / `catch` and return `fallback` instead. It must never throw.",
+        "~~~ts",
+        "getOrElse(() => 42, 0)                       // 42",
+        "getOrElse(() => { throw new Error('x'); }, 0) // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function getOrElse<T>(fn: () => T, fallback: T): T {",
+        "  // TODO: return fn(), or fallback if it throws",
+        "  return fn();",
+        "}"
+      ],
+      "solutionLines": [
+        "function getOrElse<T>(fn: () => T, fallback: T): T {",
+        "  try {",
+        "    return fn();",
+        "  } catch (e) {",
+        "    return fallback;",
+        "  }",
+        "}"
+      ],
+      "tests": [
+        { "name": "returns fn value", "code": "assertEqual(getOrElse(function () { return 42; }, 0), 42);" },
+        { "name": "falls back on throw", "code": "assertEqual(getOrElse(function () { throw new Error('boom'); }, 0), 0);" },
+        { "name": "fallback can be a string", "code": "assertEqual(getOrElse(function () { throw new Error('down'); }, 'OFFLINE'), 'OFFLINE');" },
+        { "name": "does not throw on failure", "code": "assertEqual(getOrElse(function () { throw new Error('e'); }, -1), -1);" }
+      ],
+      "hint": "try { return fn(); } catch (e) { return fallback; }",
+      "lore": "When the live feed dies, the cache keeps the deck breathing."
+    },
+    {
+      "id": "ts-safesqrt",
+      "title": "RESULT ROOT",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 240,
+      "brief": "Square root that returns a typed Result.",
+      "promptLines": [
+        "A **Result union** carries either a value or an error, never both:",
+        "~~~ts",
+        "type Result<T> = { ok: true; value: T } | { ok: false; error: string };",
+        "~~~",
+        "Define **safeSqrt(n: number): Result<number>**. For negative `n` return `{ ok: false, error: 'negative' }`; otherwise return `{ ok: true, value: Math.sqrt(n) }`.",
+        "~~~ts",
+        "safeSqrt(9)  // { ok: true, value: 3 }",
+        "safeSqrt(-4) // { ok: false, error: 'negative' }",
+        "~~~"
+      ],
+      "starterLines": [
+        "type Result<T> = { ok: true; value: T } | { ok: false; error: string };",
+        "",
+        "function safeSqrt(n: number): Result<number> {",
+        "  // TODO: negative -> error result, else ok result",
+        "  return { ok: true, value: n };",
+        "}"
+      ],
+      "solutionLines": [
+        "type Result<T> = { ok: true; value: T } | { ok: false; error: string };",
+        "",
+        "function safeSqrt(n: number): Result<number> {",
+        "  if (n < 0) return { ok: false, error: 'negative' };",
+        "  return { ok: true, value: Math.sqrt(n) };",
+        "}"
+      ],
+      "tests": [
+        { "name": "perfect square -> ok", "code": "assertEqual(safeSqrt(9), { ok: true, value: 3 });" },
+        { "name": "zero -> ok", "code": "assertEqual(safeSqrt(0), { ok: true, value: 0 });" },
+        { "name": "negative -> error", "code": "assertEqual(safeSqrt(-4), { ok: false, error: 'negative' });" },
+        { "name": "ok flag set on success", "code": "assertEqual(safeSqrt(16).ok, true);" }
+      ],
+      "hint": "if (n < 0) return { ok: false, error: 'negative' }; return { ok: true, value: Math.sqrt(n) };",
+      "lore": "The result packet tags itself: a clean root, or a flagged fault."
+    },
+    {
+      "id": "ts-firstok",
+      "title": "FIRST CONTACT",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 240,
+      "brief": "Return the first attempt that survives.",
+      "promptLines": [
+        "Define a generic **firstOk<T>(fns: Array<() => T>): T** that tries each function in order and returns the value of the **first one that does not throw**.",
+        "Wrap each call in `try` / `catch`; if **every** function throws, **throw** an Error.",
+        "~~~ts",
+        "firstOk([() => { throw new Error('x'); }, () => 7]) // 7",
+        "firstOk([() => { throw new Error('x'); }])          // throws",
+        "~~~"
+      ],
+      "starterLines": [
+        "function firstOk<T>(fns: Array<() => T>): T {",
+        "  // TODO: return the first call that does not throw; throw if all fail",
+        "  return fns[0]();",
+        "}"
+      ],
+      "solutionLines": [
+        "function firstOk<T>(fns: Array<() => T>): T {",
+        "  for (let i = 0; i < fns.length; i++) {",
+        "    try {",
+        "      return fns[i]();",
+        "    } catch (e) {",
+        "      // try the next one",
+        "    }",
+        "  }",
+        "  throw new Error('all attempts failed');",
+        "}"
+      ],
+      "tests": [
+        { "name": "first survivor wins", "code": "assertEqual(firstOk([function () { return 1; }, function () { return 2; }]), 1);" },
+        { "name": "skips a thrower", "code": "assertEqual(firstOk([function () { throw new Error('a'); }, function () { return 7; }]), 7);" },
+        { "name": "skips two throwers", "code": "assertEqual(firstOk([function () { throw new Error('a'); }, function () { throw new Error('b'); }, function () { return 'live'; }]), 'live');" },
+        { "name": "all throw -> throws", "code": "assertThrows(function () { firstOk([function () { throw new Error('x'); }, function () { throw new Error('y'); }]); });" }
+      ],
+      "hint": "loop the array, try { return fns[i](); } catch (e) {}; after the loop throw new Error(...)",
+      "lore": "Probe the array of channels; the first that answers clean is your link."
+    }
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "modId": "tsm08-fntypes",
+  "exercises": [
+    {
+      "id": "ts-makemult",
+      "title": "GAIN FORGE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Forge an amplifier with the factor baked in.",
+      "promptLines": [
+        "Define **makeMultiplier(factor: number): (x: number) => number** returning a function that multiplies its input by `factor`.",
+        "~~~ts",
+        "const double = makeMultiplier(2);",
+        "double(21) // 42",
+        "~~~"
+      ],
+      "starterLines": [
+        "function makeMultiplier(factor: number): (x: number) => number {",
+        "  // TODO",
+        "  return (x: number) => 0;",
+        "}"
+      ],
+      "solutionLines": [
+        "function makeMultiplier(factor: number): (x: number) => number {",
+        "  return (x: number) => x * factor;",
+        "}"
+      ],
+      "tests": [
+        { "name": "doubler", "code": "var double = makeMultiplier(2);\nassert(double(21) === 42 && double(0) === 0);" },
+        { "name": "tripler", "code": "var triple = makeMultiplier(3);\nassert(triple(10) === 30 && triple(-2) === -6);" }
+      ],
+      "hint": "return (x) => x * factor;",
+      "lore": "Crank the gain."
+    },
+    {
+      "id": "ts-countmatch",
+      "title": "PASS FILTER",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 190,
+      "brief": "Count how many items clear the predicate.",
+      "promptLines": [
+        "A **predicate** is a function-type `(x: T) => boolean`. Define **countMatching<T>(xs: T[], pred: (x: T) => boolean): number** returning how many items in `xs` make `pred` return `true`.",
+        "~~~ts",
+        "countMatching([1, 2, 3, 4], (n: number) => n % 2 === 0) // 2",
+        "countMatching([], (n: number) => true) // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function countMatching<T>(xs: T[], pred: (x: T) => boolean): number {",
+        "  // TODO",
+        "  return 0;",
+        "}"
+      ],
+      "solutionLines": [
+        "function countMatching<T>(xs: T[], pred: (x: T) => boolean): number {",
+        "  let n = 0;",
+        "  for (const x of xs) {",
+        "    if (pred(x)) n++;",
+        "  }",
+        "  return n;",
+        "}"
+      ],
+      "tests": [
+        { "name": "evens", "code": "assert(countMatching([1, 2, 3, 4], function (n) { return n % 2 === 0; }) === 2);" },
+        { "name": "long words", "code": "assert(countMatching(['hi', 'runner', 'ok', 'grid'], function (s) { return s.length > 2; }) === 2);" },
+        { "name": "empty is zero", "code": "assert(countMatching([], function (n) { return true; }) === 0);" }
+      ],
+      "hint": "Loop xs, do n++ each time pred(x) is true, then return n.",
+      "lore": "The scanner tallies every signal that clears the gate."
+    },
+    {
+      "id": "ts-joinnums",
+      "title": "SPLICE STREAM",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Gather any count of numbers and weld them with a separator.",
+      "promptLines": [
+        "**Rest params** `...ns: number[]` collect every extra argument into an array. Define **joinNums(sep: string, ...ns: number[]): string** returning the numbers joined by `sep` (use `ns.join(sep)`).",
+        "~~~ts",
+        "joinNums('-', 1, 2, 3) // '1-2-3'",
+        "joinNums(',') // ''",
+        "~~~"
+      ],
+      "starterLines": [
+        "function joinNums(sep: string, ...ns: number[]): string {",
+        "  // TODO",
+        "  return 'x';",
+        "}"
+      ],
+      "solutionLines": [
+        "function joinNums(sep: string, ...ns: number[]): string {",
+        "  return ns.join(sep);",
+        "}"
+      ],
+      "tests": [
+        { "name": "dash weld", "code": "assertEqual(joinNums('-', 1, 2, 3), '1-2-3');" },
+        { "name": "single value", "code": "assertEqual(joinNums(',', 7), '7');" },
+        { "name": "no numbers", "code": "assertEqual(joinNums(','), '');" }
+      ],
+      "hint": "return ns.join(sep);",
+      "lore": "Stray packets, spliced into one clean stream."
+    },
+    {
+      "id": "ts-applyall",
+      "title": "PIPE ARRAY",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 220,
+      "brief": "Run one value through a whole rack of transforms.",
+      "promptLines": [
+        "An **array of function-types** `Array<(n: number) => number>` is a rack of transforms. Define **applyAll(fns: Array<(n: number) => number>, x: number): number[]** returning the result of applying each function to `x`, in order.",
+        "~~~ts",
+        "applyAll([(n: number) => n + 1, (n: number) => n * 2], 10) // [11, 20]",
+        "applyAll([], 5) // []",
+        "~~~"
+      ],
+      "starterLines": [
+        "function applyAll(fns: Array<(n: number) => number>, x: number): number[] {",
+        "  // TODO",
+        "  return [x];",
+        "}"
+      ],
+      "solutionLines": [
+        "function applyAll(fns: Array<(n: number) => number>, x: number): number[] {",
+        "  return fns.map((f) => f(x));",
+        "}"
+      ],
+      "tests": [
+        { "name": "two transforms", "code": "assertEqual(applyAll([function (n) { return n + 1; }, function (n) { return n * 2; }], 10), [11, 20]);" },
+        { "name": "order preserved", "code": "assertEqual(applyAll([function (n) { return n - 3; }, function (n) { return n * n; }, function (n) { return n; }], 4), [1, 16, 4]);" },
+        { "name": "empty rack", "code": "assertEqual(applyAll([], 5), []);" }
+      ],
+      "hint": "return fns.map((f) => f(x));",
+      "lore": "One signal, fanned across every patch in the rack."
+    },
+    {
+      "id": "ts-repeatcall",
+      "title": "ECHO LOOP",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 230,
+      "brief": "Fire a zero-arg producer n times and collect the echoes.",
+      "promptLines": [
+        "A producer is a function-type `() => T` taking no args. Define **repeatCall<T>(fn: () => T, n: number): T[]** that calls `fn` exactly `n` times and collects the results into an array. When `n` is `0`, return `[]`.",
+        "~~~ts",
+        "let i = 0;",
+        "repeatCall(() => i++, 3) // [0, 1, 2]",
+        "repeatCall(() => 9, 0) // []",
+        "~~~"
+      ],
+      "starterLines": [
+        "function repeatCall<T>(fn: () => T, n: number): T[] {",
+        "  // TODO",
+        "  return [fn()];",
+        "}"
+      ],
+      "solutionLines": [
+        "function repeatCall<T>(fn: () => T, n: number): T[] {",
+        "  const out: T[] = [];",
+        "  for (let i = 0; i < n; i++) {",
+        "    out.push(fn());",
+        "  }",
+        "  return out;",
+        "}"
+      ],
+      "tests": [
+        { "name": "counts up", "code": "var i = 0;\nassertEqual(repeatCall(function () { return i++; }, 3), [0, 1, 2]);" },
+        { "name": "constant echo", "code": "assertEqual(repeatCall(function () { return 'x'; }, 2), ['x', 'x']);" },
+        { "name": "zero calls", "code": "var hits = 0;\nvar r = repeatCall(function () { hits++; return 1; }, 0);\nassertEqual(r, []);\nassert(hits === 0);" }
+      ],
+      "hint": "Build an empty array, loop i from 0 to n pushing fn(), return it.",
+      "lore": "Strike once, hear it bounce n times down the corridor."
+    }
+  ]
+}

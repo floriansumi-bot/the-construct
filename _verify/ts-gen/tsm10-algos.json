@@ -1,0 +1,197 @@
+{
+  "modId": "tsm10-algos",
+  "exercises": [
+    {
+      "id": "ts-contains",
+      "title": "ICE PROBE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 190,
+      "brief": "Is the key in the sorted vault?",
+      "promptLines": [
+        "`sorted` is ascending. Define **contains(sorted: number[], x: number): boolean** using BINARY search.",
+        "~~~ts",
+        "contains([1, 3, 5, 7], 5)  // true",
+        "contains([1, 3, 5, 7], 4)  // false",
+        "~~~"
+      ],
+      "starterLines": [
+        "function contains(sorted: number[], x: number): boolean {",
+        "  // TODO: lo/hi window, compare the midpoint",
+        "  return false;",
+        "}"
+      ],
+      "solutionLines": [
+        "function contains(sorted: number[], x: number): boolean {",
+        "  let lo = 0, hi = sorted.length - 1;",
+        "  while (lo <= hi) {",
+        "    const mid = (lo + hi) >> 1;",
+        "    if (sorted[mid] === x) return true;",
+        "    if (sorted[mid] < x) lo = mid + 1; else hi = mid - 1;",
+        "  }",
+        "  return false;",
+        "}"
+      ],
+      "tests": [
+        { "name": "present", "code": "assert(contains([1,3,5,7], 5) === true && contains([1,3,5,7], 1) === true && contains([1,3,5,7], 7) === true);" },
+        { "name": "absent", "code": "assert(contains([1,3,5,7], 4) === false && contains([], 9) === false && contains([2], 1) === false);" }
+      ],
+      "hint": "lo<=hi loop; compare midpoint; move lo or hi.",
+      "lore": "Halve the space until ICE cracks."
+    },
+    {
+      "id": "ts-dedupesorted",
+      "title": "SIGNAL SQUELCH",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 190,
+      "brief": "Collapse repeated bytes in an ordered stream.",
+      "promptLines": [
+        "`xs` is already sorted, so duplicates sit next to each other. Define a generic **dedupeSorted<T>(xs: T[]): T[]**",
+        "returning a new array with each run of equal, *adjacent* elements collapsed to one.",
+        "~~~ts",
+        "dedupeSorted([1, 1, 2, 3, 3, 3])  // [1, 2, 3]",
+        "dedupeSorted<number>([])          // []",
+        "~~~"
+      ],
+      "starterLines": [
+        "function dedupeSorted<T>(xs: T[]): T[] {",
+        "  // TODO: keep an element only when it differs from the one before it",
+        "  return xs.slice();",
+        "}"
+      ],
+      "solutionLines": [
+        "function dedupeSorted<T>(xs: T[]): T[] {",
+        "  const out: T[] = [];",
+        "  for (let i = 0; i < xs.length; i++) {",
+        "    if (i === 0 || xs[i] !== xs[i - 1]) out.push(xs[i]);",
+        "  }",
+        "  return out;",
+        "}"
+      ],
+      "tests": [
+        { "name": "runs collapsed", "code": "assertEqual(dedupeSorted([1, 1, 2, 3, 3, 3]), [1, 2, 3]);" },
+        { "name": "strings", "code": "assertEqual(dedupeSorted(['a', 'a', 'b', 'b', 'c']), ['a', 'b', 'c']);" },
+        { "name": "already unique", "code": "assertEqual(dedupeSorted([1, 2, 3]), [1, 2, 3]);" },
+        { "name": "empty -> empty", "code": "assertEqual(dedupeSorted([]), []);" }
+      ],
+      "hint": "Push xs[i] only when i===0 or xs[i] !== xs[i-1].",
+      "lore": "Silence the echo; keep one clean pulse per signal."
+    },
+    {
+      "id": "ts-rotateleft",
+      "title": "PHASE SHIFT",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 190,
+      "brief": "Cycle the buffer leftward, wrapping the overflow.",
+      "promptLines": [
+        "Define a generic **rotateLeft<T>(xs: T[], k: number): T[]** returning a new array shifted left by `k` — the",
+        "first `k` elements wrap around to the back. `k` may exceed the length (rotate modulo length); an empty array yields `[]`.",
+        "~~~ts",
+        "rotateLeft([1, 2, 3, 4, 5], 2)  // [3, 4, 5, 1, 2]",
+        "rotateLeft([1, 2, 3], 4)        // [2, 3, 1]",
+        "~~~"
+      ],
+      "starterLines": [
+        "function rotateLeft<T>(xs: T[], k: number): T[] {",
+        "  // TODO: split at k (mod length) and swap the two parts",
+        "  return xs.slice();",
+        "}"
+      ],
+      "solutionLines": [
+        "function rotateLeft<T>(xs: T[], k: number): T[] {",
+        "  const n = xs.length;",
+        "  if (n === 0) return [];",
+        "  const s = ((k % n) + n) % n;",
+        "  return xs.slice(s).concat(xs.slice(0, s));",
+        "}"
+      ],
+      "tests": [
+        { "name": "basic rotate", "code": "assertEqual(rotateLeft([1, 2, 3, 4, 5], 2), [3, 4, 5, 1, 2]);" },
+        { "name": "k exceeds length", "code": "assertEqual(rotateLeft([1, 2, 3], 4), [2, 3, 1]);" },
+        { "name": "k = 0 unchanged", "code": "assertEqual(rotateLeft(['a', 'b', 'c'], 0), ['a', 'b', 'c']);" },
+        { "name": "empty -> empty", "code": "assertEqual(rotateLeft([], 3), []);" }
+      ],
+      "hint": "s = k % length; return xs.slice(s).concat(xs.slice(0, s)). Guard length 0.",
+      "lore": "Spin the ring buffer; what falls off the front re-enters the rear."
+    },
+    {
+      "id": "ts-windows",
+      "title": "SLIDING APERTURE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 190,
+      "brief": "Scan every contiguous frame of a fixed width.",
+      "promptLines": [
+        "Define a generic **windows<T>(xs: T[], size: number): T[][]** returning every contiguous slice of length `size`,",
+        "in order. If `size` is larger than the array, return `[]`.",
+        "~~~ts",
+        "windows([1, 2, 3, 4], 2)  // [[1, 2], [2, 3], [3, 4]]",
+        "windows([1, 2], 3)        // []",
+        "~~~"
+      ],
+      "starterLines": [
+        "function windows<T>(xs: T[], size: number): T[][] {",
+        "  // TODO: slide a window of length size across xs",
+        "  return [];",
+        "}"
+      ],
+      "solutionLines": [
+        "function windows<T>(xs: T[], size: number): T[][] {",
+        "  const out: T[][] = [];",
+        "  for (let i = 0; i + size <= xs.length; i++) {",
+        "    out.push(xs.slice(i, i + size));",
+        "  }",
+        "  return out;",
+        "}"
+      ],
+      "tests": [
+        { "name": "sliding pairs", "code": "assertEqual(windows([1, 2, 3, 4], 2), [[1, 2], [2, 3], [3, 4]]);" },
+        { "name": "size 1", "code": "assertEqual(windows(['a', 'b', 'c'], 1), [['a'], ['b'], ['c']]);" },
+        { "name": "size = length", "code": "assertEqual(windows([1, 2, 3], 3), [[1, 2, 3]]);" },
+        { "name": "size > length -> empty", "code": "assertEqual(windows([1, 2], 3), []);" }
+      ],
+      "hint": "Loop while i + size <= xs.length; push xs.slice(i, i + size).",
+      "lore": "Drag the aperture one step at a time; capture each frame in sequence."
+    },
+    {
+      "id": "ts-countoccurrences",
+      "title": "TALLY SWEEP",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 190,
+      "brief": "Count how many times the key shows up.",
+      "promptLines": [
+        "`sorted` is ascending. Define **countOccurrences(sorted: number[], x: number): number** returning how many times",
+        "`x` appears. A linear scan is fine. Absent or empty yields `0`.",
+        "~~~ts",
+        "countOccurrences([1, 2, 2, 2, 3], 2)  // 3",
+        "countOccurrences([1, 2, 3], 9)        // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function countOccurrences(sorted: number[], x: number): number {",
+        "  // TODO: tally every element equal to x",
+        "  return 0;",
+        "}"
+      ],
+      "solutionLines": [
+        "function countOccurrences(sorted: number[], x: number): number {",
+        "  let n = 0;",
+        "  for (let i = 0; i < sorted.length; i++) {",
+        "    if (sorted[i] === x) n++;",
+        "  }",
+        "  return n;",
+        "}"
+      ],
+      "tests": [
+        { "name": "multiple hits", "code": "assert(countOccurrences([1, 2, 2, 2, 3], 2) === 3);" },
+        { "name": "single hit", "code": "assert(countOccurrences([1, 2, 3], 3) === 1 && countOccurrences([5, 5], 5) === 2);" },
+        { "name": "absent / empty -> 0", "code": "assert(countOccurrences([1, 2, 3], 9) === 0 && countOccurrences([], 1) === 0);" }
+      ],
+      "hint": "Walk the array; increment a counter whenever sorted[i] === x.",
+      "lore": "Sweep the log and count every matching ping."
+    }
+  ]
+}

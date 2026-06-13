@@ -1,0 +1,203 @@
+{
+  "modId": "tsm0d-stralgo",
+  "exercises": [
+    {
+      "id": "ts-capitalize",
+      "title": "PROPER CASE",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 150,
+      "brief": "Stand the word up straight.",
+      "promptLines": [
+        "Define **capitalize(s: string): string** with the first character uppercase and the rest lowercase. Empty string -> ''.",
+        "~~~ts",
+        "capitalize('lAIN') // 'Lain'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function capitalize(s: string): string {",
+        "  // TODO",
+        "  return '';",
+        "}"
+      ],
+      "solutionLines": [
+        "function capitalize(s: string): string {",
+        "  if (s.length === 0) return '';",
+        "  return s[0].toUpperCase() + s.slice(1).toLowerCase();",
+        "}"
+      ],
+      "tests": [
+        { "name": "capitalizes", "code": "assertEqual(capitalize('lAIN'), 'Lain');" },
+        { "name": "lowercases tail", "code": "assertEqual(capitalize('NEO'), 'Neo');" },
+        { "name": "single", "code": "assertEqual(capitalize('x'), 'X');" },
+        { "name": "empty -> empty", "code": "assertEqual(capitalize(''), '');" }
+      ],
+      "hint": "s[0].toUpperCase() + s.slice(1).toLowerCase()",
+      "lore": "Posture matters in the Wired."
+    },
+    {
+      "id": "ts-countchar",
+      "title": "TALLY GLYPH",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Count how many times one glyph appears.",
+      "promptLines": [
+        "Define **countChar(s: string, ch: string): number** returning how many times `ch` occurs in `s`. Match case exactly.",
+        "~~~ts",
+        "countChar('banana', 'a') // 3",
+        "countChar('abc', 'z')    // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function countChar(s: string, ch: string): number {",
+        "  // TODO",
+        "  return -1;",
+        "}"
+      ],
+      "solutionLines": [
+        "function countChar(s: string, ch: string): number {",
+        "  let n = 0;",
+        "  for (const c of s) {",
+        "    if (c === ch) n++;",
+        "  }",
+        "  return n;",
+        "}"
+      ],
+      "tests": [
+        { "name": "three a's", "code": "assert(countChar('banana', 'a') === 3);" },
+        { "name": "two l's", "code": "assert(countChar('hello', 'l') === 2);" },
+        { "name": "absent -> 0", "code": "assert(countChar('abc', 'z') === 0);" },
+        { "name": "empty -> 0", "code": "assert(countChar('', 'a') === 0);" }
+      ],
+      "hint": "Loop the characters of s and do n++ each time c === ch.",
+      "lore": "Every matching glyph trips the counter once."
+    },
+    {
+      "id": "ts-isanagram",
+      "title": "LETTER MIRROR",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 190,
+      "brief": "Do two strings hold the very same letters?",
+      "promptLines": [
+        "Define **isAnagram(a: string, b: string): boolean** that is `true` when both strings contain exactly the same characters (the same counts), regardless of order. Compare case-sensitively. Sorting each string's characters and comparing the results is the simplest route.",
+        "~~~ts",
+        "isAnagram('listen', 'silent') // true",
+        "isAnagram('abc', 'abd')       // false",
+        "~~~"
+      ],
+      "starterLines": [
+        "function isAnagram(a: string, b: string): boolean {",
+        "  // TODO",
+        "  return true;",
+        "}"
+      ],
+      "solutionLines": [
+        "function isAnagram(a: string, b: string): boolean {",
+        "  const sort = (x: string): string => x.split('').sort().join('');",
+        "  return sort(a) === sort(b);",
+        "}"
+      ],
+      "tests": [
+        { "name": "listen/silent", "code": "assert(isAnagram('listen', 'silent') === true);" },
+        { "name": "cat/act", "code": "assert(isAnagram('cat', 'act') === true);" },
+        { "name": "one letter off", "code": "assert(isAnagram('abc', 'abd') === false);" },
+        { "name": "different lengths", "code": "assert(isAnagram('a', 'aa') === false);" },
+        { "name": "both empty", "code": "assert(isAnagram('', '') === true);" }
+      ],
+      "hint": "Sort the characters of each string and compare: x.split('').sort().join('').",
+      "lore": "Same atoms, rearranged — the mirror still recognises them."
+    },
+    {
+      "id": "ts-mostfrequentchar",
+      "title": "DOMINANT SIGNAL",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Find the character that shows up the most.",
+      "promptLines": [
+        "Define **mostFrequentChar(s: string): string** returning the single character that occurs most often, ignoring spaces. On a tie, return the character that *first* reaches that maximum count. Assume `s` has at least one non-space character.",
+        "~~~ts",
+        "mostFrequentChar('hello')  // 'l'",
+        "mostFrequentChar('a b a')  // 'a'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function mostFrequentChar(s: string): string {",
+        "  // TODO",
+        "  return ' ';",
+        "}"
+      ],
+      "solutionLines": [
+        "function mostFrequentChar(s: string): string {",
+        "  const counts: Record<string, number> = {};",
+        "  let best = '';",
+        "  let max = 0;",
+        "  for (const c of s) {",
+        "    if (c === ' ') continue;",
+        "    counts[c] = (counts[c] || 0) + 1;",
+        "    if (counts[c] > max) {",
+        "      max = counts[c];",
+        "      best = c;",
+        "    }",
+        "  }",
+        "  return best;",
+        "}"
+      ],
+      "tests": [
+        { "name": "double l wins", "code": "assertEqual(mostFrequentChar('hello'), 'l');" },
+        { "name": "tie -> first to reach max", "code": "assertEqual(mostFrequentChar('aabb'), 'a');" },
+        { "name": "spaces ignored", "code": "assertEqual(mostFrequentChar('a b a'), 'a');" },
+        { "name": "all unique -> first", "code": "assertEqual(mostFrequentChar('xyz'), 'x');" }
+      ],
+      "hint": "Tally each non-space char in a map; update best only when a count strictly beats the current max.",
+      "lore": "Amid the chatter, one signal climbs loudest first."
+    },
+    {
+      "id": "ts-caesar",
+      "title": "SHIFT CIPHER",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 220,
+      "brief": "Rotate the lowercase alphabet forward, wrapping past z.",
+      "promptLines": [
+        "Define **caesar(s: string, n: number): string** that shifts every lowercase letter `a`-`z` forward by `n` positions, wrapping `z` back to `a`. Leave all other characters (uppercase, spaces, punctuation) unchanged.",
+        "Use char codes: `'a'` is 97. For a letter, `((code - 97 + n) % 26) + 97` gives the shifted code.",
+        "~~~ts",
+        "caesar('abc', 1) // 'bcd'",
+        "caesar('xyz', 3) // 'abc'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function caesar(s: string, n: number): string {",
+        "  // TODO",
+        "  return s;",
+        "}"
+      ],
+      "solutionLines": [
+        "function caesar(s: string, n: number): string {",
+        "  let out = '';",
+        "  for (const c of s) {",
+        "    const code = c.charCodeAt(0);",
+        "    if (code >= 97 && code <= 122) {",
+        "      out += String.fromCharCode(((code - 97 + n) % 26) + 97);",
+        "    } else {",
+        "      out += c;",
+        "    }",
+        "  }",
+        "  return out;",
+        "}"
+      ],
+      "tests": [
+        { "name": "simple shift", "code": "assertEqual(caesar('abc', 1), 'bcd');" },
+        { "name": "wrap past z", "code": "assertEqual(caesar('xyz', 3), 'abc');" },
+        { "name": "rot13 with punctuation", "code": "assertEqual(caesar('hello, world', 13), 'uryyb, jbeyq');" },
+        { "name": "uppercase untouched", "code": "assertEqual(caesar('Zap!', 1), 'Zbq!');" },
+        { "name": "shift of zero", "code": "assertEqual(caesar('abc', 0), 'abc');" }
+      ],
+      "hint": "Loop chars; only when code is 97..122 rebuild it as ((code - 97 + n) % 26) + 97, else keep c.",
+      "lore": "Slide the glyphs down the ring; whatever falls off z reappears at a."
+    }
+  ]
+}

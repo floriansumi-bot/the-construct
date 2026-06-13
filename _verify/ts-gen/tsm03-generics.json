@@ -1,0 +1,181 @@
+{
+  "modId": "tsm03-generics",
+  "exercises": [
+    {
+      "id": "ts-firstof",
+      "title": "HEAD POINTER",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 190,
+      "brief": "Read the head of any stream, type preserved.",
+      "promptLines": [
+        "Define a generic **firstOf<T>(xs: T[]): T | undefined** returning the first element, or `undefined` when the array is empty.",
+        "~~~ts",
+        "firstOf([10, 20])    // 10",
+        "firstOf<string>([])  // undefined",
+        "~~~"
+      ],
+      "starterLines": [
+        "function firstOf<T>(xs: T[]): T | undefined {",
+        "  // TODO: return xs[0], but undefined when empty",
+        "  return undefined;",
+        "}"
+      ],
+      "solutionLines": [
+        "function firstOf<T>(xs: T[]): T | undefined {",
+        "  return xs.length ? xs[0] : undefined;",
+        "}"
+      ],
+      "tests": [
+        { "name": "numbers -> head", "code": "assertEqual(firstOf([10, 20]), 10);" },
+        { "name": "strings -> head", "code": "assertEqual(firstOf(['a', 'b', 'c']), 'a');" },
+        { "name": "single element", "code": "assertEqual(firstOf([42]), 42);" },
+        { "name": "empty -> undefined", "code": "assert(firstOf([]) === undefined);" }
+      ],
+      "hint": "xs.length ? xs[0] : undefined",
+      "lore": "Same probe, any payload — the head of the queue answers first."
+    },
+    {
+      "id": "ts-identity",
+      "title": "ECHO CHAMBER",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 190,
+      "brief": "Return exactly what you were given, type intact.",
+      "promptLines": [
+        "Define a generic **identity<T>(x: T): T** that simply returns its argument unchanged.",
+        "It is the simplest contract: hand it a `T`, get the *same* `T` back — not `any`.",
+        "~~~ts",
+        "identity(7)        // 7",
+        "identity('Neo')    // 'Neo'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function identity<T>(x: T): T {",
+        "  // TODO: return the argument unchanged",
+        "  return x === x ? (null as unknown as T) : x;",
+        "}"
+      ],
+      "solutionLines": [
+        "function identity<T>(x: T): T {",
+        "  return x;",
+        "}"
+      ],
+      "tests": [
+        { "name": "number passthrough", "code": "assertEqual(identity(7), 7);" },
+        { "name": "string passthrough", "code": "assertEqual(identity('Neo'), 'Neo');" },
+        { "name": "boolean passthrough", "code": "assert(identity(true) === true);" },
+        { "name": "array passthrough (deep)", "code": "assertEqual(identity([1, 2, 3]), [1, 2, 3]);" }
+      ],
+      "hint": "There is nothing to compute — just return x.",
+      "lore": "The mirror adds nothing and loses nothing. Whatever enters, returns."
+    },
+    {
+      "id": "ts-repeat",
+      "title": "REPLICATOR",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 190,
+      "brief": "Stamp out n copies of any value into an array.",
+      "promptLines": [
+        "Define a generic **repeat<T>(x: T, n: number): T[]** returning an array containing `x` repeated `n` times.",
+        "When `n` is `0`, return an empty array `[]`.",
+        "~~~ts",
+        "repeat('x', 3)   // ['x', 'x', 'x']",
+        "repeat(0, 0)     // []",
+        "~~~"
+      ],
+      "starterLines": [
+        "function repeat<T>(x: T, n: number): T[] {",
+        "  // TODO: build an array of n copies of x",
+        "  return [];",
+        "}"
+      ],
+      "solutionLines": [
+        "function repeat<T>(x: T, n: number): T[] {",
+        "  const out: T[] = [];",
+        "  for (let i = 0; i < n; i++) out.push(x);",
+        "  return out;",
+        "}"
+      ],
+      "tests": [
+        { "name": "string x3", "code": "assertEqual(repeat('x', 3), ['x', 'x', 'x']);" },
+        { "name": "number x2", "code": "assertEqual(repeat(9, 2), [9, 9]);" },
+        { "name": "n = 0 -> empty", "code": "assertEqual(repeat('z', 0), []);" },
+        { "name": "n = 1 -> single", "code": "assertEqual(repeat(true, 1), [true]);" }
+      ],
+      "hint": "Start with an empty T[] and push x in a loop that runs n times.",
+      "lore": "Feed the replicator one pattern and a count; it prints the rest."
+    },
+    {
+      "id": "ts-swappair",
+      "title": "POLARITY FLIP",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 190,
+      "brief": "Swap a two-type tuple, tracking each slot's type.",
+      "promptLines": [
+        "Define a generic **swapPair<A, B>(p: [A, B]): [B, A]** that returns a new tuple with the two slots exchanged.",
+        "Two type parameters keep each slot's type wired to the right position.",
+        "~~~ts",
+        "swapPair(['id', 42])   // [42, 'id']",
+        "swapPair([true, 'on']) // ['on', true]",
+        "~~~"
+      ],
+      "starterLines": [
+        "function swapPair<A, B>(p: [A, B]): [B, A] {",
+        "  // TODO: return the slots in swapped order",
+        "  return [p[1], p[1]];",
+        "}"
+      ],
+      "solutionLines": [
+        "function swapPair<A, B>(p: [A, B]): [B, A] {",
+        "  return [p[1], p[0]];",
+        "}"
+      ],
+      "tests": [
+        { "name": "string/number", "code": "assertEqual(swapPair(['id', 42]), [42, 'id']);" },
+        { "name": "boolean/string", "code": "assertEqual(swapPair([true, 'on']), ['on', true]);" },
+        { "name": "number/number", "code": "assertEqual(swapPair([1, 2]), [2, 1]);" },
+        { "name": "second slot preserved", "code": "assertEqual(swapPair([0, 'tail'])[1], 0);" }
+      ],
+      "hint": "Return [p[1], p[0]] — second slot first, first slot second.",
+      "lore": "Reverse the polarity: what led now trails, what trailed now leads."
+    },
+    {
+      "id": "ts-dropfirst",
+      "title": "BEHEAD STREAM",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 190,
+      "brief": "Return everything after the head, element type preserved.",
+      "promptLines": [
+        "Define a generic **dropFirst<T>(xs: T[]): T[]** returning a new array with every element *except* the first.",
+        "An empty input yields an empty array `[]`.",
+        "~~~ts",
+        "dropFirst([1, 2, 3])      // [2, 3]",
+        "dropFirst<number>([])     // []",
+        "~~~"
+      ],
+      "starterLines": [
+        "function dropFirst<T>(xs: T[]): T[] {",
+        "  // TODO: return all elements after the first",
+        "  return xs.slice(0);",
+        "}"
+      ],
+      "solutionLines": [
+        "function dropFirst<T>(xs: T[]): T[] {",
+        "  return xs.slice(1);",
+        "}"
+      ],
+      "tests": [
+        { "name": "numbers tail", "code": "assertEqual(dropFirst([1, 2, 3]), [2, 3]);" },
+        { "name": "strings tail", "code": "assertEqual(dropFirst(['a', 'b', 'c']), ['b', 'c']);" },
+        { "name": "single -> empty", "code": "assertEqual(dropFirst([7]), []);" },
+        { "name": "empty -> empty", "code": "assertEqual(dropFirst([]), []);" }
+      ],
+      "hint": "xs.slice(1) keeps everything from index 1 onward.",
+      "lore": "Behead the stream and the body marches on without its lead packet."
+    }
+  ]
+}

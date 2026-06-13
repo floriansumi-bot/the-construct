@@ -1,0 +1,177 @@
+{
+  "modId": "tsm05-unions",
+  "exercises": [
+    {
+      "id": "ts-render",
+      "title": "SIGNAL FORMAT",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Two payload types, one formatter.",
+      "promptLines": [
+        "A `string | number` arrives. Define **render(x: string | number): string**. If `x` is a number return `'#' + x`; if it is a string return it **uppercased**. Use a `typeof` guard to narrow the union.",
+        "~~~ts",
+        "render(7) // '#7'",
+        "render('hi') // 'HI'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function render(x: string | number): string {",
+        "  // TODO: narrow with typeof",
+        "  return '';",
+        "}"
+      ],
+      "solutionLines": [
+        "function render(x: string | number): string {",
+        "  if (typeof x === 'number') return '#' + x;",
+        "  return x.toUpperCase();",
+        "}"
+      ],
+      "tests": [
+        { "name": "number gets a hash", "code": "assertEqual(render(7), '#7');" },
+        { "name": "string is uppercased", "code": "assertEqual(render('hi'), 'HI');" },
+        { "name": "zero still hashes", "code": "assertEqual(render(0), '#0');" }
+      ],
+      "hint": "if (typeof x === 'number') return '#' + x; else return x.toUpperCase();",
+      "lore": "Narrow the beam before you trust the packet."
+    },
+    {
+      "id": "ts-sizeof",
+      "title": "PAYLOAD SIZE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 190,
+      "brief": "One length probe, two shapes.",
+      "promptLines": [
+        "Define **sizeOf(x: string | unknown[]): number** returning its `.length`. Both a string and an array expose `.length`, so the union resolves to one expression.",
+        "~~~ts",
+        "sizeOf('neon') // 4",
+        "sizeOf([1, 2, 3]) // 3",
+        "~~~"
+      ],
+      "starterLines": [
+        "function sizeOf(x: string | unknown[]): number {",
+        "  // TODO: return the length",
+        "  return -1;",
+        "}"
+      ],
+      "solutionLines": [
+        "function sizeOf(x: string | unknown[]): number {",
+        "  return x.length;",
+        "}"
+      ],
+      "tests": [
+        { "name": "string length", "code": "assertEqual(sizeOf('neon'), 4);" },
+        { "name": "array length", "code": "assertEqual(sizeOf([1, 2, 3]), 3);" },
+        { "name": "empty string", "code": "assertEqual(sizeOf(''), 0);" },
+        { "name": "empty array", "code": "assertEqual(sizeOf([]), 0);" }
+      ],
+      "hint": "return x.length;",
+      "lore": "Same ruler measures every signal on the wire."
+    },
+    {
+      "id": "ts-legs",
+      "title": "GAIT COUNT",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 230,
+      "brief": "Count limbs off a tagged union.",
+      "promptLines": [
+        "A **discriminated union** tags each member with `kind`. Define **legsOf(a: { kind: 'dog'; legs: number } | { kind: 'snake' }): number**.",
+        "Switch on `a.kind`: a `'dog'` returns `a.legs`; a `'snake'` returns `0`.",
+        "~~~ts",
+        "legsOf({ kind: 'dog', legs: 4 }) // 4",
+        "legsOf({ kind: 'snake' }) // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function legsOf(a: { kind: 'dog'; legs: number } | { kind: 'snake' }): number {",
+        "  // TODO: branch on a.kind",
+        "  return -1;",
+        "}"
+      ],
+      "solutionLines": [
+        "function legsOf(a: { kind: 'dog'; legs: number } | { kind: 'snake' }): number {",
+        "  if (a.kind === 'dog') return a.legs;",
+        "  return 0;",
+        "}"
+      ],
+      "tests": [
+        { "name": "dog reports its legs", "code": "assertEqual(legsOf({ kind: 'dog', legs: 4 }), 4);" },
+        { "name": "snake has none", "code": "assertEqual(legsOf({ kind: 'snake' }), 0);" },
+        { "name": "three-legged dog", "code": "assertEqual(legsOf({ kind: 'dog', legs: 3 }), 3);" }
+      ],
+      "hint": "if (a.kind === 'dog') return a.legs; else return 0;",
+      "lore": "The tag tells you which creature crawled onto the grid."
+    },
+    {
+      "id": "ts-idtext",
+      "title": "ID RESOLVER",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 230,
+      "brief": "A bare id or a wrapper carrying one.",
+      "promptLines": [
+        "Define **idText(x: number | { id: number }): string** returning `'ID:'` followed by the id. If `x` is a number use it directly; otherwise read `x.id`. Narrow with a `typeof` guard.",
+        "~~~ts",
+        "idText(5) // 'ID:5'",
+        "idText({ id: 9 }) // 'ID:9'",
+        "~~~"
+      ],
+      "starterLines": [
+        "function idText(x: number | { id: number }): string {",
+        "  // TODO: narrow then read the id",
+        "  return '';",
+        "}"
+      ],
+      "solutionLines": [
+        "function idText(x: number | { id: number }): string {",
+        "  if (typeof x === 'number') return 'ID:' + x;",
+        "  return 'ID:' + x.id;",
+        "}"
+      ],
+      "tests": [
+        { "name": "bare number", "code": "assertEqual(idText(5), 'ID:5');" },
+        { "name": "wrapped id", "code": "assertEqual(idText({ id: 9 }), 'ID:9');" },
+        { "name": "zero id wrapped", "code": "assertEqual(idText({ id: 0 }), 'ID:0');" }
+      ],
+      "hint": "if (typeof x === 'number') return 'ID:' + x; else return 'ID:' + x.id;",
+      "lore": "Some records hand you the key; others hide it in a struct."
+    },
+    {
+      "id": "ts-toarray",
+      "title": "LIST COERCE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 240,
+      "brief": "Normalise one-or-many into an array.",
+      "promptLines": [
+        "Define a generic **toArray<T>(x: T | T[]): T[]**. If `x` is already an array, pass it through unchanged; otherwise wrap the lone value in `[x]`. Use an `Array.isArray` guard to narrow.",
+        "~~~ts",
+        "toArray(3) // [3]",
+        "toArray([1, 2]) // [1, 2]",
+        "~~~"
+      ],
+      "starterLines": [
+        "function toArray<T>(x: T | T[]): T[] {",
+        "  // TODO: wrap a value, pass an array through",
+        "  return [];",
+        "}"
+      ],
+      "solutionLines": [
+        "function toArray<T>(x: T | T[]): T[] {",
+        "  if (Array.isArray(x)) return x;",
+        "  return [x];",
+        "}"
+      ],
+      "tests": [
+        { "name": "lone value is wrapped", "code": "assertEqual(toArray(3), [3]);" },
+        { "name": "array passes through", "code": "assertEqual(toArray([1, 2]), [1, 2]);" },
+        { "name": "lone string", "code": "assertEqual(toArray('x'), ['x']);" },
+        { "name": "empty array stays empty", "code": "assertEqual(toArray([]), []);" }
+      ],
+      "hint": "if (Array.isArray(x)) return x; else return [x];",
+      "lore": "One or many — the buffer takes them both the same way."
+    }
+  ]
+}

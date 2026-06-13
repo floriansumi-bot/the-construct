@@ -1,0 +1,180 @@
+{
+  "modId": "tsm0a-transforms",
+  "exercises": [
+    {
+      "id": "ts-doubleall",
+      "title": "GAIN STAGE",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 160,
+      "brief": "Boost every signal by a factor of two.",
+      "promptLines": [
+        "Define **doubleAll(nums: number[]): number[]** returning a NEW array with every number multiplied by `2`.",
+        "Reach for `map` — it transforms each element and hands back a fresh array.",
+        "~~~ts",
+        "doubleAll([1, 2, 3]) // [2, 4, 6]",
+        "doubleAll([])        // []",
+        "~~~"
+      ],
+      "starterLines": [
+        "function doubleAll(nums: number[]): number[] {",
+        "  // TODO: map each number to itself times two",
+        "  return nums;",
+        "}"
+      ],
+      "solutionLines": [
+        "function doubleAll(nums: number[]): number[] {",
+        "  return nums.map(function (n) { return n * 2; });",
+        "}"
+      ],
+      "tests": [
+        { "name": "triples doubled", "code": "assertEqual(doubleAll([1, 2, 3]), [2, 4, 6]);" },
+        { "name": "handles negatives and zero", "code": "assertEqual(doubleAll([-2, 0, 5]), [-4, 0, 10]);" },
+        { "name": "empty -> empty", "code": "assertEqual(doubleAll([]), []);" }
+      ],
+      "hint": "nums.map(n => n * 2)",
+      "lore": "Push every channel through the gain stage; the levels come back twice as hot."
+    },
+    {
+      "id": "ts-reject",
+      "title": "NOISE GATE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Drop what matches; keep the rest.",
+      "promptLines": [
+        "Define **reject<T>(xs: T[], pred: (x: T) => boolean): T[]** returning the items for which `pred` is FALSE (the opposite of filter).",
+        "~~~ts",
+        "reject([1,2,3,4], n => n % 2 === 0) // [1, 3]",
+        "~~~"
+      ],
+      "starterLines": [
+        "function reject<T>(xs: T[], pred: (x: T) => boolean): T[] {",
+        "  // TODO",
+        "  return [];",
+        "}"
+      ],
+      "solutionLines": [
+        "function reject<T>(xs: T[], pred: (x: T) => boolean): T[] {",
+        "  return xs.filter(function (x) { return !pred(x); });",
+        "}"
+      ],
+      "tests": [
+        { "name": "drops evens", "code": "assertEqual(reject([1,2,3,4], function (n) { return n % 2 === 0; }), [1,3]);" },
+        { "name": "empty -> empty", "code": "assertEqual(reject([], function () { return true; }), []);" }
+      ],
+      "hint": "xs.filter(x => !pred(x))",
+      "lore": "Gate the noise floor."
+    },
+    {
+      "id": "ts-takewhile",
+      "title": "RUN LENGTH",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Take the leading run that satisfies the test, then stop.",
+      "promptLines": [
+        "Define **takeWhile<T>(xs: T[], pred: (x: T) => boolean): T[]** returning the longest PREFIX of `xs` whose elements all satisfy `pred`.",
+        "Stop at the FIRST element that fails — everything after it is dropped, even if it would pass.",
+        "~~~ts",
+        "takeWhile([2, 4, 5, 6], n => n % 2 === 0) // [2, 4]",
+        "takeWhile([1, 2, 3], n => n > 5)          // []",
+        "~~~"
+      ],
+      "starterLines": [
+        "function takeWhile<T>(xs: T[], pred: (x: T) => boolean): T[] {",
+        "  // TODO: collect from the front while pred holds, then break",
+        "  return [];",
+        "}"
+      ],
+      "solutionLines": [
+        "function takeWhile<T>(xs: T[], pred: (x: T) => boolean): T[] {",
+        "  var out: T[] = [];",
+        "  for (var i = 0; i < xs.length; i++) {",
+        "    if (!pred(xs[i])) break;",
+        "    out.push(xs[i]);",
+        "  }",
+        "  return out;",
+        "}"
+      ],
+      "tests": [
+        { "name": "stops at first odd", "code": "assertEqual(takeWhile([2, 4, 5, 6], function (n) { return n % 2 === 0; }), [2, 4]);" },
+        { "name": "first element fails -> empty", "code": "assertEqual(takeWhile([1, 2, 3], function (n) { return n > 5; }), []);" },
+        { "name": "all pass -> whole array", "code": "assertEqual(takeWhile(['a', 'b', 'c'], function (s) { return s.length === 1; }), ['a', 'b', 'c']);" },
+        { "name": "empty -> empty", "code": "assertEqual(takeWhile([], function () { return true; }), []);" }
+      ],
+      "hint": "Loop from index 0; break on the first element where !pred(x), pushing the rest.",
+      "lore": "Read the stream until the first bad packet, then cut — the run length is all you keep."
+    },
+    {
+      "id": "ts-flatten",
+      "title": "UNNEST GRID",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 190,
+      "brief": "Collapse a list of lists down one level.",
+      "promptLines": [
+        "Define a generic **flatten<T>(xss: T[][]): T[]** that concatenates every inner array into ONE flat array, in order.",
+        "Flatten exactly one level — fold the rows together with `reduce`.",
+        "~~~ts",
+        "flatten([[1, 2], [3], [4, 5]]) // [1, 2, 3, 4, 5]",
+        "flatten<number>([])            // []",
+        "~~~"
+      ],
+      "starterLines": [
+        "function flatten<T>(xss: T[][]): T[] {",
+        "  // TODO: reduce the rows into a single array via concat",
+        "  return [];",
+        "}"
+      ],
+      "solutionLines": [
+        "function flatten<T>(xss: T[][]): T[] {",
+        "  return xss.reduce(function (acc: T[], xs: T[]) { return acc.concat(xs); }, [] as T[]);",
+        "}"
+      ],
+      "tests": [
+        { "name": "three rows joined", "code": "assertEqual(flatten([[1, 2], [3], [4, 5]]), [1, 2, 3, 4, 5]);" },
+        { "name": "strings preserved in order", "code": "assertEqual(flatten([['a'], ['b', 'c']]), ['a', 'b', 'c']);" },
+        { "name": "inner empties skipped", "code": "assertEqual(flatten([[], [1], []]), [1]);" },
+        { "name": "empty outer -> empty", "code": "assertEqual(flatten([]), []);" }
+      ],
+      "hint": "xss.reduce((acc, xs) => acc.concat(xs), [])",
+      "lore": "Drop the grid down one dimension — every row spills into the same line."
+    },
+    {
+      "id": "ts-sumof",
+      "title": "WEIGHTED TALLY",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 190,
+      "brief": "Project each item to a number, then total them.",
+      "promptLines": [
+        "Define a generic **sumOf<T>(xs: T[], f: (x: T) => number): number** that maps each element through `f` and returns the SUM of those numbers.",
+        "Use `reduce` with a starting accumulator of `0`, so an empty array returns `0`.",
+        "~~~ts",
+        "sumOf([{ n: 1 }, { n: 2 }, { n: 3 }], item => item.n) // 6",
+        "sumOf<string>([], s => s.length)                     // 0",
+        "~~~"
+      ],
+      "starterLines": [
+        "function sumOf<T>(xs: T[], f: (x: T) => number): number {",
+        "  // TODO: reduce, adding f(x) to a running total that starts at 0",
+        "  return xs.length;",
+        "}"
+      ],
+      "solutionLines": [
+        "function sumOf<T>(xs: T[], f: (x: T) => number): number {",
+        "  return xs.reduce(function (acc, x) { return acc + f(x); }, 0);",
+        "}"
+      ],
+      "tests": [
+        { "name": "sums a projected field", "code": "assertEqual(sumOf([{ n: 1 }, { n: 2 }, { n: 3 }], function (item) { return item.n; }), 6);" },
+        { "name": "sums string lengths", "code": "assertEqual(sumOf(['a', 'bb', 'ccc'], function (s) { return s.length; }), 6);" },
+        { "name": "single item", "code": "assertEqual(sumOf([10], function (x) { return x; }), 10);" },
+        { "name": "empty -> 0", "code": "assertEqual(sumOf([], function (x) { return x; }), 0);" }
+      ],
+      "hint": "xs.reduce((acc, x) => acc + f(x), 0)",
+      "lore": "Weigh each record, drop it on the scale, and read the running total."
+    }
+  ]
+}

@@ -1,0 +1,194 @@
+{
+  "modId": "tsm0e-math",
+  "exercises": [
+    {
+      "id": "ts-digitalroot",
+      "title": "DIGIT COLLAPSE",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 170,
+      "brief": "Crush a number down to a single glowing digit.",
+      "promptLines": [
+        "Define **digitalRoot(n: number): number** — keep replacing `n` with the sum of its digits until only one digit is left. Assume `n >= 0`.",
+        "~~~ts",
+        "digitalRoot(38)  // 3 + 8 = 11 -> 1 + 1 = 2",
+        "digitalRoot(9)   // 9",
+        "~~~"
+      ],
+      "starterLines": [
+        "function digitalRoot(n: number): number {",
+        "  // TODO: sum digits repeatedly until one digit remains",
+        "  return n;",
+        "}"
+      ],
+      "solutionLines": [
+        "function digitalRoot(n: number): number {",
+        "  while (n >= 10) {",
+        "    let sum: number = 0;",
+        "    while (n > 0) {",
+        "      sum += n % 10;",
+        "      n = Math.floor(n / 10);",
+        "    }",
+        "    n = sum;",
+        "  }",
+        "  return n;",
+        "}"
+      ],
+      "tests": [
+        { "name": "38 -> 2", "code": "assertEqual(digitalRoot(38), 2);" },
+        { "name": "single digit stays", "code": "assertEqual(digitalRoot(9), 9);" },
+        { "name": "zero", "code": "assertEqual(digitalRoot(0), 0);" },
+        { "name": "12345 -> 6", "code": "assertEqual(digitalRoot(12345), 6);" },
+        { "name": "99 -> 9", "code": "assertEqual(digitalRoot(99), 9);" }
+      ],
+      "hint": "Outer loop while n >= 10; inner loop adds n % 10 and does n = Math.floor(n / 10).",
+      "lore": "Fold the number in on itself until a single rune remains."
+    },
+    {
+      "id": "ts-lcm",
+      "title": "SYNC CYCLE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "When do the two cycles realign?",
+      "promptLines": [
+        "Define **lcm(a: number, b: number): number** — the least common multiple of two positive integers (a*b divided by their gcd).",
+        "~~~ts",
+        "lcm(4, 6) // 12",
+        "~~~"
+      ],
+      "starterLines": [
+        "function lcm(a: number, b: number): number {",
+        "  // TODO",
+        "  return 0;",
+        "}"
+      ],
+      "solutionLines": [
+        "function lcm(a: number, b: number): number {",
+        "  function gcd(x: number, y: number): number { return y === 0 ? x : gcd(y, x % y); }",
+        "  return a / gcd(a, b) * b;",
+        "}"
+      ],
+      "tests": [
+        { "name": "lcm(4,6)", "code": "assertEqual(lcm(4, 6), 12);" },
+        { "name": "coprime", "code": "assertEqual(lcm(3, 5), 15);" },
+        { "name": "equal", "code": "assertEqual(lcm(7, 7), 7);" },
+        { "name": "one divides other", "code": "assertEqual(lcm(2, 8), 8);" }
+      ],
+      "hint": "a / gcd(a,b) * b",
+      "lore": "Two rhythms, one downbeat."
+    },
+    {
+      "id": "ts-ispoweroftwo",
+      "title": "BINARY BEACON",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 190,
+      "brief": "Does this number sit exactly on a power-of-two boundary?",
+      "promptLines": [
+        "Define **isPowerOfTwo(n: number): boolean** — `true` when `n` is `1, 2, 4, 8, 16, ...`, and `false` for `0`, negatives, and anything in between.",
+        "~~~ts",
+        "isPowerOfTwo(16) // true",
+        "isPowerOfTwo(6)  // false",
+        "isPowerOfTwo(0)  // false",
+        "~~~"
+      ],
+      "starterLines": [
+        "function isPowerOfTwo(n: number): boolean {",
+        "  // TODO: only exact powers of two should pass",
+        "  return n > 0;",
+        "}"
+      ],
+      "solutionLines": [
+        "function isPowerOfTwo(n: number): boolean {",
+        "  return n > 0 && (n & (n - 1)) === 0;",
+        "}"
+      ],
+      "tests": [
+        { "name": "1 is 2^0", "code": "assert(isPowerOfTwo(1) === true);" },
+        { "name": "16 is a power", "code": "assert(isPowerOfTwo(16) === true);" },
+        { "name": "1024 is a power", "code": "assert(isPowerOfTwo(1024) === true);" },
+        { "name": "6 is not", "code": "assert(isPowerOfTwo(6) === false);" },
+        { "name": "zero is not", "code": "assert(isPowerOfTwo(0) === false);" },
+        { "name": "negative is not", "code": "assert(isPowerOfTwo(-4) === false);" }
+      ],
+      "hint": "A power of two has a single set bit: n > 0 && (n & (n - 1)) === 0.",
+      "lore": "One lone bit burning in the dark — that is a true beacon."
+    },
+    {
+      "id": "ts-roundto",
+      "title": "PRECISION GATE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Snap a value to a fixed number of decimal places.",
+      "promptLines": [
+        "Define **roundTo(n: number, places: number): number** — round `n` to `places` decimal places.",
+        "Scale up, round, scale back down: `Math.round(n * 10 ** places) / 10 ** places`.",
+        "~~~ts",
+        "roundTo(3.14159, 2) // 3.14",
+        "roundTo(1.5, 0)     // 2",
+        "~~~"
+      ],
+      "starterLines": [
+        "function roundTo(n: number, places: number): number {",
+        "  // TODO: scale, round, scale back",
+        "  return Math.round(n);",
+        "}"
+      ],
+      "solutionLines": [
+        "function roundTo(n: number, places: number): number {",
+        "  return Math.round(n * 10 ** places) / 10 ** places;",
+        "}"
+      ],
+      "tests": [
+        { "name": "pi to 2 places", "code": "assertEqual(roundTo(3.14159, 2), 3.14);" },
+        { "name": "pi to 4 places", "code": "assertEqual(roundTo(3.14159, 4), 3.1416);" },
+        { "name": "half rounds up", "code": "assertEqual(roundTo(1.5, 0), 2);" },
+        { "name": "one decimal", "code": "assertEqual(roundTo(123.456, 1), 123.5);" },
+        { "name": "already short", "code": "assertEqual(roundTo(6.25, 1), 6.3);" }
+      ],
+      "hint": "return Math.round(n * 10 ** places) / 10 ** places;",
+      "lore": "Trim the noise; keep only the decimals that matter."
+    },
+    {
+      "id": "ts-sumdivisors",
+      "title": "FACTOR HARVEST",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 220,
+      "brief": "Add up every divisor a number will admit.",
+      "promptLines": [
+        "Define **sumDivisors(n: number): number** — the sum of every positive divisor of `n`, including `1` and `n` itself. Assume `n >= 1`.",
+        "~~~ts",
+        "sumDivisors(6)  // 1 + 2 + 3 + 6 = 12",
+        "sumDivisors(7)  // 1 + 7 = 8",
+        "~~~"
+      ],
+      "starterLines": [
+        "function sumDivisors(n: number): number {",
+        "  // TODO: add every d from 1..n that divides n",
+        "  return n;",
+        "}"
+      ],
+      "solutionLines": [
+        "function sumDivisors(n: number): number {",
+        "  let total: number = 0;",
+        "  for (let d: number = 1; d <= n; d++) {",
+        "    if (n % d === 0) total += d;",
+        "  }",
+        "  return total;",
+        "}"
+      ],
+      "tests": [
+        { "name": "perfect number 6", "code": "assertEqual(sumDivisors(6), 12);" },
+        { "name": "prime 7", "code": "assertEqual(sumDivisors(7), 8);" },
+        { "name": "one", "code": "assertEqual(sumDivisors(1), 1);" },
+        { "name": "twelve", "code": "assertEqual(sumDivisors(12), 28);" },
+        { "name": "power of two 16", "code": "assertEqual(sumDivisors(16), 31);" }
+      ],
+      "hint": "Loop d from 1 to n; whenever n % d === 0, add d to a running total.",
+      "lore": "Lay out every factor the number will surrender, then weigh the pile."
+    }
+  ]
+}
