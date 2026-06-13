@@ -37,22 +37,43 @@
         id: "sqlm01-select", code: "0x01", title: "INTERROGATION",
         subtitle: "SELECT · WHERE · ORDER BY",
         theory: `
-## Reading the database
-SQL pulls rows from tables. The core query:
+## Interrogating the grid
+A database is a stack of **tables** — grids of rows (records) and columns (fields). You never read a table by hand; you **interrogate** it with a query and the engine hands back exactly the rows you asked for. One statement, four moving parts:
 ~~~sql
 SELECT columns FROM table WHERE condition ORDER BY column;
 ~~~
-**SELECT** picks columns (or **\\*** for all), **FROM** names the table, **WHERE** filters rows, **ORDER BY** sorts (add **DESC** for descending).
 
-## The bounties table
-~~~text
-bounties(id, name, reward, planet)
+## SELECT — choose your columns
+**WHAT:** **SELECT** names the columns you want back; **FROM** names the table to pull them from. Use **\\*** to grab every column.
+**WHY:** you almost never need the whole table — pulling only the fields you care about keeps results tight and fast.
+~~~sql
+SELECT name, reward FROM bounties;
 ~~~
+
+## WHERE — keep only the rows you want
+**WHAT:** **WHERE** is a filter: the engine tests each row against your condition and drops the ones that fail. Combine tests with **AND** / **OR**, compare with **=**, **>**, **>=**, **<**, **<=**, **!=**.
+**WHY:** it answers questions — "which marks are worth over a million?" — instead of dumping the entire roster on you.
+~~~sql
+SELECT name, reward FROM bounties WHERE reward > 1000000;
+~~~
+
+## ORDER BY — sort the result
+**WHAT:** **ORDER BY** ranks the rows by a column. Default is ascending (A→Z, low→high); add **DESC** to flip it (high→low).
+**WHY:** "who's the top target?" is just a sort — let the engine rank them so you don't have to.
 ~~~sql
 SELECT name, reward FROM bounties WHERE reward > 1000000 ORDER BY reward DESC;
 ~~~
 
-> INTEL — Text literals use single quotes: planet = 'Mars'. Numbers don't.
+## The bounties table
+The seeded data is your active hit list — four marks scattered across the system:
+~~~text
+bounties(id, name, reward, planet)
+~~~
+**id** (number), **name** (text), **reward** in woolongs (number), **planet** where they're hiding (text).
+
+> INTEL — Order of clauses is fixed: SELECT, then FROM, then WHERE, then ORDER BY. The engine reads them in that order too.
+
+> WARNING — Text values need single quotes: planet = 'Mars' works, planet = Mars throws an error (the engine thinks Mars is a column name). Numbers take NO quotes: reward > 1000000, never reward > '1000000'.
 `,
         exercises: [
           {
@@ -105,24 +126,44 @@ Return the **name** of every bounty hiding on **Mars**, sorted alphabetically (A
         id: "sqlm02-agg", code: "0x02", title: "AGGREGATION",
         subtitle: "COUNT · SUM · GROUP BY · HAVING",
         theory: `
-## Summarizing
-Aggregate functions collapse many rows into one value: **COUNT**, **SUM**, **AVG**, **MIN**, **MAX**.
+## From rows to numbers
+**SELECT** hands you rows. **Aggregation** crunches those rows into a single answer — a total, an average, a count. Instead of "show me the tracks," you ask "how many tracks? what's the average BPM?" The engine does the math.
+
+## The aggregate functions
+**WHAT:** five functions collapse a whole column of values into one number:
+- **COUNT** — how many
+- **SUM** — add them up
+- **AVG** — the average
+- **MIN** / **MAX** — the smallest / largest
+**WHY:** they turn a pile of records into the one figure a question actually needs.
 ~~~sql
-SELECT COUNT(*) FROM tracks;
+SELECT COUNT(*), AVG(bpm), MAX(bpm) FROM tracks;
 ~~~
 
-## Grouping
-**GROUP BY** runs the aggregate once per group. **HAVING** filters groups (like WHERE, but for aggregates).
+## GROUP BY — one answer per category
+**WHAT:** **GROUP BY** splits the rows into buckets that share a value, then runs the aggregate once per bucket. Group by **artist**, and COUNT(\\*) counts the tracks each artist has — not the whole table.
+**WHY:** it answers "per X" questions — tracks per artist, total reward per planet — in a single query.
+~~~sql
+SELECT artist, COUNT(*) FROM tracks GROUP BY artist;
+~~~
+
+## HAVING — filter the groups
+**WHAT:** **HAVING** is a filter for groups, the way **WHERE** is a filter for rows. After grouping, it keeps only the buckets that pass a test on their aggregate.
+**WHY:** "which artists have 2+ tracks?" is a test on a count — and you can't test a count until after the grouping happens.
 ~~~sql
 SELECT artist, COUNT(*) FROM tracks GROUP BY artist HAVING COUNT(*) >= 2;
 ~~~
 
 ## The catalog
+The seeded data is the station playlist — five cuts across a few genres:
 ~~~text
 tracks(title, artist, bpm, genre)
 ~~~
+**title** (text), **artist** (text), **bpm** beats-per-minute (number), **genre** (text).
 
-> INTEL — WHERE filters rows *before* grouping; HAVING filters groups *after*.
+> INTEL — The pipeline runs WHERE → GROUP BY → HAVING. WHERE filters individual rows *before* they're grouped; HAVING filters whole groups *after*. Use WHERE for raw-row tests (genre = 'house'), HAVING for tests on the aggregate (COUNT(\\*) >= 2).
+
+> WARNING — COUNT(\\*) counts every row, including ones with blank fields. COUNT(column) counts only rows where that column is NOT NULL (empty) — so the two can give different numbers. When you just want "how many rows," reach for COUNT(\\*).
 `,
         exercises: [
           {
@@ -175,27 +216,39 @@ Return the **artist** name of every artist with **2 or more** tracks in the cata
         id: "sqlm03-join", code: "0x03", title: "JOINS & MUTATIONS",
         subtitle: "JOIN · INSERT · UPDATE",
         theory: `
-## Joining tables
-A **JOIN** stitches rows from two tables on a matching key.
+## JOIN — stitch two tables together
+**WHAT:** real data is split across tables to avoid repeating itself — the **crew** table stores a **ship_id** number, not the whole ship. A **JOIN** glues two tables back together by matching that key (**ON crew.ship_id = ships.id**), so each crew row gets its ship's details attached.
+**WHY:** it lets you ask across tables in one shot — "who serves on which ship?" — instead of looking up ids by hand.
 ~~~sql
 SELECT crew.name, ships.name
 FROM crew JOIN ships ON crew.ship_id = ships.id;
 ~~~
+When a column name lives in both tables (like **name** here), prefix it with the table — **crew.name**, **ships.name** — so the engine knows which one you mean.
 
-## Changing data
-- **INSERT INTO** table (cols) **VALUES** (...) — add a row
-- **UPDATE** table **SET** col = val **WHERE** ... — change rows
+## INSERT — add a new row
+**WHAT:** **INSERT INTO** adds a fresh record. List the columns, then the matching **VALUES** in the same order.
+**WHY:** every new recruit, sale, or signup is a new row — this is how data gets *into* the table.
 ~~~sql
 INSERT INTO crew (name, ship_id, role) VALUES ('Ein', 1, 'dog');
+~~~
+
+## UPDATE — change existing rows
+**WHAT:** **UPDATE** rewrites fields in rows that already exist. **SET** says what changes; **WHERE** says which rows.
+**WHY:** records change — promotions, price edits, status flips — and you fix them in place instead of deleting and re-adding.
+~~~sql
 UPDATE crew SET role = 'captain' WHERE name = 'Spike';
 ~~~
 
-## Tables
+## The tables
+Two seeded tables, linked by ship id:
 ~~~text
-ships(id, name)   crew(name, ship_id, role)
+ships(id, name)              crew(name, ship_id, role)
 ~~~
+**ships** — **id** (number), **name** (text). **crew** — **name** (text), **ship_id** the id of their ship (number, matches ships.id), **role** (text).
 
-> WARNING — An UPDATE with no WHERE rewrites *every* row. Always aim before you fire.
+> INTEL — The link between tables is just a shared value: crew.ship_id holds the same number as ships.id. That shared key is what the JOIN's ON clause matches on.
+
+> WARNING — An UPDATE (or DELETE) with no WHERE hits EVERY row in the table — one careless line and the whole crew becomes captains. Always write the WHERE first, aim it carefully, then fire.
 `,
         exercises: [
           {
