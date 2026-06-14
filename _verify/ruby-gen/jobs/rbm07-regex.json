@@ -1,0 +1,157 @@
+{
+  "type": "new",
+  "module": {
+    "id": "rbm07-regex",
+    "code": "0x07",
+    "title": "REGEX & TEXT",
+    "subtitle": "gsub · scan · match? · split · format",
+    "theory": "## Patterns in the noise\nText is the wire format of the net. Ruby gives you a clean toolkit for slicing, matching and rebuilding it. A **regex** (regular expression) is a pattern written between slashes: `/cat/` matches the letters c-a-t anywhere in a string.\n\n## Search: match? and =~\n**match?** asks a yes/no question and returns **true** or **false** — fast and clean.\n~~~ruby\n\"NEON-7\".match?(/[0-9]/)   # true  (contains a digit)\n\"abc\".match?(/[0-9]/)      # false\n~~~\nThe older **=~** operator returns the *index* of the first match, or **nil** if there is none. Because nil is falsy, it also works in an `if`.\n~~~ruby\n\"abc7\" =~ /[0-9]/   # 3   (digit is at index 3)\n\"abc\"  =~ /[0-9]/   # nil\n~~~\n\n> INTEL — Reach for **match?** when you only need true/false. It is faster and reads like plain English.\n\n## Replace: gsub and sub\n**gsub** replaces *every* match; **sub** replaces only the *first*. Both **return a new string** — the original is untouched.\n~~~ruby\n\"a-b-c\".gsub(\"-\", \"_\")   # \"a_b_c\"   (all)\n\"a-b-c\".sub(\"-\", \"_\")    # \"a_b-c\"   (first only)\n\"r2d2\".gsub(/[0-9]/, \"#\") # \"r#d#\"   (regex)\n~~~\n\n> WARNING — gsub does NOT change the string in place; it hands you a fresh one. `s.gsub(\"x\",\"y\")` alone does nothing useful — you must keep the result: `s = s.gsub(\"x\",\"y\")`. (The bang versions `gsub!`/`sub!` mutate, but for now prefer returning a new value.)\n\n## Collect: scan\n**scan** walks the whole string and returns an **array** of every match.\n~~~ruby\n\"a1 b2 c3\".scan(/[0-9]/)   # [\"1\", \"2\", \"3\"]\n\"id-42 id-99\".scan(/[0-9]+/) # [\"42\", \"99\"]  (+ means one or more)\n~~~\n\n## Break apart & rejoin: split and join\n**split** cuts a string into an array on a separator; **join** glues an array back into a string.\n~~~ruby\n\"red,green,blue\".split(\",\")   # [\"red\", \"green\", \"blue\"]\n[\"a\", \"b\", \"c\"].join(\"-\")      # \"a-b-c\"\n~~~\n\n## Tidy the edges: strip\n**strip** returns a copy with leading and trailing whitespace removed (it does NOT touch spaces in the middle).\n~~~ruby\n\"  hello  \".strip   # \"hello\"\n~~~\n\n## Templates: format and %\nBuild a string from a template with **format(...)** (or its twin, the **%** operator). `%s` inserts a string, `%d` an integer, `%05d` pads an integer to width 5 with zeros.\n~~~ruby\nformat(\"USER %s :: LVL %d\", \"Neo\", 7)   # \"USER Neo :: LVL 7\"\n\"ID-%05d\" % 42                          # \"ID-00042\"\n~~~\n\n## Quick checks: start_with? and include?\n**start_with?** tests the beginning; **include?** tests anywhere inside.\n~~~ruby\n\"NEON-CITY\".start_with?(\"NEON\")  # true\n\"NEON-CITY\".include?(\"CITY\")     # true\n~~~\n\n> INTEL — These predicate methods end in **?** and return true/false. That trailing `?` is just part of the name in Ruby.",
+    "_ignore": ""
+  },
+  "exercises": [
+    {
+      "id": "rb-scrub",
+      "title": "SCRUB STATIC",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Replace every dash with a space.",
+      "prompt": "Define a method **scrub(text)** that returns a new string with **every** dash `-` replaced by a single space. Use **gsub**.\n~~~ruby\nscrub(\"de-tox-now\")  # \"de tox now\"\n~~~",
+      "starter": "def scrub(text)\n  # TODO: gsub every dash to a space\n  text\nend\n",
+      "solution": "def scrub(text)\n  text.gsub(\"-\", \" \")\nend\n",
+      "tests": [
+        { "name": "replaces all dashes", "code": "assert_equal(scrub(\"de-tox-now\"), \"de tox now\")" },
+        { "name": "no dash, no change", "code": "assert_equal(scrub(\"clean\"), \"clean\")" },
+        { "name": "returns a new string, original untouched", "code": "s = \"a-b\"\nassert_equal(scrub(s), \"a b\")\nassert_equal(s, \"a-b\", \"gsub returns a copy; do not mutate the input\")" }
+      ],
+      "hint": "text.gsub(\"-\", \" \") returns a fresh string.",
+      "lore": "Clean the line before you jack in."
+    },
+    {
+      "id": "rb-hasdigit",
+      "title": "DIGIT SCAN",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "True if the code contains any digit.",
+      "prompt": "Define a method **has_digit?(code)** that returns **true** if the string contains at least one digit (0-9), otherwise **false**. Use **match?** with the regex `/[0-9]/`.\n~~~ruby\nhas_digit?(\"NEON7\")  # true\nhas_digit?(\"NEON\")   # false\n~~~",
+      "starter": "def has_digit?(code)\n  # TODO: use match? with /[0-9]/\n  false\nend\n",
+      "solution": "def has_digit?(code)\n  code.match?(/[0-9]/)\nend\n",
+      "tests": [
+        { "name": "digit present -> true", "code": "assert_equal(has_digit?(\"NEON7\"), true)" },
+        { "name": "no digit -> false", "code": "assert_equal(has_digit?(\"NEON\"), false)" },
+        { "name": "digit anywhere counts", "code": "assert_equal(has_digit?(\"4ever\"), true)" }
+      ],
+      "hint": "code.match?(/[0-9]/) is already true or false.",
+      "lore": "Numbers hide in the signal."
+    },
+    {
+      "id": "rb-firsthit",
+      "title": "FIRST HIT",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 140,
+      "brief": "Index of the first digit, or -1.",
+      "prompt": "Define a method **first_digit_index(code)** that returns the **index** of the first digit using the **=~** operator with `/[0-9]/`. If there is no digit, `=~` gives **nil** — return **-1** in that case.\n~~~ruby\nfirst_digit_index(\"abc7\")  # 3\nfirst_digit_index(\"abc\")   # -1\n~~~",
+      "starter": "def first_digit_index(code)\n  # TODO: use =~ , handle the nil case\n  0\nend\n",
+      "solution": "def first_digit_index(code)\n  (code =~ /[0-9]/) || -1\nend\n",
+      "tests": [
+        { "name": "digit at index 3", "code": "assert_equal(first_digit_index(\"abc7\"), 3)" },
+        { "name": "digit at index 0", "code": "assert_equal(first_digit_index(\"9lives\"), 0)" },
+        { "name": "no digit -> -1", "code": "assert_equal(first_digit_index(\"abc\"), -1)" }
+      ],
+      "hint": "(code =~ /[0-9]/) || -1  — nil is falsy, so || gives the fallback.",
+      "lore": "Where does the corruption begin?"
+    },
+    {
+      "id": "rb-harvest",
+      "title": "HARVEST CODES",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 140,
+      "brief": "Collect every run of digits.",
+      "prompt": "Define a method **harvest(text)** that returns an **array of every number** found in the string, each as a string. Use **scan** with `/[0-9]+/` (the `+` means one or more digits in a row).\n~~~ruby\nharvest(\"id-42 port-99\")  # [\"42\", \"99\"]\nharvest(\"no codes\")       # []\n~~~",
+      "starter": "def harvest(text)\n  # TODO: scan for runs of digits\n  []\nend\n",
+      "solution": "def harvest(text)\n  text.scan(/[0-9]+/)\nend\n",
+      "tests": [
+        { "name": "two codes", "code": "assert_equal(harvest(\"id-42 port-99\"), [\"42\", \"99\"])" },
+        { "name": "multi-digit stays whole", "code": "assert_equal(harvest(\"v1024\"), [\"1024\"])" },
+        { "name": "none found -> empty array", "code": "assert_equal(harvest(\"no codes\"), [])" }
+      ],
+      "hint": "text.scan(/[0-9]+/) returns an array of matches.",
+      "lore": "Strip the codes from the data stream."
+    },
+    {
+      "id": "rb-rejoin",
+      "title": "RE-ROUTE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 140,
+      "brief": "Split on commas, rejoin with arrows.",
+      "prompt": "Define a method **reroute(path)** that **splits** the string on commas, then **joins** the pieces with ` -> ` (space, arrow, space).\n~~~ruby\nreroute(\"node1,node2,node3\")  # \"node1 -> node2 -> node3\"\n~~~",
+      "starter": "def reroute(path)\n  # TODO: split on \",\" then join with \" -> \"\n  path\nend\n",
+      "solution": "def reroute(path)\n  path.split(\",\").join(\" -> \")\nend\n",
+      "tests": [
+        { "name": "three nodes", "code": "assert_equal(reroute(\"node1,node2,node3\"), \"node1 -> node2 -> node3\")" },
+        { "name": "single node unchanged", "code": "assert_equal(reroute(\"solo\"), \"solo\")" },
+        { "name": "two nodes", "code": "assert_equal(reroute(\"a,b\"), \"a -> b\")" }
+      ],
+      "hint": "path.split(\",\").join(\" -> \")",
+      "lore": "Lay a new route through the grid."
+    },
+    {
+      "id": "rb-badge",
+      "title": "ID BADGE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 160,
+      "brief": "Format a zero-padded badge string.",
+      "prompt": "Define a method **badge(name, level)** that returns a string in the form `NAME-LVL` where the level is **zero-padded to 3 digits**. Use **format** with `%s` and `%03d`.\n~~~ruby\nbadge(\"Neo\", 7)    # \"Neo-007\"\nbadge(\"Trinity\", 42) # \"Trinity-042\"\n~~~",
+      "starter": "def badge(name, level)\n  # TODO: format with %s and %03d\n  \"#{name}-#{level}\"\nend\n",
+      "solution": "def badge(name, level)\n  format(\"%s-%03d\", name, level)\nend\n",
+      "tests": [
+        { "name": "pads to 3 digits", "code": "assert_equal(badge(\"Neo\", 7), \"Neo-007\")" },
+        { "name": "two-digit level", "code": "assert_equal(badge(\"Trinity\", 42), \"Trinity-042\")" },
+        { "name": "three-digit level unpadded", "code": "assert_equal(badge(\"Morpheus\", 128), \"Morpheus-128\")" }
+      ],
+      "hint": "format(\"%s-%03d\", name, level) — %03d pads with zeros to width 3.",
+      "lore": "Every operative needs a number."
+    },
+    {
+      "id": "rb-trim",
+      "title": "TRIM THE EDGES",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 160,
+      "brief": "Strip ends, then test the prefix.",
+      "prompt": "Define a method **valid_command?(line)** that first **strips** leading/trailing whitespace, then returns **true** only if the cleaned text **starts with** `\"CMD:\"`. Use **strip** and **start_with?**.\n~~~ruby\nvalid_command?(\"  CMD: run  \")  # true\nvalid_command?(\"run CMD:\")      # false\n~~~",
+      "starter": "def valid_command?(line)\n  # TODO: strip, then check start_with?(\"CMD:\")\n  false\nend\n",
+      "solution": "def valid_command?(line)\n  line.strip.start_with?(\"CMD:\")\nend\n",
+      "tests": [
+        { "name": "padded but valid", "code": "assert_equal(valid_command?(\"  CMD: run  \"), true)" },
+        { "name": "prefix not at start", "code": "assert_equal(valid_command?(\"run CMD:\"), false)" },
+        { "name": "tabs and newlines stripped too", "code": "assert_equal(valid_command?(\"\\n\\tCMD: halt\"), true)" }
+      ],
+      "hint": "line.strip.start_with?(\"CMD:\") — strip first, then test.",
+      "lore": "Trim the noise before you trust the order."
+    },
+    {
+      "id": "rb-redact",
+      "title": "REDACT",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 160,
+      "brief": "Mask every digit with a hash.",
+      "prompt": "Define a method **redact(text)** that returns a new string where **every digit** is replaced by `#`, but only **if** the text contains the substring `\"SECRET\"`. If `\"SECRET\"` is not present (use **include?**), return the text unchanged. Use **gsub** with `/[0-9]/` for the masking.\n~~~ruby\nredact(\"SECRET pin 4827\")  # \"SECRET pin ####\"\nredact(\"public 4827\")      # \"public 4827\"\n~~~",
+      "starter": "def redact(text)\n  # TODO: if it includes \"SECRET\", gsub digits to #\n  text\nend\n",
+      "solution": "def redact(text)\n  if text.include?(\"SECRET\")\n    text.gsub(/[0-9]/, \"#\")\n  else\n    text\n  end\nend\n",
+      "tests": [
+        { "name": "secret -> digits masked", "code": "assert_equal(redact(\"SECRET pin 4827\"), \"SECRET pin ####\")" },
+        { "name": "not secret -> untouched", "code": "assert_equal(redact(\"public 4827\"), \"public 4827\")" },
+        { "name": "secret but no digits", "code": "assert_equal(redact(\"SECRET clear\"), \"SECRET clear\")" }
+      ],
+      "hint": "if text.include?(\"SECRET\") then text.gsub(/[0-9]/, \"#\") else text end",
+      "lore": "What they cannot read, they cannot steal."
+    }
+  ]
+}

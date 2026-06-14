@@ -8,6 +8,7 @@ global.window = {};
 function load(f) { (0, eval)(fs.readFileSync(path.join(base, "js", f), "utf8")); }
 load("tracks.js");
 load("curriculum-ruby.js");
+load("curriculum-ruby-pack-1.js");
 
 const wasmPath = path.join(__dirname, "node_modules", "@ruby", "3.3-wasm-wasi", "dist", "ruby+stdlib.wasm");
 
@@ -25,19 +26,20 @@ const PRE = [
 (async function () {
   const wasm = fs.readFileSync(wasmPath);
   const mod = await WebAssembly.compile(wasm);
-  // a FRESH vm per code variant — mirrors the per-Run isolation in the browser
-  async function gradeCode(code, ex) {
+  // a FRESH vm per test — mirrors runtime-ruby.js exactly (PRE+code+test evaluated
+  // once each), so class/constant exercises never false-fail on re-definition.
+  async function evalOnce(code, testCode) {
     const { vm } = await DefaultRubyVM(mod);
-    function ev(testCode) {
-      const program = PRE + (code || "") + "\n" + (testCode || "");
-      let err = null;
-      try { vm.eval(program); } catch (e) { err = (e && e.message ? e.message.split("\n")[0] : String(e)).trim(); }
-      return { ok: !err, err: err };
-    }
-    const disp = ev(null);
-    if (disp.err) return { loadErr: disp.err, fails: [], allOk: false };
+    const program = PRE + (code || "") + "\n" + (testCode || "");
+    let err = null;
+    try { vm.eval(program); } catch (e) { err = (e && e.message ? e.message.split("\n")[0] : String(e)).trim(); }
+    return err;
+  }
+  async function gradeCode(code, ex) {
+    const loadErr = await evalOnce(code, null);
+    if (loadErr) return { loadErr, fails: [], allOk: false };
     const fails = [];
-    for (const t of ex.tests) { const r = ev(t.code); if (!r.ok) fails.push([t.name, r.err]); }
+    for (const t of ex.tests) { const er = await evalOnce(code, t.code); if (er) fails.push([t.name, er]); }
     return { loadErr: null, fails, allOk: fails.length === 0 };
   }
   const track = window.TRACKS.find((t) => t.id === "ruby");

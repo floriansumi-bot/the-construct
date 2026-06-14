@@ -1,0 +1,98 @@
+{
+  "type": "fill",
+  "modId": "rbm01-core",
+  "exercises": [
+    {
+      "id": "rb-greet-op",
+      "title": "OPERATOR GREETING",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Hail the operator.",
+      "prompt": "Define a method **greet(handle)** that returns a greeting string.\n\nGiven a handle, return exactly:\n~~~text\nWelcome to the Construct, <handle>.\n~~~\nUse string interpolation: **#{handle}**.\n\n~~~ruby\ngreet(\"Trinity\")  # \"Welcome to the Construct, Trinity.\"\n~~~",
+      "starter": "def greet(handle)\n  # TODO: interpolate the handle\n  \"\"\nend\n",
+      "solution": "def greet(handle)\n  \"Welcome to the Construct, #{handle}.\"\nend\n",
+      "tests": [
+        { "name": "greets Trinity", "code": "assert_equal(greet(\"Trinity\"), \"Welcome to the Construct, Trinity.\")" },
+        { "name": "uses the argument", "code": "assert_equal(greet(\"Neo\"), \"Welcome to the Construct, Neo.\")" },
+        { "name": "not hard-coded", "code": "assert(greet(\"Dozer\").include?(\"Dozer\"), \"interpolate the handle\")" }
+      ],
+      "hint": "\"Welcome to the Construct, #{handle}.\"",
+      "lore": "Every jack-in starts with a handshake."
+    },
+    {
+      "id": "rb-id-tag",
+      "title": "ID TAG",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Stamp a runner's badge.",
+      "prompt": "Define a method **id_tag(name, level)** that returns a badge string combining a name and a numeric level.\n\nReturn exactly:\n~~~text\n[<name>] clearance level <level>\n~~~\nBoth values go inside one interpolated string.\n\n~~~ruby\nid_tag(\"Switch\", 7)  # \"[Switch] clearance level 7\"\n~~~",
+      "starter": "def id_tag(name, level)\n  # TODO: combine name and level\n  name\nend\n",
+      "solution": "def id_tag(name, level)\n  \"[#{name}] clearance level #{level}\"\nend\n",
+      "tests": [
+        { "name": "tags Switch at 7", "code": "assert_equal(id_tag(\"Switch\", 7), \"[Switch] clearance level 7\")" },
+        { "name": "tags Apoc at 3", "code": "assert_equal(id_tag(\"Apoc\", 3), \"[Apoc] clearance level 3\")" },
+        { "name": "level is interpolated", "code": "assert(id_tag(\"Mouse\", 12).include?(\"12\"), \"interpolate the level too\")" }
+      ],
+      "hint": "Two #{} slots in one string: \"[#{name}] clearance level #{level}\".",
+      "lore": "No badge, no jack-in."
+    },
+    {
+      "id": "rb-ping",
+      "title": "PING SWEEP",
+      "kind": "script",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Broadcast a status sweep.",
+      "prompt": "Define a method **ping(host)** that **puts** (prints) the line:\n~~~text\nPING <host> ... ACK\n~~~\nThen, at the top level, call it three times with **\"core\"**, **\"relay\"**, and **\"gateway\"**, in that order.\n\n~~~ruby\nping(\"core\")    # prints: PING core ... ACK\n~~~",
+      "starter": "def ping(host)\n  # TODO: puts the ping line\nend\n\n# TODO: call ping three times\n",
+      "solution": "def ping(host)\n  puts \"PING #{host} ... ACK\"\nend\n\nping(\"core\")\nping(\"relay\")\nping(\"gateway\")\n",
+      "tests": [
+        { "name": "something was printed", "code": "assert(stdout().length > 0, \"Nothing printed. Use puts inside ping.\")" },
+        { "name": "all three hosts acked", "code": "o = stdout()\nassert(o.include?(\"PING core ... ACK\"), \"missing core\")\nassert(o.include?(\"PING relay ... ACK\"), \"missing relay\")\nassert(o.include?(\"PING gateway ... ACK\"), \"missing gateway\")" },
+        { "name": "core comes before gateway", "code": "o = stdout()\nassert(o.index(\"core\") < o.index(\"gateway\"), \"wrong order\")" }
+      ],
+      "hint": "Inside ping: puts \"PING #{host} ... ACK\". Then call it three times.",
+      "lore": "Listen for the echo in the dark."
+    },
+    {
+      "id": "rb-status-line",
+      "title": "STATUS LINE",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Compose a telemetry readout.",
+      "prompt": "Define a method **status_line(name, online)** that returns a status string. The **online** argument is a boolean.\n\nWhen **online** is true return:\n~~~text\n<name>: ONLINE\n~~~\nWhen it is false return:\n~~~text\n<name>: OFFLINE\n~~~\nThe state word changes; the name is interpolated.\n\n~~~ruby\nstatus_line(\"MAGI\", true)   # \"MAGI: ONLINE\"\nstatus_line(\"MAGI\", false)  # \"MAGI: OFFLINE\"\n~~~",
+      "starter": "def status_line(name, online)\n  # TODO: pick ONLINE or OFFLINE\n  \"#{name}: ONLINE\"\nend\n",
+      "solution": "def status_line(name, online)\n  state = online ? \"ONLINE\" : \"OFFLINE\"\n  \"#{name}: #{state}\"\nend\n",
+      "tests": [
+        { "name": "online reads ONLINE", "code": "assert_equal(status_line(\"MAGI\", true), \"MAGI: ONLINE\")" },
+        { "name": "offline reads OFFLINE", "code": "assert_equal(status_line(\"MAGI\", false), \"MAGI: OFFLINE\")" },
+        { "name": "name is interpolated", "code": "assert_equal(status_line(\"Tank\", false), \"Tank: OFFLINE\")" },
+        { "name": "both branches differ", "code": "assert(status_line(\"X\", true) != status_line(\"X\", false), \"the state must change with the flag\")" }
+      ],
+      "hint": "state = online ? \"ONLINE\" : \"OFFLINE\", then interpolate both.",
+      "lore": "A green light is a promise the grid keeps."
+    },
+    {
+      "id": "rb-banner",
+      "title": "BOOT BANNER",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Frame the cold-boot header.",
+      "prompt": "Define a method **banner(title)** that returns a TWO-LINE string: the title, then a line of dashes (**-**) exactly as long as the title. Separate the two lines with a newline **\\n**.\n\n~~~ruby\nbanner(\"CORE\")\n# \"CORE\\n----\"\n~~~\nUse interpolation and **String#length**. The string **\"-\" * n** repeats a dash n times.",
+      "starter": "def banner(title)\n  # TODO: title on line 1, matching dashes on line 2\n  title\nend\n",
+      "solution": "def banner(title)\n  \"#{title}\\n#{\"-\" * title.length}\"\nend\n",
+      "tests": [
+        { "name": "CORE banner", "code": "assert_equal(banner(\"CORE\"), \"CORE\\n----\")" },
+        { "name": "dashes match length", "code": "assert_equal(banner(\"ZION\"), \"ZION\\n----\")" },
+        { "name": "longer title, longer rule", "code": "assert_equal(banner(\"MATRIX\"), \"MATRIX\\n------\")" },
+        { "name": "two lines exactly", "code": "assert_equal(banner(\"AI\").split(\"\\n\").length, 2)" }
+      ],
+      "hint": "\"#{title}\\n#{\"-\" * title.length}\" gives a rule the same width as the title.",
+      "lore": "Every system announces itself before it thinks."
+    }
+  ]
+}

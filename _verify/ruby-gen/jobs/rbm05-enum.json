@@ -1,0 +1,157 @@
+{
+  "type": "new",
+  "module": {
+    "id": "rbm05-enum",
+    "code": "0x05",
+    "title": "ENUMERABLE",
+    "subtitle": "reduce · group_by · sort_by · min_by/max_by",
+    "theory": "## The Enumerable toolkit\n\nEvery array (and hash) in Ruby mixes in **Enumerable** — a giant box of looping tools. You almost never write a manual `for` loop. Instead you pick the tool that already does what you want and hand it a **block**: `{ |x| ... }` for one line, or `do |x| ... end` for many.\n\nThe golden rule of blocks: **the last line of the block is its value**. No `return` needed — and `return` inside a block is actually a mistake that jumps out of the whole method.\n\n## reduce / inject — fold a list into one value\n\n`reduce` walks the list carrying an **accumulator**. The block's result becomes the next accumulator.\n~~~ruby\n[1, 2, 3, 4].reduce(0) { |sum, n| sum + n }   # 10\n[1, 2, 3, 4].reduce(1) { |prod, n| prod * n } # 24\n~~~\nThe number in `reduce(0)` is the **starting** accumulator. For a product, start at **1** (starting at 0 would zero everything out — a classic beginner trap). There's even a shortcut for simple operators: `[1,2,3].reduce(:+)  # 6`.\n\n> INTEL — `inject` is the exact same method under a different name. `reduce` and `inject` are interchangeable.\n\n## each_with_object — build a collection as you go\n\nWhen you want to fill up a hash or array, `each_with_object` is cleaner than `reduce`. You pass the object **once**, and it is handed back to you every loop:\n~~~ruby\n[\"a\", \"b\", \"a\"].each_with_object(Hash.new(0)) do |word, counts|\n  counts[word] += 1\nend\n# { \"a\" => 2, \"b\" => 1 }\n~~~\n\n> WARNING — `each_with_object` **returns the object you passed in**, not the block's last line. So you mutate `counts` (e.g. `counts[word] += 1`) and let Ruby hand the finished object back. Trying to `return counts` from inside, or writing the count as the last line, are the two most common slip-ups.\n\n## group_by — bucket items by a key\n\nGives you a **hash** mapping each block result to the array of items that produced it.\n~~~ruby\n[1, 2, 3, 4, 5].group_by { |n| n.even? }\n# { false => [1, 3, 5], true => [2, 4] }\n~~~\n\n## sort_by — order by a computed value\n\nSorts ascending by whatever the block returns. To reverse, negate a number or call `.reverse` after.\n~~~ruby\n[\"ruby\", \"go\", \"perl\"].sort_by { |w| w.length }   # [\"go\", \"ruby\", \"perl\"]\n~~~\n\n## min_by / max_by — the single best item\n\nReturns the actual **element** whose block value is smallest / largest — not the number itself.\n~~~ruby\n[\"ruby\", \"go\", \"perl\"].max_by { |w| w.length }   # \"perl\"\n~~~\n\n## count, find / detect\n\n`count { |x| ... }` counts how many items match. `find` (alias `detect`) returns the **first** matching element, or `nil` if none.\n~~~ruby\n[1, 2, 3, 4].count { |n| n.even? }     # 2\n[1, 2, 3, 4].find { |n| n > 2 }        # 3\n~~~\n\n> INTEL — Chaining is the whole game: `select` then `map` is the most common combo — filter first, then transform. `data.select { |x| x.live? }.map { |x| x.name }` reads top-to-bottom like a pipeline.\n\n> WARNING — Symbol keys vs string keys are different worlds. A hash written `{ bpm: 128 }` is read with `h[:bpm]` (symbol), while `{ \"bpm\" => 128 }` needs `h[\"bpm\"]` (string). Mixing them up returns `nil`.\n",
+    "exercises": []
+  },
+  "exercises": [
+    {
+      "id": "rb-fold",
+      "title": "SUM CORE",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Fold cells into one sum.",
+      "prompt": "Define **fold_sum(nums)** that uses **reduce** to add up every number in the array and return the total. Start the accumulator at **0**.\n~~~ruby\nfold_sum([1, 2, 3, 4])  # 10\n~~~",
+      "starter": "def fold_sum(nums)\n  # TODO: use reduce starting at 0\n  0\nend\n",
+      "solution": "def fold_sum(nums)\n  nums.reduce(0) { |sum, n| sum + n }\nend\n",
+      "tests": [
+        { "name": "sums values", "code": "assert_equal(fold_sum([1, 2, 3, 4]), 10)" },
+        { "name": "empty -> 0", "code": "assert_equal(fold_sum([]), 0)" },
+        { "name": "handles negatives", "code": "assert_equal(fold_sum([10, -4, 2]), 8)" }
+      ],
+      "hint": "nums.reduce(0) { |sum, n| sum + n }",
+      "lore": "One value to bind them all."
+    },
+    {
+      "id": "rb-product",
+      "title": "REACTOR PRODUCT",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 130,
+      "brief": "Multiply the whole chain.",
+      "prompt": "Define **chain_product(nums)** that uses **reduce** to multiply every number together. Start the accumulator at **1** so an empty array returns 1.\n~~~ruby\nchain_product([2, 3, 4])  # 24\n~~~",
+      "starter": "def chain_product(nums)\n  # TODO: reduce with a starting value\n  0\nend\n",
+      "solution": "def chain_product(nums)\n  nums.reduce(1) { |prod, n| prod * n }\nend\n",
+      "tests": [
+        { "name": "multiplies values", "code": "assert_equal(chain_product([2, 3, 4]), 24)" },
+        { "name": "empty -> 1", "code": "assert_equal(chain_product([]), 1)" },
+        { "name": "single element", "code": "assert_equal(chain_product([7]), 7)" }
+      ],
+      "hint": "Start at 1, not 0: nums.reduce(1) { |prod, n| prod * n }",
+      "lore": "Multiply the load until the core hums."
+    },
+    {
+      "id": "rb-tally",
+      "title": "PACKET TALLY",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Count how often each tag appears.",
+      "prompt": "Define **tally(words)** that returns a **hash** mapping each string to how many times it appears. Use **each_with_object** with a `Hash.new(0)` so missing keys default to 0.\n~~~ruby\ntally([\"a\", \"b\", \"a\"])  # { \"a\" => 2, \"b\" => 1 }\n~~~",
+      "starter": "def tally(words)\n  # TODO: build a count hash with each_with_object\n  {}\nend\n",
+      "solution": "def tally(words)\n  words.each_with_object(Hash.new(0)) do |w, counts|\n    counts[w] += 1\n  end\nend\n",
+      "tests": [
+        { "name": "counts repeats", "code": "assert_equal(tally([\"a\", \"b\", \"a\"]), { \"a\" => 2, \"b\" => 1 })" },
+        { "name": "empty -> empty hash", "code": "assert_equal(tally([]), {})" },
+        { "name": "all unique", "code": "assert_equal(tally([\"x\", \"y\", \"z\"]), { \"x\" => 1, \"y\" => 1, \"z\" => 1 })" }
+      ],
+      "hint": "words.each_with_object(Hash.new(0)) { |w, counts| counts[w] += 1 }",
+      "lore": "Every packet logged, none lost in the noise."
+    },
+    {
+      "id": "rb-bucket",
+      "title": "PARITY BUCKETS",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Split numbers into even and odd.",
+      "prompt": "Define **by_parity(nums)** that uses **group_by** to bucket numbers by whether they are even. Return the hash keyed by **true** (even) and **false** (odd).\n~~~ruby\nby_parity([1, 2, 3, 4])  # { false => [1, 3], true => [2, 4] }\n~~~",
+      "starter": "def by_parity(nums)\n  # TODO: group_by even?\n  {}\nend\n",
+      "solution": "def by_parity(nums)\n  nums.group_by { |n| n.even? }\nend\n",
+      "tests": [
+        { "name": "buckets by parity", "code": "assert_equal(by_parity([1, 2, 3, 4]), { false => [1, 3], true => [2, 4] })" },
+        { "name": "all even", "code": "assert_equal(by_parity([2, 4, 6]), { true => [2, 4, 6] })" },
+        { "name": "empty -> empty hash", "code": "assert_equal(by_parity([]), {})" }
+      ],
+      "hint": "nums.group_by { |n| n.even? }",
+      "lore": "Sort the signal from the static."
+    },
+    {
+      "id": "rb-longest",
+      "title": "MAX SIGNAL",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Find the longest call sign.",
+      "prompt": "Define **longest(words)** that uses **max_by** to return the **string** with the most characters. If two tie, returning the first one is fine. Assume the array is never empty.\n~~~ruby\nlongest([\"go\", \"ruby\", \"kernel\"])  # \"kernel\"\n~~~",
+      "starter": "def longest(words)\n  # TODO: max_by length\n  words.first\nend\n",
+      "solution": "def longest(words)\n  words.max_by { |w| w.length }\nend\n",
+      "tests": [
+        { "name": "picks longest", "code": "assert_equal(longest([\"go\", \"ruby\", \"kernel\"]), \"kernel\")" },
+        { "name": "single element", "code": "assert_equal(longest([\"solo\"]), \"solo\")" },
+        { "name": "returns the element not its length", "code": "assert_equal(longest([\"ab\", \"cde\"]), \"cde\")" }
+      ],
+      "hint": "words.max_by { |w| w.length }",
+      "lore": "The loudest broadcast wins the channel."
+    },
+    {
+      "id": "rb-rank",
+      "title": "RANK BY BPM",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Order tracks slowest to fastest.",
+      "prompt": "**tracks** is an array of hashes like **{ name: \"Spice\", bpm: 128 }**. Define **ranked_names(tracks)** returning an array of the **names** sorted by **bpm** ascending. Use **sort_by** then **map**.\n~~~ruby\nranked_names([{ name: \"Fast\", bpm: 140 }, { name: \"Slow\", bpm: 90 }])  # [\"Slow\", \"Fast\"]\n~~~",
+      "starter": "def ranked_names(tracks)\n  # TODO: sort_by bpm, then map names\n  tracks.map { |t| t[:name] }\nend\n",
+      "solution": "def ranked_names(tracks)\n  tracks.sort_by { |t| t[:bpm] }.map { |t| t[:name] }\nend\n",
+      "tests": [
+        { "name": "sorts by bpm", "code": "data = [{ name: \"Fast\", bpm: 140 }, { name: \"Slow\", bpm: 90 }, { name: \"Mid\", bpm: 120 }]\nassert_equal(ranked_names(data), [\"Slow\", \"Mid\", \"Fast\"])" },
+        { "name": "empty -> empty", "code": "assert_equal(ranked_names([]), [])" },
+        { "name": "already sorted stays sorted", "code": "assert_equal(ranked_names([{ name: \"A\", bpm: 1 }, { name: \"B\", bpm: 2 }]), [\"A\", \"B\"])" }
+      ],
+      "hint": "tracks.sort_by { |t| t[:bpm] }.map { |t| t[:name] }",
+      "lore": "Line them up by tempo before the set."
+    },
+    {
+      "id": "rb-hunt",
+      "title": "FIRST HIT",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Find the first threshold breach.",
+      "prompt": "Define **first_over(nums, limit)** that uses **find** (a.k.a. detect) to return the **first** number strictly greater than **limit**. Return **nil** if none qualify.\n~~~ruby\nfirst_over([1, 5, 8, 2], 4)  # 5\nfirst_over([1, 2], 9)        # nil\n~~~",
+      "starter": "def first_over(nums, limit)\n  # TODO: find the first number over the limit\n  nums.first\nend\n",
+      "solution": "def first_over(nums, limit)\n  nums.find { |n| n > limit }\nend\n",
+      "tests": [
+        { "name": "returns first match", "code": "assert_equal(first_over([1, 5, 8, 2], 4), 5)" },
+        { "name": "no match -> nil", "code": "assert_equal(first_over([1, 2, 3], 9), nil)" },
+        { "name": "stops at first not biggest", "code": "assert_equal(first_over([10, 20], 5), 10)" }
+      ],
+      "hint": "nums.find { |n| n > limit }",
+      "lore": "Lock on the first heat signature."
+    },
+    {
+      "id": "rb-stats",
+      "title": "SQUAD REPORT",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 240,
+      "brief": "Summarise the active runners.",
+      "prompt": "**units** is an array of hashes like **{ name: \"Trin\", hp: 80, online: true }**. Define **report(units)** returning a **hash** with three keys:\n- **:online** — how many units have `online: true` (use **count**)\n- **:total_hp** — the sum of `hp` across the online units only (use **select** then **reduce** or **sum**)\n- **:strongest** — the **name** of the online unit with the highest hp (use **max_by**)\n\nAssume at least one unit is online.\n~~~ruby\nreport([{ name: \"Trin\", hp: 80, online: true }, { name: \"Dozer\", hp: 50, online: false }])\n# { online: 1, total_hp: 80, strongest: \"Trin\" }\n~~~",
+      "starter": "def report(units)\n  # TODO: count online, sum their hp, find strongest by hp\n  { online: 0, total_hp: 0, strongest: nil }\nend\n",
+      "solution": "def report(units)\n  live = units.select { |u| u[:online] }\n  {\n    online: live.count,\n    total_hp: live.reduce(0) { |sum, u| sum + u[:hp] },\n    strongest: live.max_by { |u| u[:hp] }[:name],\n  }\nend\n",
+      "tests": [
+        { "name": "full report", "code": "data = [{ name: \"Trin\", hp: 80, online: true }, { name: \"Dozer\", hp: 50, online: false }, { name: \"Neo\", hp: 95, online: true }]\nassert_equal(report(data), { online: 2, total_hp: 175, strongest: \"Neo\" })" },
+        { "name": "ignores offline in hp + strongest", "code": "data = [{ name: \"A\", hp: 10, online: true }, { name: \"B\", hp: 999, online: false }]\nassert_equal(report(data), { online: 1, total_hp: 10, strongest: \"A\" })" },
+        { "name": "strongest is the online max", "code": "data = [{ name: \"Lo\", hp: 30, online: true }, { name: \"Hi\", hp: 70, online: true }]\nr = report(data)\nassert_equal(r[:strongest], \"Hi\")\nassert_equal(r[:online], 2)" }
+      ],
+      "hint": "live = units.select { |u| u[:online] }; then count, reduce hp, and max_by hp on live.",
+      "lore": "Only the jacked-in count toward the run."
+    }
+  ]
+}

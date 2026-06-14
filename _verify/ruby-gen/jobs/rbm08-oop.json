@@ -1,0 +1,158 @@
+{
+  "type": "new",
+  "module": {
+    "id": "rbm08-oop",
+    "code": "0x08",
+    "title": "CLASSES & OOP II",
+    "subtitle": "attr_accessor · state · methods · to_s",
+    "theory": "## Objects that REMEMBER\n\nIn sector 0x03 you built your first class. Now we go deeper: objects that carry **state** — data that lives *inside* the object and changes over time. A bank account remembers its balance. A stack remembers what you pushed onto it. The object is a little machine that holds memory between calls.\n\nState lives in **instance variables** — names that start with `@`. Each object gets its own copy.\n\n~~~ruby\nclass Drone\n  def initialize\n    @energy = 100   # this drone's private store\n  end\nend\n~~~\n\nEvery `Drone.new` has its *own* `@energy`. Two drones never share it.\n\n> INTEL — `@energy` is invisible from outside the object. You cannot write `drone.@energy`. The only way in or out is through **methods** you define. That is the whole point of OOP: the object guards its own data.\n\n## Letting the world read and write: attr_*\n\nWriting a getter method by hand is tedious:\n\n~~~ruby\nclass Drone\n  def energy        # getter\n    @energy\n  end\n  def energy=(v)    # setter\n    @energy = v\n  end\nend\n~~~\n\nRuby generates these for you. Put one line near the top of the class:\n\n- **`attr_reader :energy`** — makes a getter. You can `drone.energy` (read only).\n- **`attr_writer :energy`** — makes a setter. You can `drone.energy = 50` (write only).\n- **`attr_accessor :energy`** — makes BOTH. Read and write.\n\n~~~ruby\nclass Drone\n  attr_accessor :energy\n  def initialize\n    @energy = 100\n  end\nend\n\nd = Drone.new\nd.energy          # 100   (reader)\nd.energy = 60     # sets @energy\nd.energy          # 60\n~~~\n\nNote the symbol: `attr_accessor :energy` — a colon name, not a string, and NOT `@energy`. It names the *attribute*; Ruby wires it to the matching `@energy` behind the scenes.\n\n> WARNING — A classic beginner mix-up: `attr_accessor :energy` vs `attr_accessor \"energy\"` vs `attr_accessor @energy`. Use the **symbol** `:energy`. Strings and `@`-names will not give you the accessor you want.\n\n## Methods that CHANGE state\n\nMost interesting methods don't just read — they *mutate*. They reach into `@vars`, change them, and the object remembers the new value for next time.\n\n~~~ruby\nclass Counter\n  attr_reader :count\n  def initialize\n    @count = 0\n  end\n  def tick\n    @count += 1     # mutate the stored state\n    @count          # return the new value\n  end\nend\n\nc = Counter.new\nc.tick   # 1\nc.tick   # 2\nc.count  # 2  — it stuck\n~~~\n\nThe difference between **mutating** and **returning** trips up newcomers. `@count += 1` *changes* the object. The last line `@count` is what the method *hands back*. They are two separate jobs. A method can mutate and also return — but be deliberate about which value comes out.\n\n> INTEL — The LAST expression in a method is its return value (no `return` keyword needed). If you want `tick` to return the new count, make `@count` the last line. If the last line were `puts @count`, the method would return `nil`, because `puts` returns `nil` — a very common surprise.\n\n## Guards: refusing bad operations\n\nA good stateful object protects its invariants. An account should refuse to go overdrawn. A stack should refuse to pop when empty. You enforce this with a **guard** — a check at the top of the method.\n\n~~~ruby\nclass Account\n  attr_reader :balance\n  def initialize(start = 0)\n    @balance = start\n  end\n\n  def deposit(n)\n    @balance += n\n    @balance\n  end\n\n  def withdraw(n)\n    return false if n > @balance   # GUARD: refuse overdraft\n    @balance -= n\n    @balance\n  end\nend\n~~~\n\nHere `withdraw` returns `false` and changes nothing when the money isn't there. Sometimes you instead want to **raise an error** for a truly illegal move:\n\n~~~ruby\ndef pop\n  raise \"stack empty\" if @items.empty?   # explode loudly\n  @items.pop\nend\n~~~\n\n`raise \"message\"` stops the method and signals a failure the caller must handle. Tests can check for this with `assert_raises { ... }`.\n\n> WARNING — `raise` aborts the method immediately. Put your guard FIRST, before you mutate anything, so a rejected call leaves the object untouched.\n\n## A friendly face: to_s\n\nWhen you `puts` an object or interpolate it into a string, Ruby calls its **`to_s`** method. The default is ugly (`#<Account:0x000...>`). Define your own to give the object a readable form:\n\n~~~ruby\nclass Account\n  def initialize(name, balance)\n    @name = name\n    @balance = balance\n  end\n  def to_s\n    \"#{@name}: #{@balance} credits\"\n  end\nend\n\nputs Account.new(\"Trinity\", 500)   # => Trinity: 500 credits\n\"Balance — #{Account.new(\"Neo\", 9)}\"  # => \"Balance — Neo: 9 credits\"\n~~~\n\n`to_s` must **return** the string (last expression), not `puts` it. If you `puts` inside `to_s`, you print early and return `nil`, and the interpolation shows blank.\n\n> INTEL — String interpolation `\"#{obj}\"` automatically calls `obj.to_s`. Define `to_s` once and your object reads nicely everywhere.\n\nYou now have the full kit: `@state`, `attr_*` accessors, mutating methods, guards, and `to_s`. Build objects that remember, defend themselves, and explain who they are."
+  },
+  "exercises": [
+    {
+      "id": "rb-vault",
+      "title": "THE VAULT",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Expose stored credits with attr_reader.",
+      "prompt": "Define a class **Vault**.\n\n- **initialize(credits)** stores the amount in `@credits`\n- expose it with **attr_reader :credits** so the world can read `v.credits`\n\n~~~ruby\nv = Vault.new(500)\nv.credits   # 500\n~~~",
+      "starter": "class Vault\n  # TODO: attr_reader + initialize\n  def initialize(credits)\n    @credits = 0\n  end\nend\n",
+      "solution": "class Vault\n  attr_reader :credits\n  def initialize(credits)\n    @credits = credits\n  end\nend\n",
+      "tests": [
+        { "name": "stores the credits", "code": "v = Vault.new(500)\nassert_equal(v.credits, 500)" },
+        { "name": "another value", "code": "v = Vault.new(42)\nassert_equal(v.credits, 42)" },
+        { "name": "reader exposes it", "code": "v = Vault.new(7)\nassert(v.respond_to?(:credits), \"need attr_reader :credits\")" }
+      ],
+      "hint": "attr_reader :credits at the top, and store the argument: @credits = credits.",
+      "lore": "The vault remembers every credit. It never forgets a debt."
+    },
+    {
+      "id": "rb-handle",
+      "title": "CALL SIGN",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "A read/write attribute with attr_accessor.",
+      "prompt": "Define a class **Operator**.\n\n- **initialize(handle)** stores the handle in `@handle`\n- use **attr_accessor :handle** so the handle can be both READ and CHANGED from outside\n\n~~~ruby\no = Operator.new(\"Neo\")\no.handle          # \"Neo\"\no.handle = \"The One\"\no.handle          # \"The One\"\n~~~",
+      "starter": "class Operator\n  attr_reader :handle   # TODO: needs to be writable too\n  def initialize(handle)\n    @handle = handle\n  end\nend\n",
+      "solution": "class Operator\n  attr_accessor :handle\n  def initialize(handle)\n    @handle = handle\n  end\nend\n",
+      "tests": [
+        { "name": "reads the handle", "code": "o = Operator.new(\"Neo\")\nassert_equal(o.handle, \"Neo\")" },
+        { "name": "handle can be rewritten", "code": "o = Operator.new(\"Neo\")\no.handle = \"The One\"\nassert_equal(o.handle, \"The One\")" },
+        { "name": "accessor gives a writer", "code": "o = Operator.new(\"Trinity\")\nassert(o.respond_to?(:handle=), \"need attr_accessor so handle is writable\")" }
+      ],
+      "hint": "attr_accessor :handle makes both a reader and a writer (handle=).",
+      "lore": "Choose your call sign carefully. The grid will know you by it."
+    },
+    {
+      "id": "rb-killtally",
+      "title": "KILL TALLY",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 160,
+      "brief": "A counter that mutates and returns its state.",
+      "prompt": "Define a class **Tally** that counts events.\n\n- **initialize** sets `@count` to **0**\n- expose it with **attr_reader :count**\n- **bump** increases the count by 1 and RETURNS the new count\n\n~~~ruby\nt = Tally.new\nt.bump    # 1\nt.bump    # 2\nt.count   # 2\n~~~",
+      "starter": "class Tally\n  attr_reader :count\n  def initialize\n    @count = 0\n  end\n  def bump\n    # TODO: increase @count and return it\n    @count\n  end\nend\n",
+      "solution": "class Tally\n  attr_reader :count\n  def initialize\n    @count = 0\n  end\n  def bump\n    @count += 1\n    @count\n  end\nend\n",
+      "tests": [
+        { "name": "starts at zero", "code": "t = Tally.new\nassert_equal(t.count, 0)" },
+        { "name": "bump returns new count", "code": "t = Tally.new\nassert_equal(t.bump, 1)\nassert_equal(t.bump, 2)" },
+        { "name": "state sticks", "code": "t = Tally.new\nt.bump\nt.bump\nt.bump\nassert_equal(t.count, 3)" }
+      ],
+      "hint": "Inside bump: @count += 1 mutates the state, then make @count the last line so it is returned.",
+      "lore": "Every mark on the tally is a ghost in the machine."
+    },
+    {
+      "id": "rb-stack",
+      "title": "PUSH DOWN",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "A stack with push, pop and size.",
+      "prompt": "Define a class **Stack** backed by an array `@items`.\n\n- **initialize** sets `@items` to an empty array `[]`\n- **push(x)** adds x to the top and returns x\n- **pop** removes and returns the top item (the LAST one added)\n- **size** returns how many items are stored\n\n~~~ruby\ns = Stack.new\ns.push(\"a\")\ns.push(\"b\")\ns.size   # 2\ns.pop    # \"b\"\ns.size   # 1\n~~~",
+      "starter": "class Stack\n  def initialize\n    @items = []\n  end\n  def push(x)\n    # TODO\n  end\n  def pop\n    # TODO\n  end\n  def size\n    0\n  end\nend\n",
+      "solution": "class Stack\n  def initialize\n    @items = []\n  end\n  def push(x)\n    @items.push(x)\n    x\n  end\n  def pop\n    @items.pop\n  end\n  def size\n    @items.size\n  end\nend\n",
+      "tests": [
+        { "name": "push returns the item and grows", "code": "s = Stack.new\nassert_equal(s.push(\"a\"), \"a\")\nassert_equal(s.size, 1)" },
+        { "name": "pop is last-in first-out", "code": "s = Stack.new\ns.push(\"a\")\ns.push(\"b\")\nassert_equal(s.pop, \"b\")\nassert_equal(s.size, 1)" },
+        { "name": "size tracks the count", "code": "s = Stack.new\ns.push(1)\ns.push(2)\ns.push(3)\ns.pop\nassert_equal(s.size, 2)" }
+      ],
+      "hint": "Array has .push, .pop and .size already — delegate to @items and return the right value.",
+      "lore": "Last in, first out. The newest secret is the first to surface."
+    },
+    {
+      "id": "rb-meter",
+      "title": "POWER METER",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Mutate a value but clamp it to a ceiling.",
+      "prompt": "Define a class **Meter** that charges toward a maximum.\n\n- **initialize(max)** stores `@max` and sets `@level` to **0**\n- expose the current level with **attr_reader :level**\n- **charge(n)** adds n to the level but NEVER above `@max`, then returns the new level\n\n~~~ruby\nm = Meter.new(100)\nm.charge(40)   # 40\nm.charge(80)   # 100  (clamped at max)\nm.level        # 100\n~~~",
+      "starter": "class Meter\n  attr_reader :level\n  def initialize(max)\n    @max = max\n    @level = 0\n  end\n  def charge(n)\n    @level += n   # TODO: must not exceed @max\n    @level\n  end\nend\n",
+      "solution": "class Meter\n  attr_reader :level\n  def initialize(max)\n    @max = max\n    @level = 0\n  end\n  def charge(n)\n    @level = [@max, @level + n].min\n    @level\n  end\nend\n",
+      "tests": [
+        { "name": "charges up", "code": "m = Meter.new(100)\nassert_equal(m.charge(40), 40)\nassert_equal(m.level, 40)" },
+        { "name": "clamps at max", "code": "m = Meter.new(100)\nm.charge(40)\nassert_equal(m.charge(80), 100)\nassert_equal(m.level, 100)" },
+        { "name": "stays clamped on more charge", "code": "m = Meter.new(50)\nm.charge(999)\nm.charge(999)\nassert_equal(m.level, 50)" }
+      ],
+      "hint": "Use [@max, @level + n].min so the level can rise but never passes @max.",
+      "lore": "The reactor will take only so much. Push harder and it simply holds."
+    },
+    {
+      "id": "rb-account",
+      "title": "OVERDRAFT GUARD",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "An account that refuses to go negative.",
+      "prompt": "Define a class **Account** with a guard against overdraft.\n\n- **initialize(start)** stores the opening balance in `@balance`\n- expose it with **attr_reader :balance**\n- **deposit(n)** adds n and returns the new balance\n- **withdraw(n)** subtracts n and returns the new balance — BUT if n is greater than the balance it must change nothing and return **false**\n\n~~~ruby\na = Account.new(100)\na.deposit(50)    # 150\na.withdraw(60)   # 90\na.withdraw(999)  # false  (refused, balance unchanged)\na.balance        # 90\n~~~",
+      "starter": "class Account\n  attr_reader :balance\n  def initialize(start)\n    @balance = start\n  end\n  def deposit(n)\n    @balance += n\n    @balance\n  end\n  def withdraw(n)\n    @balance -= n   # TODO: refuse if it would overdraw\n    @balance\n  end\nend\n",
+      "solution": "class Account\n  attr_reader :balance\n  def initialize(start)\n    @balance = start\n  end\n  def deposit(n)\n    @balance += n\n    @balance\n  end\n  def withdraw(n)\n    return false if n > @balance\n    @balance -= n\n    @balance\n  end\nend\n",
+      "tests": [
+        { "name": "deposit grows the balance", "code": "a = Account.new(100)\nassert_equal(a.deposit(50), 150)\nassert_equal(a.balance, 150)" },
+        { "name": "valid withdraw works", "code": "a = Account.new(100)\nassert_equal(a.withdraw(60), 40)\nassert_equal(a.balance, 40)" },
+        { "name": "overdraft refused, balance untouched", "code": "a = Account.new(90)\nassert_equal(a.withdraw(999), false)\nassert_equal(a.balance, 90)" },
+        { "name": "exact balance withdraw allowed", "code": "a = Account.new(50)\nassert_equal(a.withdraw(50), 0)\nassert_equal(a.balance, 0)" }
+      ],
+      "hint": "Put the guard FIRST: return false if n > @balance — before you touch @balance.",
+      "lore": "The bank does not extend credit to ghosts. Insufficient funds, runner."
+    },
+    {
+      "id": "rb-buffer",
+      "title": "EMPTY BUFFER PANIC",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "A queue that raises when popped while empty.",
+      "prompt": "Define a class **Buffer** (a first-in first-out queue) backed by `@items`.\n\n- **initialize** sets `@items` to `[]`\n- **add(x)** appends x and returns x\n- **take** removes and returns the OLDEST item (the first one added) — but if the buffer is empty it must **raise** an error\n- **empty?** returns true when there are no items\n\n~~~ruby\nb = Buffer.new\nb.add(\"a\")\nb.add(\"b\")\nb.take     # \"a\"\nb.take     # \"b\"\nb.take     # raises — nothing left\n~~~",
+      "starter": "class Buffer\n  def initialize\n    @items = []\n  end\n  def add(x)\n    @items.push(x)\n    x\n  end\n  def take\n    @items.shift   # TODO: must raise when empty\n  end\n  def empty?\n    @items.empty?\n  end\nend\n",
+      "solution": "class Buffer\n  def initialize\n    @items = []\n  end\n  def add(x)\n    @items.push(x)\n    x\n  end\n  def take\n    raise \"buffer empty\" if @items.empty?\n    @items.shift\n  end\n  def empty?\n    @items.empty?\n  end\nend\n",
+      "tests": [
+        { "name": "FIFO order", "code": "b = Buffer.new\nb.add(\"a\")\nb.add(\"b\")\nassert_equal(b.take, \"a\")\nassert_equal(b.take, \"b\")" },
+        { "name": "empty? reflects state", "code": "b = Buffer.new\nassert_equal(b.empty?, true)\nb.add(1)\nassert_equal(b.empty?, false)" },
+        { "name": "take on empty raises", "code": "b = Buffer.new\nassert_raises { b.take }" },
+        { "name": "raises again after draining", "code": "b = Buffer.new\nb.add(\"x\")\nb.take\nassert_raises { b.take }" }
+      ],
+      "hint": "Guard first: raise \"buffer empty\" if @items.empty?  then @items.shift for FIFO.",
+      "lore": "Reach into an empty buffer and the system screams. Nothing comes from nothing."
+    },
+    {
+      "id": "rb-profile",
+      "title": "IDENTITY STRING",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Give an object a readable to_s.",
+      "prompt": "Define a class **Runner** with a custom **to_s** so the object reads nicely when printed or interpolated.\n\n- **initialize(name, level)** stores both in `@name` and `@level`\n- **to_s** RETURNS the string `\"NAME [LV.LEVEL]\"` — the name, a space, then the level in square brackets prefixed with `LV.`\n\n~~~ruby\nr = Runner.new(\"Neo\", 7)\nr.to_s              # \"Neo [LV.7]\"\n\"#{Runner.new(\"Trinity\", 12)}\"   # \"Trinity [LV.12]\"\n~~~",
+      "starter": "class Runner\n  def initialize(name, level)\n    @name = name\n    @level = level\n  end\n  def to_s\n    # TODO: return \"NAME [LV.LEVEL]\"\n    \"\"\n  end\nend\n",
+      "solution": "class Runner\n  def initialize(name, level)\n    @name = name\n    @level = level\n  end\n  def to_s\n    \"#{@name} [LV.#{@level}]\"\n  end\nend\n",
+      "tests": [
+        { "name": "formats name and level", "code": "r = Runner.new(\"Neo\", 7)\nassert_equal(r.to_s, \"Neo [LV.7]\")" },
+        { "name": "another runner", "code": "r = Runner.new(\"Trinity\", 12)\nassert_equal(r.to_s, \"Trinity [LV.12]\")" },
+        { "name": "interpolation uses to_s", "code": "r = Runner.new(\"Morpheus\", 99)\nassert_equal(\"#{r}\", \"Morpheus [LV.99]\")" }
+      ],
+      "hint": "Build it with interpolation and make it the LAST expression: \"#{@name} [LV.#{@level}]\".",
+      "lore": "On the grid you are a name and a number. Wear them well."
+    }
+  ]
+}

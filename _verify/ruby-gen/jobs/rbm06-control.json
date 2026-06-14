@@ -1,0 +1,163 @@
+{
+  "type": "new",
+  "module": {
+    "id": "rbm06-control",
+    "code": "0x06",
+    "title": "CONTROL & RANGES",
+    "subtitle": "if/unless · case · ranges · times · while",
+    "theory": "## Branching: if / unless\nRuby chooses a path with **if**. The opposite of `if` is **unless** — it runs when the condition is **false**. Both end with **end**.\n~~~ruby\nif power > 50\n  \"online\"\nelsif power > 0\n  \"low\"\nelse\n  \"dead\"\nend\n~~~\nBecause `if` is an **expression**, the whole block has a value — you can return it or assign it:\n~~~ruby\nstatus = if power > 0 then \"on\" else \"off\" end\n~~~\n\n## case / when\nWhen you compare one value against many options, **case** is cleaner than a stack of `elsif`. Each **when** can list several values.\n~~~ruby\ncase code\nwhen 200 then \"ok\"\nwhen 404 then \"missing\"\nwhen 500, 502, 503 then \"server down\"\nelse \"unknown\"\nend\n~~~\n\n## Ranges: 1..n and 1...n\nA **range** is a span of values. Two dots **1..5** is *inclusive* (1,2,3,4,5). Three dots **1...5** is *exclusive* — it stops one short (1,2,3,4). Turn one into an array with **.to_a**.\n~~~ruby\n(1..5).to_a    # [1, 2, 3, 4, 5]\n(1...5).to_a   # [1, 2, 3, 4]\n(1..5).include?(5)   # true\n(1...5).include?(5)  # false\n~~~\n\n> INTEL — Count the dots. Two dots reaches the end; three dots leaves it behind. The classic off-by-one bug is using `...` when you meant `..`.\n\n## Looping without a counter: times / upto / while\nYou rarely write a manual counter in Ruby. **n.times** runs a block n times (with index 0..n-1). **a.upto(b)** counts from a up to b inclusive. **while** repeats as long as a condition holds.\n~~~ruby\nsum = 0\n3.times { |i| sum += i }   # i = 0,1,2  -> sum 3\n\ntotal = 0\n1.upto(4) { |n| total += n }  # 1+2+3+4 -> 10\n\nn = 10\nwhile n > 1\n  n = n / 2\nend\n~~~\n\n> WARNING — `3.times` gives you indexes **0, 1, 2** — not 1, 2, 3. If you need 1..3, use `1.upto(3)` instead.\n\n## The ternary: cond ? a : b\nA one-line `if/else`. Read it as \"condition? then a, else b\".\n~~~ruby\nlabel = score >= 60 ? \"pass\" : \"fail\"\n~~~\n\n## Guard clauses: return early\nRather than wrapping the whole method in a big `if`, **bail out early** with a one-line guard. `return value if condition` reads left-to-right and keeps the happy path un-indented.\n~~~ruby\ndef reciprocal(x)\n  return 0 if x == 0\n  1.0 / x\nend\n~~~\n\n> INTEL — `return x if cond` and `puts x unless cond` are *statement modifiers*: the action comes first, the condition trails. They only make sense for a single line.\n",
+    "exercises": []
+  },
+  "exercises": [
+    {
+      "id": "rb-clamp-zero",
+      "title": "GROUND THE SIGNAL",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Negatives become zero.",
+      "prompt": "Define a method **clamp_zero(n)** that returns `n` when it is zero or positive, but returns **0** when `n` is negative.\n~~~ruby\nclamp_zero(7)   # 7\nclamp_zero(-3)  # 0\n~~~",
+      "starter": "def clamp_zero(n)\n  # TODO: negatives should become 0\n  n\nend\n",
+      "solution": "def clamp_zero(n)\n  if n < 0\n    0\n  else\n    n\n  end\nend\n",
+      "tests": [
+        { "name": "positive passes through", "code": "assert_equal(clamp_zero(7), 7)" },
+        { "name": "negative becomes zero", "code": "assert_equal(clamp_zero(-3), 0)" },
+        { "name": "zero stays zero", "code": "assert_equal(clamp_zero(0), 0)" }
+      ],
+      "hint": "if n < 0 then 0 else n.",
+      "lore": "Drain the negative voltage to earth."
+    },
+    {
+      "id": "rb-access-check",
+      "title": "ACCESS GATE",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Deny unless cleared.",
+      "prompt": "Define **access(level)** that returns `\"GRANTED\"` only when `level` is **5 or higher**, otherwise `\"DENIED\"`. Use **unless** (deny *unless* the level is high enough) or a normal if — your call.\n~~~ruby\naccess(5)  # \"GRANTED\"\naccess(2)  # \"DENIED\"\n~~~",
+      "starter": "def access(level)\n  # TODO\n  \"GRANTED\"\nend\n",
+      "solution": "def access(level)\n  return \"DENIED\" unless level >= 5\n  \"GRANTED\"\nend\n",
+      "tests": [
+        { "name": "level 5 is granted", "code": "assert_equal(access(5), \"GRANTED\")" },
+        { "name": "level 9 is granted", "code": "assert_equal(access(9), \"GRANTED\")" },
+        { "name": "level 2 is denied", "code": "assert_equal(access(2), \"DENIED\")" },
+        { "name": "level 4 is denied", "code": "assert_equal(access(4), \"DENIED\")" }
+      ],
+      "hint": "return \"DENIED\" unless level >= 5",
+      "lore": "Clearance five. No exceptions, runner."
+    },
+    {
+      "id": "rb-status-code",
+      "title": "STATUS DECODER",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Map codes to words.",
+      "prompt": "Define **status_text(code)** using **case ... when** that returns:\n- `\"OK\"` for **200**\n- `\"NOT FOUND\"` for **404**\n- `\"SERVER ERROR\"` for **500, 502 or 503**\n- `\"UNKNOWN\"` for anything else\n~~~ruby\nstatus_text(502)  # \"SERVER ERROR\"\n~~~",
+      "starter": "def status_text(code)\n  case code\n  when 200 then \"OK\"\n  # TODO: handle 404 and the server errors\n  else \"UNKNOWN\"\n  end\nend\n",
+      "solution": "def status_text(code)\n  case code\n  when 200 then \"OK\"\n  when 404 then \"NOT FOUND\"\n  when 500, 502, 503 then \"SERVER ERROR\"\n  else \"UNKNOWN\"\n  end\nend\n",
+      "tests": [
+        { "name": "200 is OK", "code": "assert_equal(status_text(200), \"OK\")" },
+        { "name": "404 is not found", "code": "assert_equal(status_text(404), \"NOT FOUND\")" },
+        { "name": "502 is a server error", "code": "assert_equal(status_text(502), \"SERVER ERROR\")" },
+        { "name": "503 is a server error", "code": "assert_equal(status_text(503), \"SERVER ERROR\")" },
+        { "name": "418 is unknown", "code": "assert_equal(status_text(418), \"UNKNOWN\")" }
+      ],
+      "hint": "when 500, 502, 503 then \"SERVER ERROR\"",
+      "lore": "The relay answers in numbers. Translate."
+    },
+    {
+      "id": "rb-range-sum",
+      "title": "RANGE TOTAL",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Sum 1 up to n.",
+      "prompt": "Define **range_sum(n)** that returns the sum of every integer from **1 to n inclusive**. Build the inclusive range with **(1..n)** and use **.sum**.\n~~~ruby\nrange_sum(5)  # 15  (1+2+3+4+5)\n~~~",
+      "starter": "def range_sum(n)\n  # TODO: sum 1..n inclusive (watch the dots!)\n  (1...n).sum\nend\n",
+      "solution": "def range_sum(n)\n  (1..n).sum\nend\n",
+      "tests": [
+        { "name": "1..5 sums to 15", "code": "assert_equal(range_sum(5), 15)" },
+        { "name": "1..1 is 1", "code": "assert_equal(range_sum(1), 1)" },
+        { "name": "1..10 sums to 55", "code": "assert_equal(range_sum(10), 55)" }
+      ],
+      "hint": "Two dots includes n: (1..n).sum",
+      "lore": "Tally every node on the bus."
+    },
+    {
+      "id": "rb-countdown",
+      "title": "LAUNCH COUNTDOWN",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "n down to 1, then LIFTOFF.",
+      "prompt": "Define **countdown(n)** that returns an **array** counting down from `n` to `1`, with the string `\"LIFTOFF\"` appended at the end. Use **n.downto(1)** to collect the numbers.\n~~~ruby\ncountdown(3)  # [3, 2, 1, \"LIFTOFF\"]\n~~~",
+      "starter": "def countdown(n)\n  out = []\n  # TODO: push n, n-1, ... 1 then \"LIFTOFF\"\n  out\nend\n",
+      "solution": "def countdown(n)\n  out = []\n  n.downto(1) { |i| out << i }\n  out << \"LIFTOFF\"\n  out\nend\n",
+      "tests": [
+        { "name": "counts 3,2,1 then liftoff", "code": "assert_equal(countdown(3), [3, 2, 1, \"LIFTOFF\"])" },
+        { "name": "single step", "code": "assert_equal(countdown(1), [1, \"LIFTOFF\"])" },
+        { "name": "longer count", "code": "assert_equal(countdown(5), [5, 4, 3, 2, 1, \"LIFTOFF\"])" }
+      ],
+      "hint": "n.downto(1) { |i| out << i }, then out << \"LIFTOFF\".",
+      "lore": "Ignition sequence start."
+    },
+    {
+      "id": "rb-grade-tag",
+      "title": "VERDICT",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Pass or fail in one line.",
+      "prompt": "Define **verdict(score)** that returns `\"PASS\"` when `score` is **60 or more**, otherwise `\"FAIL\"`. Write it as a **single ternary expression**: `cond ? a : b`.\n~~~ruby\nverdict(72)  # \"PASS\"\nverdict(40)  # \"FAIL\"\n~~~",
+      "starter": "def verdict(score)\n  # TODO: use the ternary  cond ? \"PASS\" : \"FAIL\"\n  \"FAIL\"\nend\n",
+      "solution": "def verdict(score)\n  score >= 60 ? \"PASS\" : \"FAIL\"\nend\n",
+      "tests": [
+        { "name": "60 exactly passes", "code": "assert_equal(verdict(60), \"PASS\")" },
+        { "name": "high score passes", "code": "assert_equal(verdict(99), \"PASS\")" },
+        { "name": "below threshold fails", "code": "assert_equal(verdict(59), \"FAIL\")" },
+        { "name": "zero fails", "code": "assert_equal(verdict(0), \"FAIL\")" }
+      ],
+      "hint": "score >= 60 ? \"PASS\" : \"FAIL\"",
+      "lore": "The tribunal decides in a single breath."
+    },
+    {
+      "id": "rb-halving-steps",
+      "title": "HALVING PROTOCOL",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Count halvings to reach 1.",
+      "prompt": "Define **halving_steps(n)** that repeatedly does integer-division by 2 until `n` reaches **1**, and returns **how many halvings** it took. Use a **while** loop. Assume `n >= 1`.\n~~~ruby\nhalving_steps(8)  # 3   (8 -> 4 -> 2 -> 1)\nhalving_steps(1)  # 0\n~~~",
+      "starter": "def halving_steps(n)\n  steps = 0\n  # TODO: while n > 1, halve n and count\n  steps\nend\n",
+      "solution": "def halving_steps(n)\n  steps = 0\n  while n > 1\n    n = n / 2\n    steps += 1\n  end\n  steps\nend\n",
+      "tests": [
+        { "name": "8 takes 3 steps", "code": "assert_equal(halving_steps(8), 3)" },
+        { "name": "1 takes no steps", "code": "assert_equal(halving_steps(1), 0)" },
+        { "name": "10 takes 3 steps", "code": "assert_equal(halving_steps(10), 3)" },
+        { "name": "1024 takes 10 steps", "code": "assert_equal(halving_steps(1024), 10)" }
+      ],
+      "hint": "while n > 1: n = n / 2; steps += 1.",
+      "lore": "Fold the signal in half until only the seed remains."
+    },
+    {
+      "id": "rb-fizz-pulse",
+      "title": "PULSE GRID",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Build a 1..n FizzBuzz-style grid.",
+      "prompt": "Define **pulse_grid(n)** returning an **array** of length `n`. For each number from **1 to n inclusive**, the entry is:\n- `\"FIZZBUZZ\"` if divisible by both 3 and 5\n- `\"FIZZ\"` if divisible by 3\n- `\"BUZZ\"` if divisible by 5\n- otherwise the **number itself**\n\nUse **1.upto(n)** (or **(1..n)**) and check the both-case first.\n~~~ruby\npulse_grid(5)  # [1, 2, \"FIZZ\", 4, \"BUZZ\"]\n~~~",
+      "starter": "def pulse_grid(n)\n  out = []\n  1.upto(n) do |i|\n    # TODO: FIZZBUZZ / FIZZ / BUZZ / i\n    out << i\n  end\n  out\nend\n",
+      "solution": "def pulse_grid(n)\n  out = []\n  1.upto(n) do |i|\n    if i % 3 == 0 && i % 5 == 0\n      out << \"FIZZBUZZ\"\n    elsif i % 3 == 0\n      out << \"FIZZ\"\n    elsif i % 5 == 0\n      out << \"BUZZ\"\n    else\n      out << i\n    end\n  end\n  out\nend\n",
+      "tests": [
+        { "name": "first five", "code": "assert_equal(pulse_grid(5), [1, 2, \"FIZZ\", 4, \"BUZZ\"])" },
+        { "name": "length matches n", "code": "assert_equal(pulse_grid(15).length, 15)" },
+        { "name": "15 is fizzbuzz", "code": "assert_equal(pulse_grid(15)[14], \"FIZZBUZZ\")" },
+        { "name": "starts at 1, not 0", "code": "assert_equal(pulse_grid(3)[0], 1)" }
+      ],
+      "hint": "Test i % 3 == 0 && i % 5 == 0 BEFORE the single checks.",
+      "lore": "Every third beat flares. Every fifth one howls."
+    }
+  ]
+}

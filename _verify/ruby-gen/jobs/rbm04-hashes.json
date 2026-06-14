@@ -1,0 +1,156 @@
+{
+  "type": "new",
+  "module": {
+    "id": "rbm04-hashes",
+    "code": "0x04",
+    "title": "HASHES & SYMBOLS",
+    "subtitle": "hash literals · symbol keys · fetch · tally",
+    "theory": "\n## What is a hash?\nA **hash** is a lookup table: it maps **keys** to **values**. Think of it as a labelled drawer — instead of asking for \"item number 3\" (an array index), you ask for the drawer named `:bpm`.\n~~~ruby\ntrack = { name: \"Da Funk\", bpm: 112, key: \"Am\" }\ntrack[:bpm]   # 112\n~~~\nThe **WHY**: arrays are great when order matters, but when you want to look something up *by name* — a config value, a player's score, a count — a hash is faster and clearer.\n\n## Symbol keys\nThose `name:` / `bpm:` keys are **symbols**. A symbol like `:bpm` is a lightweight, immutable label — written with a leading colon. The literal `{ bpm: 112 }` is just shorthand for `{ :bpm => 112 }`.\n~~~ruby\n{ bpm: 112 }          # symbol key, the modern style\n{ :bpm => 112 }       # exactly the same hash\n{ \"bpm\" => 112 }      # a STRING key — a DIFFERENT key!\n~~~\n\n> WARNING — `:bpm` (symbol) and `\"bpm\"` (string) are **not** the same key. `h[:bpm]` will return **nil** if the hash was built with string keys. When you write `{ bpm: 112 }`, the key is the *symbol* `:bpm`, so read it back with `h[:bpm]`.\n\n## Reading: `[ ]` vs `fetch`\nTwo ways to read a value:\n~~~ruby\ntrack[:bpm]              # 112\ntrack[:genre]            # nil  (missing key -> nil, no error)\ntrack.fetch(:bpm)        # 112\ntrack.fetch(:genre, 0)   # 0    (missing key -> the default you pass)\ntrack.fetch(:genre)      # raises KeyError!  (no default given)\n~~~\nUse **`h[:k]`** for a quick read where `nil` is fine. Use **`h.fetch(:k, default)`** when a missing key should fall back to a sensible value, or **`h.fetch(:k)`** when a missing key is a real bug you want to blow up loudly.\n\n## Iterating\nWalk every pair with **`each`** (or its twin **`each_pair`**). The block gets the key and the value:\n~~~ruby\nscores = { ren: 3, lain: 5 }\nscores.each { |name, points| puts \"#{name}: #{points}\" }\n# ren: 3\n# lain: 5\n~~~\nNeed just one side? **`scores.keys`** gives `[:ren, :lain]`, **`scores.values`** gives `[3, 5]`.\n\n## Counting with `Hash.new(0)`\nA plain `{}` returns `nil` for unknown keys, so `count[x] += 1` would crash (`nil + 1`). Give the hash a **default value** with `Hash.new(0)` — now any unseen key reads as `0`, perfect for tallies:\n~~~ruby\ntally = Hash.new(0)\n[\"a\", \"b\", \"a\"].each { |c| tally[c] += 1 }\ntally   # { \"a\" => 2, \"b\" => 1 }\n~~~\n\n> INTEL — `Hash.new(0)` is the single most useful hash trick: it turns counting into a one-liner. The `0` is the value handed back for any key you never set.\n\n## Combining: `merge`\n**`merge`** returns a **new** hash with both sets of pairs; on a clash, the **argument wins**. It does **not** change the original.\n~~~ruby\ndefaults = { hp: 100, mp: 30 }\ndefaults.merge({ mp: 50, lvl: 9 })   # { hp: 100, mp: 50, lvl: 9 }\ndefaults                             # { hp: 100, mp: 30 }  (untouched)\n~~~\n\n> WARNING — `merge` returns the combined hash — it does **not** modify the receiver. The common beginner mistake is calling `a.merge(b)` and expecting `a` to change. Capture the result: `merged = a.merge(b)` (or use `merge!` only when you truly mean to mutate). And remember Ruby's implicit return — the **last expression** is the method's value, so write the hash last instead of reaching for an explicit `return`.\n"
+  },
+  "exercises": [
+    {
+      "id": "rb-hlook",
+      "title": "DRAWER READ",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Pull one value out of a hash.",
+      "prompt": "\nA **track** is a hash with symbol keys like **{ name: \"Spice\", bpm: 128 }**. Define **get_bpm(track)** returning the value under the **:bpm** key.\n~~~ruby\nget_bpm({ name: \"Spice\", bpm: 128 })  # 128\n~~~\n",
+      "starter": "def get_bpm(track)\n  # TODO: read the :bpm value\n  0\nend\n",
+      "solution": "def get_bpm(track)\n  track[:bpm]\nend\n",
+      "tests": [
+        { "name": "reads bpm", "code": "assert_equal(get_bpm({ name: \"Spice\", bpm: 128 }), 128)" },
+        { "name": "another track", "code": "assert_equal(get_bpm({ name: \"Da Funk\", bpm: 112 }), 112)" },
+        { "name": "uses the symbol key", "code": "assert_equal(get_bpm({ bpm: 90 }), 90)" }
+      ],
+      "hint": "track[:bpm]  — note the leading colon, it's a symbol key.",
+      "lore": "Open the drawer marked bpm. Read what's inside."
+    },
+    {
+      "id": "rb-hfetch",
+      "title": "SAFE FETCH",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 130,
+      "brief": "Read a key with a fallback.",
+      "prompt": "\nDefine **volume_of(settings)** returning the **:volume** value from the **settings** hash, or **5** if that key is missing. Use **fetch** with a default.\n~~~ruby\nvolume_of({ volume: 9 })  # 9\nvolume_of({})             # 5\n~~~\n",
+      "starter": "def volume_of(settings)\n  # TODO: fetch :volume, default 5\n  settings[:volume]\nend\n",
+      "solution": "def volume_of(settings)\n  settings.fetch(:volume, 5)\nend\n",
+      "tests": [
+        { "name": "present key", "code": "assert_equal(volume_of({ volume: 9 }), 9)" },
+        { "name": "missing key -> 5", "code": "assert_equal(volume_of({}), 5)" },
+        { "name": "other keys ignored", "code": "assert_equal(volume_of({ bass: 3 }), 5)" }
+      ],
+      "hint": "settings.fetch(:volume, 5)  — the second argument is returned when the key is absent.",
+      "lore": "No signal on the line? Fall back to a known-safe level."
+    },
+    {
+      "id": "rb-hkeys",
+      "title": "NAME ROSTER",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 160,
+      "brief": "List the keys of a hash.",
+      "prompt": "\n**roster** is a hash mapping each callsign (a symbol) to a score, like **{ ren: 3, lain: 5 }**. Define **callsigns(roster)** returning an **array of just the keys**, in order.\n~~~ruby\ncallsigns({ ren: 3, lain: 5 })  # [:ren, :lain]\n~~~\n",
+      "starter": "def callsigns(roster)\n  # TODO: return the hash's keys\n  []\nend\n",
+      "solution": "def callsigns(roster)\n  roster.keys\nend\n",
+      "tests": [
+        { "name": "lists keys", "code": "assert_equal(callsigns({ ren: 3, lain: 5 }), [:ren, :lain])" },
+        { "name": "single entry", "code": "assert_equal(callsigns({ akira: 1 }), [:akira])" },
+        { "name": "empty -> empty", "code": "assert_equal(callsigns({}), [])" }
+      ],
+      "hint": "roster.keys returns the keys as an array; roster.values would give the scores.",
+      "lore": "Who's on the net tonight? Read the roster."
+    },
+    {
+      "id": "rb-hsumv",
+      "title": "LEDGER TOTAL",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Add up every value in the hash.",
+      "prompt": "\n**ledger** maps a name to a number, like **{ spike: 25, jet: 10 }**. Define **total(ledger)** returning the **sum of all the values**. An empty ledger totals **0**. Reach for **values**.\n~~~ruby\ntotal({ spike: 25, jet: 10 })  # 35\ntotal({})                      # 0\n~~~\n",
+      "starter": "def total(ledger)\n  # TODO: sum the values\n  nil\nend\n",
+      "solution": "def total(ledger)\n  ledger.values.sum\nend\n",
+      "tests": [
+        { "name": "sums values", "code": "assert_equal(total({ spike: 25, jet: 10 }), 35)" },
+        { "name": "single entry", "code": "assert_equal(total({ ed: 7 }), 7)" },
+        { "name": "empty -> 0", "code": "assert_equal(total({}), 0)" }
+      ],
+      "hint": "ledger.values.sum  — pull the numbers out, then fold them.",
+      "lore": "Every bounty on the board, added head by head."
+    },
+    {
+      "id": "rb-hmerge",
+      "title": "CONFIG OVERLAY",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 180,
+      "brief": "Patch defaults with overrides, no mutation.",
+      "prompt": "\nDefine **apply(defaults, overrides)** returning a **new** hash with all the pairs of both, where **overrides** wins on any shared key. Do **not** change **defaults**. Use **merge**.\n~~~ruby\napply({ hp: 100, mp: 30 }, { mp: 50, lvl: 9 })  # { hp: 100, mp: 50, lvl: 9 }\n~~~\n",
+      "starter": "def apply(defaults, overrides)\n  # TODO: merge, letting overrides win\n  defaults\nend\n",
+      "solution": "def apply(defaults, overrides)\n  defaults.merge(overrides)\nend\n",
+      "tests": [
+        { "name": "overrides win", "code": "assert_equal(apply({ hp: 100, mp: 30 }, { mp: 50, lvl: 9 }), { hp: 100, mp: 50, lvl: 9 })" },
+        { "name": "two empties -> empty", "code": "assert_equal(apply({}, {}), {})" },
+        { "name": "does not mutate defaults", "code": "d = { hp: 100 }\napply(d, { hp: 1 })\nassert_equal(d, { hp: 100 }, \"the original defaults must be untouched\")" }
+      ],
+      "hint": "defaults.merge(overrides) returns a fresh hash; on a clash the argument's value wins.",
+      "lore": "Defaults are a suggestion. The overlay is law."
+    },
+    {
+      "id": "rb-htally",
+      "title": "PACKET TALLY",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "Count how often each item appears.",
+      "prompt": "\nDefine **tally(items)** taking an array and returning a hash mapping **each item to how many times it appears**. Build it with **Hash.new(0)** and **each**.\n~~~ruby\ntally([\"a\", \"b\", \"a\"])  # { \"a\" => 2, \"b\" => 1 }\n~~~\n",
+      "starter": "def tally(items)\n  counts = {}\n  # TODO: a plain {} returns nil for new keys — use Hash.new(0)\n  items.each { |x| counts[x] += 1 }\n  counts\nend\n",
+      "solution": "def tally(items)\n  counts = Hash.new(0)\n  items.each { |x| counts[x] += 1 }\n  counts\nend\n",
+      "tests": [
+        { "name": "counts repeats", "code": "assert_equal(tally([\"a\", \"b\", \"a\"]), { \"a\" => 2, \"b\" => 1 })" },
+        { "name": "all distinct", "code": "assert_equal(tally([1, 2, 3]), { 1 => 1, 2 => 1, 3 => 1 })" },
+        { "name": "empty -> empty", "code": "assert_equal(tally([]), {})" },
+        { "name": "missing keys default to 0 (no crash)", "code": "assert_equal(tally([\"x\"]), { \"x\" => 1 })" }
+      ],
+      "hint": "Hash.new(0) makes every unseen key read as 0, so counts[x] += 1 just works.",
+      "lore": "Every packet logged. The pattern hides in the counts."
+    },
+    {
+      "id": "rb-hpairs",
+      "title": "DOSSIER LINES",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "Turn each pair into a formatted line.",
+      "prompt": "\n**dossier** maps a symbol field to a string value, like **{ name: \"Lain\", city: \"Tokyo\" }**. Define **lines(dossier)** returning an **array of strings** — one per pair, formatted **\"key: value\"** — in order. Iterate with **each_pair** (or **each**).\n~~~ruby\nlines({ name: \"Lain\", city: \"Tokyo\" })  # [\"name: Lain\", \"city: Tokyo\"]\n~~~\n",
+      "starter": "def lines(dossier)\n  out = []\n  # TODO: each_pair, push \"#{key}: #{value}\"\n  out\nend\n",
+      "solution": "def lines(dossier)\n  out = []\n  dossier.each_pair { |key, value| out << \"#{key}: #{value}\" }\n  out\nend\n",
+      "tests": [
+        { "name": "formats each pair", "code": "assert_equal(lines({ name: \"Lain\", city: \"Tokyo\" }), [\"name: Lain\", \"city: Tokyo\"])" },
+        { "name": "single field", "code": "assert_equal(lines({ id: \"X1\" }), [\"id: X1\"])" },
+        { "name": "empty -> empty", "code": "assert_equal(lines({}), [])" }
+      ],
+      "hint": "dossier.each_pair { |key, value| out << \"#{key}: #{value}\" } — the symbol key interpolates without its colon.",
+      "lore": "The dossier reads itself, line by line."
+    },
+    {
+      "id": "rb-hwinner",
+      "title": "TOP CALLSIGN",
+      "kind": "script",
+      "difficulty": 3,
+      "xp": 220,
+      "brief": "Print the highest-scoring entry from a tally.",
+      "prompt": "\nThis is a **script** task. Start from this scoreboard exactly:\n~~~ruby\nscores = { \"ren\" => 3, \"lain\" => 5, \"akira\" => 1 }\n~~~\nWalk every pair with **each**, find the callsign with the **highest** score (assume no ties), and **puts** that callsign on its own line.\n~~~text\nlain\n~~~\n",
+      "starter": "scores = { \"ren\" => 3, \"lain\" => 5, \"akira\" => 1 }\nbest = scores.keys.first\n# TODO: walk the pairs and keep the callsign with the most points\nputs best\n",
+      "solution": "scores = { \"ren\" => 3, \"lain\" => 5, \"akira\" => 1 }\nbest = nil\nbest_points = -1\nscores.each do |name, points|\n  if points > best_points\n    best = name\n    best_points = points\n  end\nend\nputs best\n",
+      "tests": [
+        { "name": "prints the top scorer", "code": "assert(stdout().include?(\"lain\"), \"expected lain (score 5) on the channel\")" },
+        { "name": "does not print a loser", "code": "lines = stdout().split(\"\\n\").map { |l| l.strip }\nassert(lines.include?(\"lain\"), \"lain should be printed\")\nassert(!lines.include?(\"akira\"), \"only the winner should be printed, not akira\")" }
+      ],
+      "hint": "Track a running best and best_points; replace both whenever points is larger.",
+      "lore": "One name rises above the net. Surface it."
+    }
+  ]
+}

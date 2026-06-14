@@ -1,0 +1,98 @@
+{
+  "type": "fill",
+  "modId": "rbm02-blocks",
+  "exercises": [
+    {
+      "id": "rb-doubles",
+      "title": "SIGNAL AMPLIFIER",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Double every reading.",
+      "prompt": "Define a method **doubles(nums)** that takes an array of integers and returns a NEW array with every value multiplied by 2.\n\nUse **map** with a block: **nums.map { |n| ... }**.\n\n~~~ruby\ndoubles([1, 2, 3])  # [2, 4, 6]\ndoubles([])         # []\n~~~",
+      "starter": "def doubles(nums)\n  # TODO: map each number to twice its value\n  nums\nend\n",
+      "solution": "def doubles(nums)\n  nums.map { |n| n * 2 }\nend\n",
+      "tests": [
+        { "name": "doubles a short signal", "code": "assert_equal(doubles([1, 2, 3]), [2, 4, 6])" },
+        { "name": "handles negatives and zero", "code": "assert_equal(doubles([-4, 0, 5]), [-8, 0, 10])" },
+        { "name": "empty stays empty", "code": "assert_equal(doubles([]), [])" }
+      ],
+      "hint": "nums.map { |n| n * 2 } returns a fresh, amplified array.",
+      "lore": "Turn the gain up; the grid is whispering."
+    },
+    {
+      "id": "rb-positives",
+      "title": "NOISE GATE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Keep only the live channels.",
+      "prompt": "Define a method **positives(nums)** that returns a NEW array containing only the numbers greater than zero, in their original order.\n\nUse **select** with a block: **nums.select { |n| ... }**.\n\n~~~ruby\npositives([-2, 5, 0, 9, -1])  # [5, 9]\npositives([-3, -1])           # []\n~~~",
+      "starter": "def positives(nums)\n  # TODO: keep only numbers above zero\n  nums\nend\n",
+      "solution": "def positives(nums)\n  nums.select { |n| n > 0 }\nend\n",
+      "tests": [
+        { "name": "drops zero and negatives", "code": "assert_equal(positives([-2, 5, 0, 9, -1]), [5, 9])" },
+        { "name": "all negative gives empty", "code": "assert_equal(positives([-3, -1]), [])" },
+        { "name": "all positive kept in order", "code": "assert_equal(positives([4, 1, 7]), [4, 1, 7])" }
+      ],
+      "hint": "nums.select { |n| n > 0 } filters; zero is NOT greater than zero.",
+      "lore": "Silence the dead channels before they drown the song."
+    },
+    {
+      "id": "rb-name-tags",
+      "title": "TAG FORGE",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 120,
+      "brief": "Brand each handle.",
+      "prompt": "Define a method **name_tags(names)** that takes an array of handle strings and returns a NEW array where each handle is wrapped in square brackets and uppercased.\n\nChain **map** with string methods and interpolation.\n\n~~~ruby\nname_tags([\"neo\", \"Trinity\"])  # [\"[NEO]\", \"[TRINITY]\"]\nname_tags([])                  # []\n~~~",
+      "starter": "def name_tags(names)\n  # TODO: bracket and upcase each name\n  names\nend\n",
+      "solution": "def name_tags(names)\n  names.map { |n| \"[#{n.upcase}]\" }\nend\n",
+      "tests": [
+        { "name": "brackets and upcases", "code": "assert_equal(name_tags([\"neo\", \"Trinity\"]), [\"[NEO]\", \"[TRINITY]\"])" },
+        { "name": "single handle", "code": "assert_equal(name_tags([\"mouse\"]), [\"[MOUSE]\"])" },
+        { "name": "empty roster", "code": "assert_equal(name_tags([]), [])" }
+      ],
+      "hint": "names.map { |n| \"[#{n.upcase}]\" } builds each branded tag.",
+      "lore": "Stamp the runners before they hit the wire."
+    },
+    {
+      "id": "rb-avg-load",
+      "title": "LOAD AVERAGER",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Average the core load.",
+      "prompt": "Define a method **avg_load(readings)** that returns the average of an array of integers as a **Float**. Sum the values with **reduce** (or **sum**) and divide by the count.\n\nReturn **0.0** when the array is empty (never divide by zero).\n\n~~~ruby\navg_load([2, 4, 6])  # 4.0\navg_load([1, 2])     # 1.5\navg_load([])         # 0.0\n~~~",
+      "starter": "def avg_load(readings)\n  # TODO: reduce to a sum, then divide as a Float\n  0\nend\n",
+      "solution": "def avg_load(readings)\n  return 0.0 if readings.empty?\n  total = readings.reduce(0) { |acc, n| acc + n }\n  total.to_f / readings.length\nend\n",
+      "tests": [
+        { "name": "whole average", "code": "assert_equal(avg_load([2, 4, 6]), 4.0)" },
+        { "name": "fractional average", "code": "assert_equal(avg_load([1, 2]), 1.5)" },
+        { "name": "empty is zero float", "code": "assert_equal(avg_load([]), 0.0)" },
+        { "name": "result is a Float", "code": "assert(avg_load([3, 3]).is_a?(Float), \"divide using to_f so the result is a Float\")" }
+      ],
+      "hint": "Guard the empty case, then readings.reduce(0) { |a, n| a + n }.to_f / readings.length.",
+      "lore": "Spread the heat evenly or the core melts down."
+    },
+    {
+      "id": "rb-runner-card",
+      "title": "RUNNER DOSSIER",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 120,
+      "brief": "Assemble a runner's file.",
+      "prompt": "Define a method **runner_card(name, level)** that returns a **Hash with symbol keys**: **:name** holding the given name, **:level** holding the given level, and **:active** set to **true** when the level is 5 or higher, otherwise **false**.\n\nBuild and return the hash literal **{ name: ..., level: ..., active: ... }**.\n\n~~~ruby\nrunner_card(\"Neo\", 9)\n# { name: \"Neo\", level: 9, active: true }\nrunner_card(\"Mouse\", 2)\n# { name: \"Mouse\", level: 2, active: false }\n~~~",
+      "starter": "def runner_card(name, level)\n  # TODO: return a hash with :name, :level, :active\n  { name: name, level: level, active: false }\nend\n",
+      "solution": "def runner_card(name, level)\n  { name: name, level: level, active: level >= 5 }\nend\n",
+      "tests": [
+        { "name": "high level is active", "code": "assert_equal(runner_card(\"Neo\", 9), { name: \"Neo\", level: 9, active: true })" },
+        { "name": "low level is inactive", "code": "assert_equal(runner_card(\"Mouse\", 2), { name: \"Mouse\", level: 2, active: false })" },
+        { "name": "boundary of five is active", "code": "assert_equal(runner_card(\"Switch\", 5)[:active], true)" },
+        { "name": "reads by symbol key", "code": "assert_equal(runner_card(\"Tank\", 7)[:name], \"Tank\")" }
+      ],
+      "hint": "{ name: name, level: level, active: level >= 5 } - the >= test yields the boolean directly.",
+      "lore": "A dossier is the only truth a runner carries inside."
+    }
+  ]
+}

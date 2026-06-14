@@ -1,0 +1,97 @@
+{
+  "type": "fill",
+  "modId": "rbm03-objects",
+  "exercises": [
+    {
+      "id": "rb-titlecase",
+      "title": "TITLE CASE",
+      "kind": "function",
+      "difficulty": 1,
+      "xp": 120,
+      "brief": "Capitalize a single word.",
+      "prompt": "Define **titlecase(s)** that returns the string `s` with its first letter upper-cased and the rest lower-cased. Use `capitalize`.\n\n~~~ruby\ntitlecase(\"lAIN\")    # \"Lain\"\ntitlecase(\"WIRED\")   # \"Wired\"\n~~~",
+      "starter": "def titlecase(s)\n  # TODO: capitalize the word\n  s\nend\n",
+      "solution": "def titlecase(s)\n  s.capitalize\nend\n",
+      "tests": [
+        { "name": "capitalizes a name", "code": "assert_equal(titlecase(\"lAIN\"), \"Lain\")" },
+        { "name": "lowercases the tail", "code": "assert_equal(titlecase(\"WIRED\"), \"Wired\")" },
+        { "name": "empty stays empty", "code": "assert_equal(titlecase(\"\"), \"\")" }
+      ],
+      "hint": "s.capitalize upcases the first char and downcases the rest.",
+      "lore": "The wired logs every handle in one tidy case. Order from the noise."
+    },
+    {
+      "id": "rb-swapfix",
+      "title": "SWAP FIX",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 160,
+      "brief": "Replace every match in a string.",
+      "prompt": "Define **swapfix(s)** that returns `s` with EVERY space replaced by an underscore `\"_\"`. Use `gsub`, which replaces all matches.\n\n~~~ruby\nswapfix(\"break the ice\")   # \"break_the_ice\"\nswapfix(\"node\")            # \"node\"\n~~~",
+      "starter": "def swapfix(s)\n  # TODO: replace ALL spaces with underscores\n  s\nend\n",
+      "solution": "def swapfix(s)\n  s.gsub(\" \", \"_\")\nend\n",
+      "tests": [
+        { "name": "replaces all spaces", "code": "assert_equal(swapfix(\"break the ice\"), \"break_the_ice\")" },
+        { "name": "no space unchanged", "code": "assert_equal(swapfix(\"node\"), \"node\")" },
+        { "name": "leading and trailing", "code": "assert_equal(swapfix(\" a b \"), \"_a_b_\")" }
+      ],
+      "hint": "s.gsub(\" \", \"_\") hits every match, not just the first.",
+      "lore": "Filenames on the wired never breathe. Every gap clamps shut into an underscore."
+    },
+    {
+      "id": "rb-echo-len",
+      "title": "ECHO LENGTH",
+      "kind": "function",
+      "difficulty": 2,
+      "xp": 170,
+      "brief": "Downcase then measure.",
+      "prompt": "Define **echo_len(s)** that lower-cases `s` and then returns the number of characters in the result. Chain `downcase` and `length`.\n\n~~~ruby\necho_len(\"LAIN\")    # 4\necho_len(\"Wired!\")  # 6\n~~~",
+      "starter": "def echo_len(s)\n  # TODO: downcase then return the length\n  0\nend\n",
+      "solution": "def echo_len(s)\n  s.downcase.length\nend\n",
+      "tests": [
+        { "name": "counts after downcase", "code": "assert_equal(echo_len(\"LAIN\"), 4)" },
+        { "name": "counts punctuation too", "code": "assert_equal(echo_len(\"Wired!\"), 6)" },
+        { "name": "empty is zero", "code": "assert_equal(echo_len(\"\"), 0)" }
+      ],
+      "hint": "Chain it: s.downcase.length.",
+      "lore": "Drop the signal to a whisper, then count how far the echo carries."
+    },
+    {
+      "id": "rb-callsign",
+      "title": "CALL SIGN",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 200,
+      "brief": "A class that stores and accessor-mutates a call sign.",
+      "prompt": "Define a class **CallSign** that holds an operator's sign.\n\n- **initialize(sign)** stores the sign in `@sign`\n- expose it for READ and WRITE with **attr_accessor :sign**\n- **broadcast** returns the sign upper-cased\n\nThe accessor must let callers reassign `sign=` after construction.\n\n~~~ruby\nc = CallSign.new(\"raven\")\nc.sign            # \"raven\"\nc.broadcast       # \"RAVEN\"\nc.sign = \"ghost\"\nc.broadcast       # \"GHOST\"\n~~~",
+      "starter": "class CallSign\n  # TODO: attr_accessor :sign\n  def initialize(sign)\n    @sign = sign\n  end\n  def broadcast\n    # TODO: upper-case the sign\n    @sign\n  end\nend\n",
+      "solution": "class CallSign\n  attr_accessor :sign\n  def initialize(sign)\n    @sign = sign\n  end\n  def broadcast\n    @sign.upcase\n  end\nend\n",
+      "tests": [
+        { "name": "reads the sign", "code": "c = CallSign.new(\"raven\")\nassert_equal(c.sign, \"raven\")" },
+        { "name": "broadcast upcases", "code": "c = CallSign.new(\"raven\")\nassert_equal(c.broadcast, \"RAVEN\")" },
+        { "name": "accessor allows reassign", "code": "c = CallSign.new(\"raven\")\nc.sign = \"ghost\"\nassert_equal(c.sign, \"ghost\")\nassert_equal(c.broadcast, \"GHOST\")" }
+      ],
+      "hint": "attr_accessor :sign gives both reader and writer; broadcast is @sign.upcase.",
+      "lore": "Operators swap call signs to stay ghosts. The tower still shouts whatever you give it."
+    },
+    {
+      "id": "rb-counter",
+      "title": "HIT COUNTER",
+      "kind": "function",
+      "difficulty": 3,
+      "xp": 210,
+      "brief": "A class that mutates internal state across calls.",
+      "prompt": "Define a class **Counter** that tracks a tally.\n\n- **initialize** sets `@count` to `0` (no arguments)\n- expose the tally with **attr_reader :count**\n- **hit** increases `@count` by 1 and returns the new count\n\nEach call to `hit` must remember the previous value.\n\n~~~ruby\nc = Counter.new\nc.count   # 0\nc.hit     # 1\nc.hit     # 2\nc.count   # 2\n~~~",
+      "starter": "class Counter\n  attr_reader :count\n  def initialize\n    @count = 0\n  end\n  def hit\n    # TODO: increment @count and return it\n    @count\n  end\nend\n",
+      "solution": "class Counter\n  attr_reader :count\n  def initialize\n    @count = 0\n  end\n  def hit\n    @count += 1\n    @count\n  end\nend\n",
+      "tests": [
+        { "name": "starts at zero", "code": "c = Counter.new\nassert_equal(c.count, 0)" },
+        { "name": "first hit returns one", "code": "c = Counter.new\nassert_equal(c.hit, 1)" },
+        { "name": "remembers across calls", "code": "c = Counter.new\nc.hit\nc.hit\nassert_equal(c.count, 2)" },
+        { "name": "hit returns running total", "code": "c = Counter.new\nc.hit\nassert_equal(c.hit, 2)" }
+      ],
+      "hint": "@count += 1 mutates the stored value; return @count as the last line.",
+      "lore": "The turnstile on the wired never forgets. Every pass clicks the tally one higher."
+    }
+  ]
+}
