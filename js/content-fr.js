@@ -3033,18 +3033,43 @@ window.CONTENT_FR = {
     "modules": {
       "luam01-core": {
         "title": "ROUTINES CENTRALES",
-        "subtitle": "print · variables · functions · strings",
-        "theory": "\n## Salut, opérateur\nLua affiche avec **print()**. Les chaînes se concatènent avec **..** (deux points), pas avec +.\n~~~lua\nlocal name = \"Lain\"\nprint(\"Wake up, \" .. name)\n~~~\n\n## Variables\nUtilisez **local** pour les variables (les variables globales existent, mais les locales sont la bonne pratique).\n~~~lua\nlocal clearance = 7\n~~~\n\n## Fonctions\nDéfinissez avec **function ... end** et renvoyez avec **return**.\n~~~lua\nfunction amplify(signal)\n  return signal * 2\nend\n~~~\n\n> INTEL — Lua utilise **..** pour joindre les chaînes et **==** pour comparer. Il n'y a pas de ++ ; écrivez x = x + 1.\n"
+        "subtitle": "print · variables · fonctions · chaînes",
+        "theory": "\n## Salut, opérateur\n**print()** écrit une ligne dans la console — votre fenêtre sur un programme en cours d'exécution.\n**POURQUOI** — c'est ainsi que vous faites parler la machine : vérifier une valeur, traquer un bug, transmettre un signal à l'opérateur.\n~~~lua\nprint(\"Wake up, operator\")\n~~~\n\nPour assembler du texte, Lua utilise **..** — deux points, l'opérateur de concaténation.\n**POURQUOI** — vous envoyez rarement une chaîne figée ; vous insérez un nom, un statut, un nombre dans un message.\n~~~lua\nlocal name = \"Lain\"\nprint(\"Wake up, \" .. name)   -- Wake up, Lain\n~~~\n\n> WARNING — Les chaînes s'assemblent avec **..**, jamais avec **+**. Le signe plus est réservé au calcul ; \"a\" + \"b\" est une erreur en Lua.\n\n## Variables\nUne variable est un emplacement étiqueté en mémoire. Déclarez-la avec **local**, puis lisez-la ou écrasez-la par son nom.\n**POURQUOI** — stockez une valeur une fois, réutilisez-la partout, et modifiez-la à un seul endroit au lieu de la retaper.\n~~~lua\nlocal clearance = 7\nclearance = clearance + 1   -- now 8\n~~~\n\n> WARNING — Écrivez toujours **local** quand vous créez une variable. Oubliez-le et Lua transforme le nom en une GLOBALE cachée qui se répand dans tout votre programme. Aussi : il n'y a pas de **++** — incrémentez un nombre avec x = x + 1.\n\n## Fonctions\nUne fonction est un bloc de logique nommé et réutilisable. Elle prend des entrées (paramètres), s'exécute, et renvoie un résultat avec **return**.\n**POURQUOI** — empaquetez une routine une fois et appelez-la cent fois. Moins de répétition, moins de bugs, un noyau plus propre.\n~~~lua\nfunction amplify(signal)\n  return signal * 2\nend\n\nprint(amplify(21))   -- 42\n~~~\n\n> WARNING — **=** affecte (place une valeur dans un emplacement) ; **==** compare (demande \"sont-ils égaux ?\"). Les confondre, c'est le crash classique du débutant.\n\n> INTEL — Définissez une fonction avec **function ... end**. Dès que **return** se déclenche, la fonction s'arrête — rien après elle sur ce chemin ne s'exécute.\n"
       },
       "luam02-control": {
         "title": "CONTRÔLE & TABLES",
         "subtitle": "if/elseif · for · tables · ipairs",
-        "theory": "\n## Branchements\n~~~lua\nif level < 1 then\n  return \"DENIED\"\nelseif level <= 2 then\n  return \"GUEST\"\nelse\n  return \"ROOT\"\nend\n~~~\n\n## Tables\nLes tables sont le tout-en-un de Lua — à la fois tableaux ET dictionnaires. Les tableaux sont **indexés à partir de 1**. **#t** donne la longueur.\n~~~lua\nlocal crew = {\"Spike\", \"Jet\", \"Faye\"}\nprint(crew[1])   -- Spike\nprint(#crew)     -- 3\n~~~\n\n## Parcourir une table\n~~~lua\nlocal total = 0\nfor _, v in ipairs({10, 20, 12}) do\n  total = total + v\nend\n~~~\n\n> WARNING — Les tableaux Lua commencent à 1, pas à 0. Le premier élément est t[1].\n"
+        "theory": "\n## Branchements\n**if / elseif / else** permet à votre code de choisir un chemin selon une condition vraie ou fausse.\n**POURQUOI** — un programme incapable de décider n'est qu'une calculatrice. Le branchement, c'est sa façon de réagir : autoriser ou refuser, tirer ou attendre.\n~~~lua\nif level < 1 then\n  return \"DENIED\"\nelseif level <= 2 then\n  return \"GUEST\"\nelse\n  return \"ROOT\"\nend\n~~~\nLua évalue chaque test de haut en bas et retient le PREMIER qui est vrai. **else** est le repli quand aucun ne correspond. Les comparaisons renvoient true/false : **==** égal, **~=** différent, **< > <= >=**.\n\n> WARNING — Utilisez **==** pour comparer et **=** pour affecter — ils ne sont pas interchangeables. Et « différent » en Lua s'écrit **~=**, pas != comme dans d'autres langages.\n\n## Tables\nUne table est l'unique conteneur de Lua pour tout — elle fonctionne à la fois comme une liste (tableau) ET comme une carte clé/valeur.\n**POURQUOI** — presque toutes les vraies données sont plurielles : un équipage, un inventaire, un flux de relevés. Une table regroupe l'ensemble sous un seul nom.\n~~~lua\nlocal crew = {\"Spike\", \"Jet\", \"Faye\"}\nprint(crew[1])   -- Spike   (first slot)\nprint(#crew)     -- 3       (how many)\n~~~\nAccédez à une case avec des crochets **crew[1]**. L'opérateur **#** donne la longueur d'une table de type tableau.\n\n> WARNING — Les tableaux Lua sont **INDEXÉS À PARTIR DE 1** : le premier élément est **t[1]**, pas t[0]. Viser l'index 0 vous renvoie nil. (Ça piège presque tous ceux qui viennent d'autres langages.)\n\n## Parcourir une table\nUn **for numérique** compte sur une plage ; **ipairs** parcourt un tableau dans l'ordre, en vous remettant chaque index et chaque valeur.\n**POURQUOI** — pour agir sur chaque élément — les additionner, les transformer, les chercher — sans réécrire la même ligne N fois.\n~~~lua\nlocal total = 0\nfor _, v in ipairs({10, 20, 12}) do\n  total = total + v   -- 10, then 30, then 42\nend\n\nfor i = 1, 3 do       -- numeric for: 1, 2, 3\n  print(i)\nend\n~~~\nLe **_** est un nom jetable pour l'index quand seule la valeur vous intéresse.\n\n> WARNING — Ne comparez pas deux tables avec **==** pour vérifier leur contenu — ce test est une égalité de référence. {1,2} == {1,2} vaut **false** parce que ce sont deux objets distincts en mémoire, même s'ils se ressemblent.\n"
       },
       "luam03-strings": {
         "title": "BIBLIOTHÈQUE DE CHAÎNES",
         "subtitle": "méthodes string · # longueur · sub",
-        "theory": "\n## La bibliothèque string\nLes chaînes possèdent des méthodes que vous appelez avec deux-points, ou via la table **string** :\n~~~lua\nlocal s = \"lain\"\nprint(s:upper())        -- LAIN\nprint(string.reverse(s)) -- nial\nprint(#s)               -- 4   (length)\nprint(s:sub(1, 2))      -- la  (chars 1..2)\n~~~\n\n## Parcourir les caractères\n**#s** est la longueur ; **s:sub(i, i)** est le i-ème caractère (indicé à partir de 1).\n~~~lua\nfor i = 1, #s do\n  print(s:sub(i, i))\nend\n~~~\n\n> INTEL — s:upper() et string.upper(s) sont le même appel, deux écritures.\n"
+        "theory": "\n## La bibliothèque string\nChaque chaîne Lua est livrée câblée avec une boîte à outils de méthodes. Appelez-les avec deux-points — **s:upper()** — ou via la table **string** — **string.upper(s)**.\n**POURQUOI** — le texte est partout : noms, codes, messages. La bibliothèque string le transforme et l'inspecte pour que vous n'ayez pas à bricoler la logique vous-même.\n~~~lua\nlocal s = \"lain\"\nprint(s:upper())         -- LAIN   (uppercase copy)\nprint(string.reverse(s)) -- nial   (reversed copy)\nprint(#s)                -- 4      (length)\nprint(s:sub(1, 2))       -- la     (chars 1 through 2)\n~~~\n**s:sub(i, j)** renvoie la tranche de la position **i** à **j**, inclus. **#s** mesure la longueur.\n\n> WARNING — Ces méthodes renvoient une NOUVELLE chaîne ; l'original **s** n'est jamais modifié. Les chaînes Lua sont immuables, alors capturez le résultat : s = s:upper() — appeler s:upper() seul jette la réponse à la poubelle.\n\n## Parcourir les caractères\nPour lire une chaîne un caractère à la fois, comptez de 1 à **#s** et extrayez chaque emplacement avec **s:sub(i, i)** (début et fin égaux = un seul caractère).\n**POURQUOI** — compter, chercher, filtrer, chiffrer — tout ce qui se fait caractère par caractère commence par le parcours de la chaîne.\n~~~lua\nfor i = 1, #s do\n  print(s:sub(i, i))   -- l, then a, then i, then n\nend\n~~~\n\n> WARNING — Les positions dans les chaînes sont **INDEXÉES À PARTIR DE 1**, tout comme les tables : le premier caractère est **s:sub(1, 1)**, pas s:sub(0, 0). La position 0 n'est pas le début.\n\n> INTEL — **s:upper()** et **string.upper(s)** sont exactement le même appel écrit de deux façons. La forme avec deux-points passe discrètement **s** comme premier argument à votre place.\n"
+      },
+      "luam04-tables": {
+        "title": "TABLES COMME MAPS",
+        "subtitle": "pairs · clé/valeur · appartenance · fréquence",
+        "theory": "\n## Les tables peuvent être des maps, pas seulement des listes\nDans le secteur précédent, une table était une liste numérotée (`t[1]`, `t[2]`, ...). Le MÊME type de table peut aussi être une **map** (aussi appelée hash, dictionnaire ou table de correspondance) : vous stockez une **valeur** sous une **clé**, et la clé peut être une chaîne.\n\n~~~lua\nlocal user = {}\nuser[\"name\"] = \"lain\"   -- store value \"lain\" under key \"name\"\nuser[\"level\"] = 7\nprint(user[\"name\"])      -- lain\n~~~\n\n**QUOI** — `t[key] = value` place quelque chose dans l'emplacement nommé `key`. **POURQUOI** — une map vous permet de retrouver les choses *par nom* plutôt que par position, ce qui est la façon de modéliser des enregistrements, des réglages et des décomptes.\n\n> INTEL — `t.name` n'est qu'un raccourci pour `t[\"name\"]`. La forme avec point ne fonctionne que lorsque la clé est un mot simple ; pour toute autre clé (une variable, ou une chaîne avec des espaces) vous devez utiliser les crochets `t[key]`.\n\n## Lire une clé — et le nil qui signifie « absent »\nLire `t[key]` vous renvoie la valeur stockée. Si rien n'a jamais été stocké sous cette clé, vous obtenez **nil** (le mot de Lua pour « rien ici »). Ce n'est PAS une erreur et ça ne plante PAS.\n\n~~~lua\nlocal scores = {}\nscores[\"ana\"] = 50\nprint(scores[\"ana\"])   -- 50\nprint(scores[\"zed\"])   -- nil   (never stored, so absent)\n~~~\n\n> WARNING — une clé manquante renvoie `nil`, et `nil` ne peut pas faire d'arithmétique. `scores[\"zed\"] + 1` explose avec « attempt to perform arithmetic on a nil value ». Vérifiez toujours, ou fournissez une valeur par défaut (voir ci-dessous).\n\n## Une valeur par défaut sûre avec `or`\nUne astuce courante : `t[key] or default` renvoie la valeur stockée, ou la valeur par défaut quand l'emplacement est `nil`. C'est ainsi que vous démarrez un compteur à 0 même lors de la toute première apparition.\n\n~~~lua\nlocal n = counts[\"hit\"] or 0   -- 0 if \"hit\" was never seen\ncounts[\"hit\"] = n + 1          -- now it's safely a number\n~~~\n\n## Itérer une map avec `pairs`\nUne boucle `for` numérique ne parcourt que 1, 2, 3, ... elle ne peut donc pas atteindre les clés de type chaîne. Pour visiter CHAQUE clé/valeur dans une map, utilisez **pairs** :\n\n~~~lua\nfor key, value in pairs(scores) do\n  print(key, value)   -- ana  50   (and every other pair)\nend\n~~~\n\n**QUOI** — `pairs(t)` vous remet tour à tour chaque paire `key, value`. **POURQUOI** — c'est le seul moyen de boucler sur une map, puisque les clés ne sont pas des positions numérotées.\n\n> WARNING — `pairs` ne garantit AUCUN ordre. Ne vous fiez pas à la clé qui arrive en premier. Quand vous avez besoin d'un total ou d'un décompte, accumulez dans une variable à l'intérieur de la boucle — ne supposez jamais que les paires arrivent triées.\n\n## Vérifier l'appartenance\n« Cette clé est-elle dans la map ? » — comparez sa valeur à `nil`. Si l'emplacement contient quoi que ce soit, la clé est présente.\n\n~~~lua\nif scores[\"ana\"] ~= nil then\n  print(\"ana is registered\")\nend\n~~~\n\nNotez que `~=` est l'opérateur **différent-de** de Lua (d'autres langages écrivent `!=`). Et `t[k] ~= nil` est le test d'appartenance précis : il reste vrai même si la valeur stockée est `0` ou `\"\"`, ce qu'un simple `if t[k] then` traiterait mal — mais en Lua, seuls `nil` et `false` sont faux, donc `0` et `\"\"` restent vrais. Utiliser `~= nil` rend l'intention évidente.\n\n## Construire une table de fréquence / décompte\nAssemblez le tout : parcourez une liste, et pour chaque élément, incrémentez son compteur dans une map. Cela compte combien de fois chaque valeur apparaît.\n\n~~~lua\nlocal items = { \"a\", \"b\", \"a\" }\nlocal freq = {}\nfor i = 1, #items do\n  local k = items[i]\n  freq[k] = (freq[k] or 0) + 1   -- start at 0, then add 1\nend\nprint(freq[\"a\"])   -- 2\nprint(freq[\"b\"])   -- 1\n~~~\n\n> INTEL — `(freq[k] or 0) + 1` est le battement de cœur de chaque compteur que vous écrirez un jour. Le `or 0` couvre la première fois que vous rencontrez une clé ; ensuite le vrai nombre prend le relais.\n\n> WARNING — souvenez-vous des bases de Lua des secteurs précédents : il n'y a pas de `++`, donc écrivez `x = x + 1`. Et `..` joint les chaînes tandis que `+` additionne les nombres — n'utilisez jamais `+` pour coller du texte ni `..` pour additionner.\n"
+      },
+      "luam05-loops": {
+        "title": "BOUCLES & PLAGES",
+        "subtitle": "for numérique · while · repeat · accumulation",
+        "theory": "\n## Faire quelque chose un grand nombre de fois\nJusqu'ici votre code exécutait chaque ligne une seule fois, de haut en bas. Une **boucle** vous permet de répéter un bloc — compter de 1 à 10, additionner une liste, continuer jusqu'à ce qu'une condition soit remplie. Ce secteur couvre les trois boucles de Lua et les schémas que vous bâtissez avec elles.\n\n## Le `for` numérique — une plage comptée\nLa boucle la plus courante parcourt une **plage** de nombres. Vous donnez un **début**, une **fin**, et (en option) un **pas**.\n\n~~~lua\nfor i = 1, 5 do      -- i takes 1, 2, 3, 4, 5\n  print(i)\nend\n~~~\n\n**QUOI** — `for i = a, b do ... end` exécute le bloc une fois pour chaque valeur de `i` de `a` jusqu'à `b` *inclus*. **POURQUOI** — quand vous savez exactement combien de fois répéter (ou quels nombres visiter), c'est l'outil le plus clair.\n\n> INTEL — la valeur de fin est **inclusive**. `for i = 1, 5` s'exécute réellement avec `i = 5` au dernier passage. Ça piège ceux qui viennent de langages où la fin est exclue.\n\n### Ajouter un pas\nUn troisième nombre est le **pas** — de combien `i` change à chaque passage. Un pas négatif compte à **rebours**.\n\n~~~lua\nfor i = 0, 10, 2 do print(i) end   -- 0 2 4 6 8 10\nfor i = 5, 1, -1 do print(i) end   -- 5 4 3 2 1\n~~~\n\n> WARNING — pour compter à rebours vous DEVEZ donner un pas négatif. `for i = 5, 1 do` utilise le pas par défaut de `+1`, voit que 5 a déjà dépassé 1, et s'exécute **zéro** fois — pas d'erreur, rien ne se passe. Écrivez `for i = 5, 1, -1 do`.\n\n## Accumuler — somme et produit\nLe coup fatal d'une boucle est l'**accumulateur** : une variable que vous mettez en place *avant* la boucle et que vous mettez à jour *à l'intérieur*. Pour totaliser une liste, partez de `0` et ajoutez chaque valeur. Pour multiplier, partez de `1` et multipliez.\n\n~~~lua\nlocal sum = 0\nfor i = 1, 4 do\n  sum = sum + i      -- 0+1, then +2, +3, +4\nend\nprint(sum)           -- 10\n~~~\n\n> WARNING — déclarez l'accumulateur EN DEHORS de la boucle. Si vous écrivez `local sum = 0` *à l'intérieur* du `do ... end`, il se réinitialise à 0 à chaque passage et votre total est faux. Et souvenez-vous que Lua n'a pas de `++` : écrivez `sum = sum + i`, jamais `sum++`.\n\n> INTEL — choisissez la bonne graine. Les sommes partent de **0** (ajouter 0 ne change rien). Les produits partent de **1** (multiplier par 1 ne change rien). Amorcer un produit avec 0 forcerait la réponse à 0 pour toujours.\n\n## La boucle `while` — répéter tant qu'une condition tient\nQuand vous NE connaissez PAS le compte d'avance — « continuer jusqu'à ce que le nombre passe sous 1 » — utilisez **while**. Elle vérifie la condition *d'abord*, exécute le bloc, puis vérifie à nouveau.\n\n~~~lua\nlocal n = 16\nlocal steps = 0\nwhile n > 1 do\n  n = n / 2          -- you must change n, or this never ends\n  steps = steps + 1\nend\nprint(steps)         -- 4\n~~~\n\n> WARNING — un `while` tourne indéfiniment à moins que quelque chose à l'intérieur ne finisse par rendre la condition fausse. Le bug classique est d'oublier de mettre à jour la variable que vous testez — une **boucle infinie**. Assurez-vous toujours que le bloc avance vers la sortie.\n\n## La boucle `repeat ... until` — exécuter d'abord, vérifier après\n`repeat ... until cond` est l'image inversée de `while` : elle exécute le bloc **une fois avant** de vérifier, puis continue **jusqu'à ce que** la condition devienne vraie. Comme le corps s'exécute d'abord, il s'exécute toujours au moins une fois.\n\n~~~lua\nlocal i = 1\nrepeat\n  print(i)\n  i = i + 1\nuntil i > 3          -- prints 1, 2, 3\n~~~\n\n> INTEL — notez que la logique est inversée : `while cond` boucle *tant que vrai*, mais `repeat ... until cond` boucle *jusqu'à ce que vrai* (c.-à-d. tant que la condition est encore fausse). Lisez le mot `until` littéralement : « continuer jusqu'à ce que ceci devienne vrai. »\n\n## Construire une table de résultat avec `table.insert`\nLes boucles produisent souvent une **liste**. Partez d'une table vide `{}` et empilez des valeurs à la fin avec `table.insert`. Les tableaux Lua sont **indexés à partir de 1**, et `table.insert(t, v)` ajoute `v` à la position `#t + 1`.\n\n~~~lua\nlocal squares = {}\nfor i = 1, 4 do\n  table.insert(squares, i * i)   -- 1, 4, 9, 16\nend\nprint(squares[1], squares[4])    -- 1   16\nprint(#squares)                  -- 4\n~~~\n\n**QUOI** — `table.insert(t, v)` agrandit le tableau d'un élément, en plaçant `v` en dernier. **POURQUOI** — vous connaissez rarement la taille finale à l'avance ; l'insertion laisse la liste grandir au fil de la boucle. `#t` vous dit alors combien d'éléments ont atterri.\n\n## `break` — quitter une boucle plus tôt\nParfois vous voulez vous arrêter dès que vous trouvez ce que vous cherchez. **break** saute directement hors de la boucle la plus proche, en sautant le reste.\n\n~~~lua\nlocal found = nil\nfor i = 2, 100 do\n  if 84 % i == 0 then\n    found = i        -- first divisor of 84 that is >= 2\n    break            -- stop looking\n  end\nend\nprint(found)         -- 2\n~~~\n\n> INTEL — `break` ne sort que de la boucle la **plus interne** dans laquelle il se trouve. Il n'y a pas de `break 2` pour échapper à plusieurs boucles d'un coup — pour ça vous restructurez avec un drapeau ou une fonction auxiliaire.\n\n> WARNING — `%` est l'opérateur de **reste** : `a % b == 0` signifie que `b` divise `a` exactement. C'est le test standard « est-ce divisible / est-ce pair » — `n % 2 == 0` est vrai pour les nombres pairs.\n"
+      },
+      "luam06-closures": {
+        "title": "CLOSURES & ORDRE SUPÉRIEUR",
+        "subtitle": "fonctions comme valeurs · closures · varargs",
+        "theory": "## Les fonctions sont des valeurs\nEn Lua, une fonction n'est qu'une valeur, comme un nombre ou une chaîne. Cela signifie que vous pouvez la stocker dans une variable, la placer dans une table, la passer à une autre fonction, ou la renvoyer comme valeur de retour.\n\n~~~lua\nlocal function double(n)\n  return n * 2\nend\n\nlocal f = double      -- store the function in another variable\nprint(f(21))          -- 42  (calling f calls double)\n~~~\n\nÉcrire `local function double(n) ... end` revient exactement au même que `local double = function(n) ... end`. La seconde forme rend évident que la fonction est une valeur que l'on affecte.\n\n> INTEL — `double` (sans parenthèses) est la fonction elle-même. `double(5)` (avec parenthèses) l'**appelle** et vous donne le résultat. Les confondre est l'erreur de débutant numéro 1.\n\n## Passer des fonctions en argument (ordre supérieur)\nUne **fonction d'ordre supérieur** est une fonction qui prend une autre fonction en argument, ou qui en renvoie une. Cela vous permet d'écrire une routine une seule fois et de lui injecter des comportements différents.\n\n~~~lua\nlocal function apply(fn, x)\n  return fn(x)        -- call whatever function we were handed\nend\n\nlocal function shout(s) return s .. \"!\" end\nprint(apply(shout, \"go\"))   -- go!\n~~~\n\nIci, `apply` ne sait pas et ne se soucie pas de ce que fait `fn`. Elle se contente de l'appeler. C'est vous qui décidez du comportement en choisissant quelle fonction passer.\n\n## Renvoyer des fonctions + closures\nUne fonction définie **à l'intérieur** d'une autre fonction peut se souvenir des variables locales qui l'entouraient, même après que la fonction externe a renvoyé son résultat. Cette variable capturée et mémorisée est ce qui en fait une **closure**.\n\n~~~lua\nlocal function make_adder(n)\n  return function(x)\n    return x + n     -- n is remembered from make_adder\n  end\nend\n\nlocal add10 = make_adder(10)\nprint(add10(5))   -- 15\nprint(add10(1))   -- 11\n~~~\n\n`make_adder(10)` construit et renvoie une toute nouvelle fonction dont le `n` privé est verrouillé sur 10. Appelez `make_adder(3)` et vous obtenez une fonction différente avec son propre `n` valant 3 — elles n'interfèrent pas.\n\n## Une closure qui conserve un état (un compteur)\nComme la variable locale capturée est partagée entre les appels, une closure peut conserver un état qui survit d'un appel à l'autre — comme un compteur qui s'incrémente à chaque appel.\n\n~~~lua\nlocal function make_counter()\n  local count = 0\n  return function()\n    count = count + 1   -- there is no ++ in Lua\n    return count\n  end\nend\n\nlocal next_id = make_counter()\nprint(next_id())  -- 1\nprint(next_id())  -- 2\nprint(next_id())  -- 3\n~~~\n\n`count` persiste entre les appels parce que la fonction interne en garde toujours une référence. Chaque nouvel appel à `make_counter()` obtient son propre `count` indépendant.\n\n> WARNING — Souvenez-vous que Lua n'a pas de `++` ni de `+=`. Pour augmenter une valeur, vous devez écrire `count = count + 1`. De plus, deux compteurs distincts créés par deux appels à `make_counter()` ne partagent PAS leur `count` — chaque closure a le sien.\n\n## Varargs : des fonctions qui acceptent n'importe quel nombre d'arguments\nLes trois points `...` dans une liste de paramètres signifient « capture ici tous les arguments restants ». À l'intérieur de la fonction, `...` représente cette liste de valeurs supplémentaires.\n\n~~~lua\nlocal function add_all(...)\n  local total = 0\n  for _, v in ipairs({...}) do   -- {...} packs the args into a table\n    total = total + v\n  end\n  return total\nend\n\nprint(add_all(1, 2, 3, 4))   -- 10\n~~~\n\nL'expression `{...}` rassemble les varargs dans un tableau normal (indexé à partir de 1), ce qui vous permet de les parcourir avec `ipairs`.\n\n## Compter les varargs avec select(\"#\", ...)\nPour demander **combien** d'arguments ont été passés, utilisez `select(\"#\", ...)`. La chaîne littérale `\"#\"` est le signal spécial qui veut dire « donne-moi le compte ».\n\n~~~lua\nlocal function how_many(...)\n  return select(\"#\", ...)\nend\n\nprint(how_many(\"a\", \"b\", \"c\"))   -- 3\nprint(how_many())                 -- 0\n~~~\n\n`select(\"#\", ...)` compte correctement même les trous `nil`, ce que `#{...}` ne peut pas toujours faire — alors préférez-le quand vous avez vraiment besoin du compte.\n\n> INTEL — Les tableaux Lua sont **indexés à partir de 1** : le premier élément est `t[1]`, pas `t[0]`. Gardez cela en tête chaque fois que vous transformez `{...}` en table et que vous lisez ses cases."
+      },
+      "luam07-patterns": {
+        "title": "MOTIFS DE CHAÎNES",
+        "subtitle": "format · find · match · gsub · gmatch",
+        "theory": "## De quoi parle ce secteur\nLe texte, c'est de la donnée. Pour lire une ligne de log, extraire un nom d'un paquet, ou nettoyer une entrée crasseuse, il faut **chercher à l'intérieur des chaînes** et **les reconstruire**. Lua vous offre pour ça un moteur de motifs minuscule et rapide.\n\n> WARNING — Les motifs Lua ne sont **PAS des expressions régulières (regex)**. Ils se ressemblent mais les règles diffèrent. `%d` marche, mais `\\d` NON. Oubliez le PCRE ici — apprenez les quelques règles Lua ci-dessous et vous êtes paré.\n\n## string.format — bâtir une chaîne propre\n`string.format` remplit des cases (appelées **spécificateurs**) avec vos valeurs, comme un modèle à compléter.\n~~~lua\nprint(string.format(\"%s lvl %d\", \"NEO\", 7))  -- NEO lvl 7\nprint(string.format(\"%.2f credits\", 3.5))     -- 3.50 credits\n~~~\nLes spécificateurs courants : **%s** = une chaîne, **%d** = un nombre entier, **%.2f** = un décimal à 2 chiffres après la virgule.\n\n> INTEL — `%d` exige un entier. `string.format(\"%d\", 3.5)` provoquera une erreur. Utilisez `%.0f` pour arrondir un décimal, ou `%d` uniquement sur de vrais entiers.\n\n## Ce qu'est un motif — les classes de caractères\nUn **motif** est une mini-description de « quel genre de texte je cherche ». Les briques de base sont les **classes** (chacune correspond à UN caractère) :\n~~~text\n%d  one digit        0-9\n%a  one letter       A-Z a-z\n%s  one space        space, tab, newline\n%w  one letter OR digit (alphanumeric)\n.   any one character at all\n~~~\nUne classe en **majuscule** signifie l'inverse : **%D** = pas un chiffre, **%A** = pas une lettre, **%S** = pas une espace.\n\n## Quantificateurs — combien\nSeule, une classe correspond à exactement un caractère. Ajoutez un symbole après elle pour répéter :\n~~~text\n%d+   one OR MORE digits   (greedy: grabs as many as it can)\n%d*   zero or more digits\n%d-   zero or more, but as FEW as possible (lazy)\n~~~\nDonc `%d+` correspond à `\"42\"` en entier, pas juste à `\"4\"`.\n\n## string.find — où est-ce ?\n`string.find(s, pattern)` renvoie les **positions de début et de fin** de la première correspondance, ou **nil** si rien ne correspond. Les positions sont **indexées à partir de 1** (le premier caractère est 1, pas 0).\n~~~lua\nlocal i, j = string.find(\"id=A7\", \"%d+\")\nprint(i, j)  -- 5   5   (the single digit \"7\" sits at position 5)\n~~~\nUn simple mot sans caractères spéciaux trouve juste ce texte littéral :\n~~~lua\nprint(string.find(\"hello world\", \"world\"))  -- 7   11\n~~~\n\n> WARNING — les débutants attendent l'indice **0** pour « le premier caractère ». En Lua le premier caractère est à l'indice **1**, et `find` renvoie `nil` (ni -1, ni 0) quand il n'y a pas de correspondance. Testez toujours avec `if string.find(...) then`.\n\n## Ancres — ^ début et $ fin\nMettez **^** au DÉBUT d'un motif pour signifier « doit correspondre tout au début de la chaîne ». Mettez **$** à la FIN pour signifier « doit atteindre la toute fin ».\n~~~lua\nprint(string.find(\"abc\", \"^a\"))   -- 1  1  (starts with a)\nprint(string.find(\"abc\", \"^b\"))   -- nil  (does not start with b)\nprint(string.match(\"4242\", \"^%d+$\"))  -- 4242 (the WHOLE string is digits)\n~~~\n`^%d+$` est le classique « cette chaîne est-elle faite uniquement de chiffres ? ».\n\n> INTEL — `^` n'ancre que lorsqu'il est le PREMIER caractère du motif. Ailleurs, ce n'est qu'un `^` littéral. Même principe pour `$` uniquement tout à la fin.\n\n## string.match — donne-moi le texte\n`string.find` vous dit OÙ. `string.match` vous donne le **texte correspondant lui-même** (ou **nil** si pas de correspondance).\n~~~lua\nprint(string.match(\"id=A7\", \"%d+\"))  -- 7\n~~~\n\n## Captures — extraire des morceaux avec ( )\nEntourez une partie d'un motif de **parenthèses** pour la **capturer**. `match` renvoie alors juste ces morceaux, dans l'ordre.\n~~~lua\nlocal user, host = string.match(\"neo@matrix\", \"(%a+)@(%a+)\")\nprint(user, host)  -- neo   matrix\n~~~\nSans captures vous obtenez la correspondance entière. Avec captures vous obtenez exactement les morceaux que vous avez entourés.\n\n## string.gsub — chercher ET remplacer\n`string.gsub(s, pattern, replacement)` renvoie une **nouvelle chaîne** où chaque correspondance est remplacée, plus un **compteur** du nombre de remplacements. (Les chaînes en Lua ne changent jamais sur place — vous récupérez toujours une nouvelle.)\n~~~lua\nlocal clean, n = string.gsub(\"a1b2c3\", \"%d\", \"#\")\nprint(clean, n)  -- a#b#c#   3\n~~~\nUtilisez `()` aussi dans le remplacement : `%1` signifie « la première capture ».\n~~~lua\nprint(string.gsub(\"neo@matrix\", \"(%a+)@(%a+)\", \"%2.%1\"))  -- matrix.neo  1\n~~~\n\n## string.gmatch — boucler sur chaque correspondance\n`string.gmatch(s, pattern)` vous donne un **itérateur** — parfait pour une boucle `for` qui visite chaque correspondance une à une.\n~~~lua\nfor word in string.gmatch(\"red green blue\", \"%a+\") do\n  print(word)   -- red   green   blue (each on its own line)\nend\n~~~\nAvec captures, `gmatch` vous tend les morceaux capturés à chaque tour de boucle.\n\n> INTEL — le style avec deux-points marche aussi : `s:match(p)` est identique à `string.match(s, p)`. Choisissez ce qui se lit le mieux.\n\n> WARNING — `..` assemble les chaînes (`\"a\" .. \"b\"` donne `\"ab\"`). Le symbole `+` n'est **que des maths** — `\"a\" + \"b\"` est une erreur. Pour construire du texte, utilisez toujours `..`, jamais `+`.\n"
+      },
+      "luam08-math": {
+        "title": "MATHS & ALGORITHMES",
+        "subtitle": "bibliothèque math · récursion · table.sort",
+        "theory": "## La boîte à outils mathématique\nLua embarque une bibliothèque **math** intégrée. Vous appelez ses outils avec un point : `math.floor(x)`. Les plus utiles :\n\n- **math.floor(x)** — arrondit VERS LE BAS à l'entier le plus proche. `math.floor(3.9)` vaut `3`.\n- **math.abs(x)** — distance par rapport à zéro (supprime le signe moins). `math.abs(-7)` vaut `7`.\n- **math.max(a, b, ...)** — le plus grand des arguments.\n- **math.min(a, b, ...)** — le plus petit.\n- **math.sqrt(x)** — la racine carrée. `math.sqrt(9)` vaut `3.0`.\n\n~~~lua\nprint(math.floor(3.9))   -- 3\nprint(math.abs(-7))      -- 7\nprint(math.max(4, 9, 2)) -- 9\nprint(math.sqrt(16))     -- 4.0\n~~~\n\n> INTEL — `math.sqrt` renvoie toujours un flottant, donc `math.sqrt(9)` s'affiche `3.0`, et non `3`. C'est normal — `3.0 == 3` reste `true` en Lua.\n\n## Récursion : une fonction qui s'appelle elle-même\nLa **récursion** signifie qu'une fonction s'appelle elle-même sur un problème plus petit jusqu'à atteindre un cas minuscule qu'elle peut résoudre directement — le **cas de base**. Sans cas de base, elle boucle indéfiniment, alors écrivez-le toujours en premier.\n\nLe classique, c'est la **factorielle** (`5! = 5*4*3*2*1`) :\n~~~lua\nfunction factorial(n)\n  if n <= 1 then return 1 end      -- base case\n  return n * factorial(n - 1)      -- shrink the problem\nend\nprint(factorial(5))  -- 120\n~~~\n\nL'**algorithme d'Euclide** trouve le plus grand commun diviseur (pgcd) — le plus grand nombre qui divise les deux. Le `%` de Lua donne le reste :\n~~~lua\nfunction gcd(a, b)\n  if b == 0 then return a end      -- base case\n  return gcd(b, a % b)             -- swap & shrink\nend\nprint(gcd(48, 18))  -- 6\n~~~\n\nLa suite de **Fibonacci** additionne les deux nombres qui la précèdent (0, 1, 1, 2, 3, 5, 8, ...). Deux cas de base ici :\n~~~lua\nfunction fib(n)\n  if n < 2 then return n end       -- fib(0)=0, fib(1)=1\n  return fib(n - 1) + fib(n - 2)\nend\nprint(fib(7))  -- 13\n~~~\n\n> WARNING — Toute récursion a besoin d'un cas de base qui l'arrête. Si `factorial` ne vérifiait jamais `n <= 1`, elle s'appellerait elle-même indéfiniment et planterait avec un débordement de pile.\n\n## Tester les nombres premiers\nUn **nombre premier** est un entier supérieur à 1 divisible uniquement par 1 et par lui-même (2, 3, 5, 7, 11, ...). Pour tester `n`, essayez de diviser par chaque nombre à partir de 2 : si l'un d'eux divise exactement (reste 0), il n'est PAS premier.\n~~~lua\nfunction is_prime(n)\n  if n < 2 then return false end\n  for d = 2, n - 1 do\n    if n % d == 0 then return false end\n  end\n  return true\nend\n~~~\n\n## Trier une table\n**table.sort(t)** réordonne un tableau SUR PLACE — il modifie `t` lui-même et ne renvoie rien. Par défaut, il trie en ordre croissant (le plus petit d'abord) :\n~~~lua\nlocal nums = {5, 1, 4, 2}\ntable.sort(nums)\nprint(nums[1], nums[4])  -- 1   5\n~~~\n\nPour trier différemment, passez un **comparateur** : une fonction `(a, b)` qui renvoie `true` quand `a` doit venir avant `b`. Pour l'ordre décroissant, dites « a passe en premier quand il est plus grand » :\n~~~lua\nlocal nums = {5, 1, 4, 2}\ntable.sort(nums, function(a, b) return a > b end)\nprint(nums[1])  -- 5\n~~~\n\n> WARNING — `table.sort` ne renvoie PAS une nouvelle table. Écrire `local s = table.sort(t)` met `nil` dans `s`. Triez `t`, puis utilisez `t`. Souvenez-vous aussi que les tableaux Lua commencent à l'indice **1**, et non 0 — le premier élément est `t[1]`.\n"
       }
     },
     "exercises": {
@@ -3052,7 +3077,7 @@ window.CONTENT_FR = {
         "title": "RÉVEIL",
         "brief": "Transmettez le signal.",
         "hint": "Trois appels à print(), un par ligne.",
-        "prompt": "\nAffichez ces trois lignes, exactement, dans l'ordre, avec **print()** :\n~~~text\nWake up, Neo...\nThe Matrix has you...\nFollow the white rabbit.\n~~~\n"
+        "prompt": "\nAffichez ces trois lignes, exactement, dans l'ordre, en utilisant **print()** :\n~~~text\nWake up, Neo...\nThe Matrix has you...\nFollow the white rabbit.\n~~~\n"
       },
       "lua-amplify": {
         "title": "AMPLIFIER",
@@ -3062,45 +3087,375 @@ window.CONTENT_FR = {
       },
       "lua-boot": {
         "title": "DÉMARRAGE IA",
-        "brief": "Mettez un cœur en ligne.",
+        "brief": "Mettez un noyau en ligne.",
         "hint": "return name .. \" online. All systems nominal.\"",
         "prompt": "\nDéfinissez **boot_message(name)** qui renvoie la chaîne :\n~~~text\n<name> online. All systems nominal.\n~~~\nConstruisez-la avec l'opérateur de concaténation **..**.\n"
+      },
+      "lua-tag": {
+        "title": "ÉTIQUETTE DE PAQUET",
+        "brief": "Apposez un label sur une charge utile.",
+        "hint": "return \"[NET] \" .. payload",
+        "prompt": "Définissez **tag_packet(payload)** qui renvoie la chaîne payload précédée du préfixe `[NET] `.\n~~~lua\ntag_packet(\"ping\")  -- \"[NET] ping\"\n~~~\nConstruisez-la avec l'opérateur de concaténation **..**."
+      },
+      "lua-handle": {
+        "title": "PSEUDO OPÉRATEUR",
+        "brief": "Forgez un pseudo d'opérateur.",
+        "hint": "local handle = user .. \"@\" .. node",
+        "prompt": "Définissez **make_handle(user, node)** qui assemble les deux arguments avec un `@` entre eux.\n~~~lua\nmake_handle(\"trinity\", \"zion\")  -- \"trinity@zion\"\n~~~\nUtilisez une variable **local** pour construire le résultat, puis faites **return**."
+      },
+      "lua-status": {
+        "title": "LIGNE DE STATUT",
+        "brief": "Rendez le rapport de statut d'un noyau.",
+        "hint": "return core .. \": level \" .. level",
+        "prompt": "Définissez **status_line(core, level)** où `core` est une chaîne et `level` un nombre. Renvoyez le rapport :\n~~~text\n<core>: level <level>\n~~~\nPar exemple `status_line(\"MAGI\", 7)` renvoie `\"MAGI: level 7\"`. Concaténer un nombre avec **..** le convertit automatiquement en texte."
+      },
+      "lua-uplink": {
+        "title": "JOURNAL DE LIAISON",
+        "brief": "Affichez un journal de démarrage de trois lignes.",
+        "hint": "print(\"Uplink: \" .. sign) puis print(\"Channel open\") puis print(sign .. \" ready\")",
+        "prompt": "Stockez l'indicatif `\"NEB-7\"` dans une variable **local**, puis utilisez **print()** pour ces trois lignes, dans l'ordre, en construisant chacune avec **..** :\n~~~text\nUplink: NEB-7\nChannel open\nNEB-7 ready\n~~~\nUtilisez la variable locale pour l'indicatif aux lignes 1 et 3 (ne le codez pas en dur deux fois)."
+      },
+      "lua-relay": {
+        "title": "RELAIS DE SIGNAL",
+        "brief": "Chaînez deux assistants en une seule transmission.",
+        "hint": "relay renvoie \">> \" .. shout(text)",
+        "prompt": "Définissez d'abord un assistant **shout(text)** qui renvoie `text` suivi de `\"!\"`. Puis définissez **relay(text)** qui renvoie le résultat de `shout(text)` préfixé de `\">> \"`.\n~~~lua\nrelay(\"go\")  -- \">> go!\"\n~~~\nAppelez `shout` depuis l'intérieur de `relay` et combinez les morceaux avec **..**."
       },
       "lua-even": {
         "title": "CONTRÔLE DE PARITÉ",
         "brief": "Repérez les paquets pairs.",
         "hint": "return n % 2 == 0",
-        "prompt": "\nDéfinissez **is_even(n)** qui renvoie un booléen — true si n est pair, false sinon. Utilisez l'opérateur modulo **%**.\n"
+        "prompt": "\nDéfinissez **is_even(n)** renvoyant un booléen — true si n est pair, sinon false. Utilisez l'opérateur modulo **%**.\n"
       },
       "lua-clearance": {
         "title": "NIVEAUX D'ACCÈS",
         "brief": "Associez les niveaux aux paliers.",
         "hint": "Enchaînez avec if / elseif / else, en terminant par ROOT.",
-        "prompt": "\nDéfinissez **clearance(level)** qui renvoie :\n- level **< 1** -> \"DENIED\"\n- **1-2** -> \"GUEST\"\n- **3-4** -> \"OPERATOR\"\n- **5+** -> \"ROOT\"\n"
+        "prompt": "\nDéfinissez **clearance(level)** renvoyant :\n- level **< 1** -> \"DENIED\"\n- **1-2** -> \"GUEST\"\n- **3-4** -> \"OPERATOR\"\n- **5+** -> \"ROOT\"\n"
       },
       "lua-sum": {
         "title": "ACCUMULATEUR DE PUISSANCE",
         "brief": "Additionnez les cellules du réacteur.",
         "hint": "for _, v in ipairs(cells) do total = total + v end",
-        "prompt": "\nDéfinissez **total_power(cells)** où **cells** est une table (tableau) de nombres. Renvoyez leur somme. Parcourez avec **ipairs**.\n~~~lua\ntotal_power({10, 20, 12})  -- 42\n~~~\n"
+        "prompt": "\nDéfinissez **total_power(cells)** où **cells** est une table (tableau) de nombres. Renvoyez leur somme. Bouclez avec **ipairs**.\n~~~lua\ntotal_power({10, 20, 12})  -- 42\n~~~\n"
+      },
+      "lua-grade": {
+        "title": "QUALITÉ DU SIGNAL",
+        "brief": "Étiquetez un signal selon sa force.",
+        "hint": "if strength < 30 then ... elseif strength < 70 then ... else ... end",
+        "prompt": "Définissez **signal_grade(strength)** qui renvoie une étiquette selon le nombre **strength** :\n- strength **< 30** -> \"WEAK\"\n- **30 to 69** -> \"OK\"\n- **70 or more** -> \"STRONG\"\n\nEnchaînez les cas avec **if / elseif / else**.\n~~~lua\nsignal_grade(10)  -- \"WEAK\"\nsignal_grade(50)  -- \"OK\"\nsignal_grade(95)  -- \"STRONG\"\n~~~"
+      },
+      "lua-clamp": {
+        "title": "BRIDAGE DE TENSION",
+        "brief": "Maintenez une valeur dans une plage.",
+        "hint": "if value < low then return low elseif value > high then return high else return value end",
+        "prompt": "Définissez **clamp(value, low, high)** qui ramène **value** à l'intérieur de la plage :\n- si value est **en dessous de low**, renvoyez **low**\n- si value est **au-dessus de high**, renvoyez **high**\n- sinon renvoyez **value** inchangée\n\nUtilisez **if / elseif / else**.\n~~~lua\nclamp(5, 0, 10)   -- 5\nclamp(-3, 0, 10)  -- 0\nclamp(99, 0, 10)  -- 10\n~~~"
+      },
+      "lua-maxcell": {
+        "title": "CELLULE DE POINTE",
+        "brief": "Trouvez la plus grande cellule du réacteur.",
+        "hint": "for _, v in ipairs(cells) do if v > best then best = v end end",
+        "prompt": "Définissez **max_cell(cells)** où **cells** est un tableau non vide de nombres. Renvoyez la plus grande valeur. Partez d'une première estimation à `cells[1]`, puis parcourez le tableau avec **ipairs** et conservez la valeur la plus grande dès que vous en trouvez une.\n~~~lua\nmax_cell({3, 9, 4})    -- 9\nmax_cell({7})          -- 7\n~~~"
+      },
+      "lua-counthi": {
+        "title": "AU-DESSUS DU SEUIL",
+        "brief": "Comptez les relevés au-dessus d'une limite.",
+        "hint": "for _, v in ipairs(readings) do if v > limit then count = count + 1 end end",
+        "prompt": "Définissez **count_above(readings, limit)** où **readings** est un tableau de nombres. Renvoyez combien d'entrées sont **strictement supérieures à limit**. Parcourez le tableau avec **ipairs**, tenez un compteur, et incrémentez-le avec `count = count + 1` (Lua n'a pas de `++`).\n~~~lua\ncount_above({2, 5, 9, 1}, 4)  -- 2   (5 and 9)\ncount_above({1, 2}, 9)        -- 0\n~~~"
+      },
+      "lua-doublewave": {
+        "title": "ONDE DOUBLÉE",
+        "brief": "Construisez un nouveau tableau de valeurs doublées.",
+        "hint": "for i = 1, #nums do out[i] = nums[i] * 2 end",
+        "prompt": "Définissez **double_all(nums)** où **nums** est un tableau de nombres. Renvoyez un **nouveau** tableau où chaque élément est doublé, dans le même ordre. Partez d'une table vide `{}`, bouclez sur les indices avec un for numérique de **1** à **#nums**, et affectez chaque résultat avec `out[i] = nums[i] * 2`.\n~~~lua\ndouble_all({1, 2, 3})  -- {2, 4, 6}\ndouble_all({})         -- {}\n~~~"
       },
       "lua-reverse": {
         "title": "GLACE PALINDROME",
         "brief": "Inversez le paquet.",
         "hint": "return s:reverse()  -- or string.reverse(s)",
-        "prompt": "\nDéfinissez **reverse_signal(s)** qui renvoie la chaîne inversée. Utilisez la bibliothèque string.\n~~~lua\nreverse_signal(\"LAIN\")  -- \"NIAL\"\n~~~\n"
+        "prompt": "\nDéfinissez **reverse_signal(s)** renvoyant la chaîne inversée. Utilisez la bibliothèque string.\n~~~lua\nreverse_signal(\"LAIN\")  -- \"NIAL\"\n~~~\n"
       },
       "lua-shout": {
         "title": "AMPLITUDE",
-        "brief": "Criez le nom du morceau.",
+        "brief": "Criez le nom de la piste.",
         "hint": "return s:upper() .. \"!\"",
-        "prompt": "\nDéfinissez **shout(s)** qui renvoie la chaîne en majuscules avec un seul **!** ajouté à la fin.\n~~~lua\nshout(\"daft\")  -- \"DAFT!\"\n~~~\n"
+        "prompt": "\nDéfinissez **shout(s)** renvoyant la chaîne en majuscules avec un unique **!** ajouté à la fin.\n~~~lua\nshout(\"daft\")  -- \"DAFT!\"\n~~~\n"
       },
       "lua-count": {
         "title": "COMPTE DE SIGNAUX",
         "brief": "Comptez un caractère dans le flux.",
         "hint": "Loop i = 1, #s; if s:sub(i, i) == ch then n = n + 1 end.",
-        "prompt": "\nDéfinissez **count_char(s, ch)** qui renvoie combien de fois le caractère unique **ch** apparaît dans **s**. Parcourez la chaîne avec une boucle for numérique et **s:sub(i, i)**.\n~~~lua\ncount_char(\"aab\", \"a\")  -- 2\n~~~\n"
+        "prompt": "\nDéfinissez **count_char(s, ch)** renvoyant le nombre de fois où le caractère unique **ch** apparaît dans **s**. Parcourez la chaîne avec une boucle for numérique et **s:sub(i, i)**.\n~~~lua\ncount_char(\"aab\", \"a\")  -- 2\n~~~\n"
+      },
+      "lua-yell": {
+        "title": "ALL CAPS ALERT",
+        "brief": "Forcez un message en majuscules.",
+        "hint": "return string.upper(msg)",
+        "prompt": "Définissez **yell(msg)** qui renvoie `msg` converti entièrement en lettres majuscules.\n~~~lua\nyell(\"breach\")  -- \"BREACH\"\n~~~\nUtilisez la fonction **string.upper** (ou la forme méthode `msg:upper()`)."
+      },
+      "lua-keylen": {
+        "title": "KEY LENGTH",
+        "brief": "Mesurez une clé d'accès.",
+        "hint": "return #key",
+        "prompt": "Définissez **key_length(key)** qui renvoie le nombre de caractères dans la chaîne `key`.\n~~~lua\nkey_length(\"abcd\")  -- 4\n~~~\nUtilisez l'opérateur de longueur **#** sur la chaîne."
+      },
+      "lua-prefix": {
+        "title": "FIRST FRAGMENT",
+        "brief": "Tranchez la tête d'une chaîne.",
+        "hint": "return string.sub(text, 1, n)",
+        "prompt": "Définissez **first_n(text, n)** qui renvoie les `n` premiers caractères de `text`.\n~~~lua\nfirst_n(\"hovercraft\", 5)  -- \"hover\"\n~~~\nUtilisez **string.sub(text, 1, n)** (les chaînes Lua sont indexées à partir de 1)."
+      },
+      "lua-vowelcount": {
+        "title": "VOWEL SWEEP",
+        "brief": "Parcourez une chaîne et comptabilisez les voyelles.",
+        "hint": "loop i = 1, #text and test string.sub(text, i, i) against each vowel",
+        "prompt": "Définissez **count_vowels(text)** qui renvoie le nombre de voyelles minuscules (`a`, `e`, `i`, `o`, `u`) qui apparaissent dans `text`. Parcourez les caractères par index de `1` à `#text`, extrayez chacun avec **string.sub(text, i, i)**, et ajoutez à un compteur lorsqu'il s'agit d'une voyelle.\n~~~lua\ncount_vowels(\"matrix\")  -- 2\n~~~\nSupposez que `text` est déjà en minuscules."
+      },
+      "lua-titlecase": {
+        "title": "CAPITALIZE NODE",
+        "brief": "Première lettre en majuscule, le reste en minuscules.",
+        "hint": "head = string.upper(string.sub(word,1,1)); tail = string.lower(string.sub(word,2)); return head .. tail",
+        "prompt": "Définissez **capitalize(word)** qui renvoie `word` avec son premier caractère en majuscule et chaque caractère suivant en minuscule.\n~~~lua\ncapitalize(\"nEBuchadnezzar\")  -- \"Nebuchadnezzar\"\n~~~\nUtilisez **string.sub** pour détacher le premier caractère du reste, puis **string.upper** et **string.lower** sur les morceaux et joignez-les avec **..**. Renvoyez `\"\"` inchangé lorsque `word` est vide."
+      },
+      "lua-stash": {
+        "title": "EMPLACEMENT DE PLANQUE",
+        "brief": "Stockez une valeur sous une clé.",
+        "hint": "À l'intérieur de la table, écrivez t[key] = value avant de renvoyer t.",
+        "prompt": "\nDéfinissez **stash(key, value)** qui crée une table neuve, stocke **value** sous **key**, et renvoie la table.\n~~~lua\nlocal t = stash(\"name\", \"lain\")\nprint(t[\"name\"])  -- lain\n~~~\n"
+      },
+      "lua-lookup": {
+        "title": "RECHERCHE À FROID",
+        "brief": "Lisez une clé qui peut être manquante.",
+        "hint": "Renvoyez simplement t[key] — Lua restitue nil pour une clé qui n'a jamais été définie.",
+        "prompt": "\nDéfinissez **lookup(t, key)** qui renvoie la valeur stockée sous **key** dans la table **t**, ou renvoie **nil** quand la clé est absente (le simple fait de lire `t[key]` le fait déjà).\n~~~lua\nlocal t = { name = \"lain\" }\nprint(lookup(t, \"name\"))  -- lain\nprint(lookup(t, \"age\"))   -- nil\n~~~\n"
+      },
+      "lua-registered": {
+        "title": "ENREGISTRÉ",
+        "brief": "La clé est-elle présente ?",
+        "hint": "Renvoyez la comparaison elle-même : t[key] ~= nil produit déjà true ou false.",
+        "prompt": "\nDéfinissez **is_registered(t, key)** qui renvoie **true** quand **key** existe dans **t**, et **false** quand elle n'existe pas. Testez l'appartenance avec `t[key] ~= nil`.\n~~~lua\nlocal users = { ana = true, zed = false }\nprint(is_registered(users, \"ana\"))  -- true\nprint(is_registered(users, \"who\"))  -- false\n~~~\n"
+      },
+      "lua-bump": {
+        "title": "INCRÉMENT DE COMPTEUR",
+        "brief": "Incrémentez un compteur qui n'existe peut-être pas encore.",
+        "hint": "t[key] = (t[key] or 0) + 1 — le 'or 0' couvre la première apparition.",
+        "prompt": "\nDéfinissez **bump(t, key)** qui ajoute 1 au compteur situé à **key** dans la table **t** (en partant de 0 s'il était absent), puis renvoie la table. Utilisez l'idiome `(t[key] or 0) + 1`.\n~~~lua\nlocal c = {}\nbump(c, \"hit\")\nbump(c, \"hit\")\nprint(c[\"hit\"])  -- 2\n~~~\n"
+      },
+      "lua-keycount": {
+        "title": "RECENSEMENT DES CLÉS",
+        "brief": "Comptez combien de clés une map contient.",
+        "hint": "for _ in pairs(t) do n = n + 1 end — puis renvoyez n.",
+        "prompt": "\nDéfinissez **key_count(t)** qui renvoie combien de paires clé/valeur se trouvent dans la map **t**. L'opérateur `#` ne fonctionne PAS pour les clés de type chaîne — bouclez avec **pairs** et comptez.\n~~~lua\nkey_count({ a = 1, b = 2, c = 3 })  -- 3\nkey_count({})                        -- 0\n~~~\n"
+      },
+      "lua-tally": {
+        "title": "RELEVÉ DE FRÉQUENCE",
+        "brief": "Construisez une table de décompte à partir d'une liste.",
+        "hint": "Bouclez i = 1, #list ; soit k = list[i] ; freq[k] = (freq[k] or 0) + 1.",
+        "prompt": "\nDéfinissez **tally(list)** qui prend un tableau de chaînes et renvoie une map associant chaque chaîne au nombre de fois où elle apparaît. Parcourez le tableau avec une boucle for numérique et incrémentez un compteur pour chaque élément.\n~~~lua\nlocal f = tally({ \"a\", \"b\", \"a\" })\nprint(f[\"a\"])  -- 2\nprint(f[\"b\"])  -- 1\n~~~\n"
+      },
+      "lua-topkey": {
+        "title": "SIGNAL LE PLUS FORT",
+        "brief": "Trouvez la clé ayant la plus grande valeur.",
+        "hint": "Initialisez best_val = nil ; for k, v in pairs(counts) do if best_val == nil or v > best_val then ... end end.",
+        "prompt": "\nDéfinissez **top_key(counts)** qui prend une map associant chaîne à nombre et renvoie la clé dont la valeur est la plus grande. Parcourez la map avec **pairs**, en gardant la trace de la meilleure clé et de sa valeur. Supposez que la map est non vide et que le maximum est unique.\n~~~lua\ntop_key({ a = 1, b = 5, c = 2 })  -- \"b\"\n~~~\n"
+      },
+      "lua-mergecounts": {
+        "title": "FUSIONNER LES REGISTRES",
+        "brief": "Additionnez deux maps de décompte.",
+        "hint": "Deux boucles pairs, chacune faisant out[k] = (out[k] or 0) + v.",
+        "prompt": "\nDéfinissez **merge_counts(a, b)** qui renvoie une NOUVELLE map où la valeur de chaque clé est la somme de ses valeurs dans **a** et **b** (une clé manquante compte pour 0). Copiez **a** avec pairs, puis ajoutez **b** avec pairs.\n~~~lua\nlocal m = merge_counts({ x = 1, y = 2 }, { y = 3, z = 5 })\nprint(m[\"x\"])  -- 1\nprint(m[\"y\"])  -- 5\nprint(m[\"z\"])  -- 5\n~~~\n"
+      },
+      "lua-loop-countsum": {
+        "title": "TOTAL DE PLAGE",
+        "brief": "Additionnez 1 jusqu'à n avec un for numérique.",
+        "hint": "local sum = 0 before the loop; for i = 1, n do sum = sum + i end; then return sum.",
+        "prompt": "\nDéfinissez **sum_to(n)** qui renvoie le total de chaque nombre entier de **1** à **n** (inclus). Utilisez un `for` numérique et un accumulateur qui part de 0.\n~~~lua\nsum_to(4)   -- 10   (1 + 2 + 3 + 4)\nsum_to(1)   -- 1\n~~~\n"
+      },
+      "lua-loop-countdown": {
+        "title": "VECTEUR DE DESCENTE",
+        "brief": "Comptez à rebours depuis n dans une liste.",
+        "hint": "for i = n, 1, -1 do table.insert(out, i) end — the -1 step counts downward.",
+        "prompt": "\nDéfinissez **countdown(n)** qui renvoie un tableau contenant les nombres **n, n-1, ... , 1** dans cet ordre. Utilisez un `for` numérique avec un pas négatif et `table.insert`.\n~~~lua\nlocal t = countdown(3)\nprint(t[1], t[2], t[3])  -- 3  2  1\n~~~\n"
+      },
+      "lua-loop-product": {
+        "title": "MULTIPLICATION EN CHAÎNE",
+        "brief": "Multipliez 1 jusqu'à n ensemble.",
+        "hint": "Start local prod = 1 (a 0 seed would zero everything); then prod = prod * i in the loop.",
+        "prompt": "\nDéfinissez **product_to(n)** qui renvoie le produit de chaque nombre entier de **1** à **n** (c'est la factorielle de n). Amorcez l'accumulateur à **1**, pas à 0.\n~~~lua\nproduct_to(4)   -- 24   (1 * 2 * 3 * 4)\nproduct_to(1)   -- 1\n~~~\n"
+      },
+      "lua-loop-evens": {
+        "title": "RÉCOLTE DE PAIRS",
+        "brief": "Collectez les nombres pairs jusqu'à n.",
+        "hint": "for i = 2, n, 2 do table.insert(out, i) end — the step of 2 skips the odds.",
+        "prompt": "\nDéfinissez **evens_to(n)** qui renvoie un tableau de chaque nombre pair de **2** jusqu'à **n** (inclus), en ordre croissant. Un `for` avec un pas de 2 rend ça propre ; construisez la liste avec `table.insert`.\n~~~lua\nlocal t = evens_to(8)\nprint(t[1], t[4])  -- 2  8\n~~~\n"
+      },
+      "lua-loop-halve": {
+        "title": "CASCADE DE DIVISIONS",
+        "brief": "Comptez combien de divisions par deux atteignent 1.",
+        "hint": "while n > 1 do n = n // 2; steps = steps + 1 end — you must change n or it loops forever.",
+        "prompt": "\nDéfinissez **halvings(n)** qui renvoie combien de fois vous pouvez diviser **n** par deux (division entière) avant qu'il n'atteigne **1** ou en dessous. Utilisez une boucle `while` : continuez à diviser tant que `n > 1`, en comptant chaque étape. Utilisez `//` (division entière) pour que le résultat reste un nombre entier.\n~~~lua\nhalvings(16)  -- 4   (16 -> 8 -> 4 -> 2 -> 1)\nhalvings(1)   -- 0\n~~~\n"
+      },
+      "lua-loop-firstdiv": {
+        "title": "PREMIER FACTEUR",
+        "brief": "Trouvez le plus petit diviseur, puis break.",
+        "hint": "for d = 2, n do if n % d == 0 then found = d; break end end — the loop reaches n itself for a prime.",
+        "prompt": "\nDéfinissez **first_divisor(n)** qui renvoie le plus petit entier **d** avec `d >= 2` qui divise **n** exactement (testez avec `n % d == 0`). Faites boucler `d` à partir de 2 vers le haut et faites `break` à l'instant où vous en trouvez un. Supposez `n >= 2` ; le premier diviseur d'un nombre premier est lui-même.\n~~~lua\nfirst_divisor(15)  -- 3\nfirst_divisor(13)  -- 13\n~~~\n"
+      },
+      "lua-loop-collatz": {
+        "title": "SÉQUENCE TEMPÊTE",
+        "brief": "Comptez les étapes avec repeat...until.",
+        "hint": "Guard n == 1 first, then repeat the if/else rule with steps = steps + 1, until n == 1.",
+        "prompt": "\nDéfinissez **storm_steps(n)** qui applique cette règle jusqu'à ce que **n** atteigne **1**, en comptant les étapes : si `n` est pair, posez `n = n // 2` ; sinon posez `n = 3 * n + 1`. Comme vous agissez avant de tester, utilisez une boucle `repeat ... until n == 1`. Renvoyez le nombre d'étapes. Supposez `n >= 1`.\n~~~lua\nstorm_steps(1)  -- 0   (already at 1)\nstorm_steps(8)  -- 3   (8 -> 4 -> 2 -> 1)\n~~~\n"
+      },
+      "lua-loop-runcap": {
+        "title": "COURSE PLAFONNÉE",
+        "brief": "Accumulez jusqu'à un plafond, puis break.",
+        "hint": "Track a running total; for each item, if total + list[i] >= cap then break, else add it and table.insert.",
+        "prompt": "\nDéfinissez **run_until_cap(list, cap)** qui parcourt le tableau **list** en ajoutant les valeurs à un total courant, mais s'arrête à l'instant où le total **atteindrait ou dépasserait** `cap`. Renvoyez un tableau des valeurs réellement prises (celles ajoutées avant d'atteindre le plafond). Utilisez un `for` numérique et `break`.\n~~~lua\nlocal t = run_until_cap({ 3, 4, 10, 1 }, 8)\nprint(t[1], t[2])  -- 3  4   (3+4=7 ok; adding 10 hits 17 >= 8, so stop)\nprint(#t)          -- 2\n~~~\n"
+      },
+      "lua-store-fn": {
+        "title": "STOCKER LA ROUTINE",
+        "brief": "Une fonction n'est qu'une valeur.",
+        "hint": "Appelez fn deux fois : fn(fn(x)).",
+        "prompt": "Les fonctions sont des valeurs que vous pouvez placer dans une variable.\n\nDéfinissez **run_twice(fn, x)** qui appelle `fn` sur `x`, puis appelle `fn` à nouveau sur ce résultat, et renvoie la valeur finale.\n~~~lua\nlocal function inc(n) return n + 1 end\nrun_twice(inc, 5)   -- 7   (5 -> 6 -> 7)\n~~~"
+      },
+      "lua-apply": {
+        "title": "APPLY",
+        "brief": "Passer une fonction en argument.",
+        "hint": "Renvoyez simplement fn(x).",
+        "prompt": "Définissez **apply(fn, x)** qui se contente d'appeler la fonction `fn` avec l'argument `x` et de renvoyer le résultat.\n~~~lua\nlocal function neg(n) return -n end\napply(neg, 8)   -- -8\n~~~"
+      },
+      "lua-make-adder": {
+        "title": "FABRIQUER UN ADDITIONNEUR",
+        "brief": "Renvoyer une fonction qui se souvient d'un nombre.",
+        "hint": "À l'intérieur de make_adder, return function(x) return x + n end.",
+        "prompt": "Définissez **make_adder(n)** qui renvoie une NOUVELLE fonction. Cette fonction renvoyée prend un argument `x` et renvoie `x + n`. La valeur de `n` est capturée (une closure).\n~~~lua\nlocal add10 = make_adder(10)\nadd10(5)   -- 15\nadd10(1)   -- 11\n~~~"
+      },
+      "lua-counter": {
+        "title": "CŒUR DE COMPTEUR",
+        "brief": "Une closure qui compte vers le haut.",
+        "hint": "Déclarez local count = 0 EN DEHORS de la fonction renvoyée, puis count = count + 1 à l'intérieur.",
+        "prompt": "Définissez **make_counter()** qui renvoie une fonction. Chaque fois que la fonction renvoyée est appelée, elle augmente un compteur interne de 1 et renvoie le nouveau compte, en commençant à 1.\n~~~lua\nlocal next_id = make_counter()\nnext_id()   -- 1\nnext_id()   -- 2\nnext_id()   -- 3\n~~~"
+      },
+      "lua-map-double": {
+        "title": "MAP",
+        "brief": "Appliquer une fonction à chaque élément.",
+        "hint": "Bouclez i = 1, #arr et faites out[i] = fn(arr[i]). Les tableaux sont indexés à partir de 1.",
+        "prompt": "Définissez **map(fn, arr)** qui renvoie un NOUVEAU tableau où chaque élément est `fn` appliqué à l'élément correspondant de `arr`. Ne modifiez pas le tableau d'origine.\n~~~lua\nlocal function dbl(n) return n * 2 end\nmap(dbl, {1, 2, 3})   -- {2, 4, 6}\n~~~"
+      },
+      "lua-varargs-sum": {
+        "title": "SOMME VARARG",
+        "brief": "Additionner n'importe quel nombre d'arguments.",
+        "hint": "for _, v in ipairs({...}) do total = total + v end.",
+        "prompt": "Définissez **sum_all(...)** qui accepte n'importe quel nombre de nombres et renvoie leur total. Sans argument, elle renvoie 0. Utilisez `{...}` pour rassembler les arguments.\n~~~lua\nsum_all(1, 2, 3, 4)   -- 10\nsum_all()             -- 0\n~~~"
+      },
+      "lua-varargs-count": {
+        "title": "COMPTE D'ARGUMENTS",
+        "brief": "Combien d'arguments sont arrivés ?",
+        "hint": "return select(\"#\", ...) — le \"#\" est une chaîne littérale.",
+        "prompt": "Définissez **arg_count(...)** qui renvoie le nombre d'arguments qui lui ont été donnés, en utilisant **select(\"#\", ...)**.\n~~~lua\narg_count(\"a\", \"b\", \"c\")   -- 3\narg_count()                 -- 0\n~~~"
+      },
+      "lua-compose": {
+        "title": "COMPOSE",
+        "brief": "Enchaîner deux fonctions en une seule.",
+        "hint": "Renvoyez function(x) return f(g(x)) end — le g interne s'exécute en premier.",
+        "prompt": "Définissez **compose(f, g)** qui renvoie une NOUVELLE fonction. Appeler cette fonction avec `x` doit d'abord appliquer `g`, puis appliquer `f` à ce résultat — autrement dit, elle renvoie `f(g(x))`.\n~~~lua\nlocal function inc(n) return n + 1 end\nlocal function dbl(n) return n * 2 end\nlocal h = compose(dbl, inc)\nh(5)   -- 12   (inc(5)=6, then dbl(6)=12)\n~~~"
+      },
+      "lua-fmt-tag": {
+        "title": "ÉTIQUETTE ID",
+        "brief": "Formater un badge nom-et-niveau.",
+        "hint": "return string.format(\"%s [Lv.%d]\", name, lvl)",
+        "prompt": "Définissez **id_tag(name, lvl)** qui renvoie une chaîne construite avec **string.format** sous la forme `NAME [Lv.N]`, où N est un nombre entier.\n~~~lua\nid_tag(\"NEO\", 7)   -- \"NEO [Lv.7]\"\nid_tag(\"TRINITY\", 12)  -- \"TRINITY [Lv.12]\"\n~~~\nUtilisez les spécificateurs **%s** et **%d**."
+      },
+      "lua-find-digit": {
+        "title": "PREMIER CHIFFRE",
+        "brief": "Repérer où commence la première suite de chiffres.",
+        "hint": "local i = string.find(s, \"%d\"); return i or 0",
+        "prompt": "Définissez **first_digit_pos(s)** qui renvoie la **position indexée à partir de 1** où apparaît le premier chiffre dans **s**, ou **0** s'il n'y a aucun chiffre. Utilisez **string.find** avec le motif `%d`.\n~~~lua\nfirst_digit_pos(\"id=A7\")   -- 5\nfirst_digit_pos(\"abc\")     -- 0\n~~~"
+      },
+      "lua-all-digits": {
+        "title": "PUREMENT NUMÉRIQUE",
+        "brief": "La chaîne entière n'est-elle faite que de chiffres ?",
+        "hint": "return string.match(s, \"^%d+$\") ~= nil",
+        "prompt": "Définissez **all_digits(s)** qui renvoie **true** si **s** est composée d'un ou plusieurs chiffres et de RIEN d'autre, sinon **false**. Utilisez les ancres : le motif `^%d+$` correspond à une chaîne entièrement faite de chiffres. Une chaîne vide vaut **false**.\n~~~lua\nall_digits(\"4242\")   -- true\nall_digits(\"4a2\")    -- false\nall_digits(\"\")       -- false\n~~~"
+      },
+      "lua-grab-number": {
+        "title": "EXTRAIRE LA VALEUR",
+        "brief": "Sortir le nombre d'une paire clé=valeur.",
+        "hint": "local hit = string.match(s, \"%d+\"); return hit and tonumber(hit) or nil",
+        "prompt": "Définissez **grab_number(s)** qui trouve la première suite de chiffres dans **s** et la renvoie comme **nombre** (utilisez tonumber), ou **nil** s'il n'y a pas de chiffres. Faites correspondre `%d+` pour attraper toute la suite, pas juste un seul chiffre.\n~~~lua\ngrab_number(\"hp=255\")   -- 255\ngrab_number(\"level 8 ok\")  -- 8\ngrab_number(\"none\")     -- nil\n~~~"
+      },
+      "lua-split-pair": {
+        "title": "SÉPARER LE PSEUDO",
+        "brief": "Capturer les deux côtés d'un pseudo @.",
+        "hint": "return string.match(s, \"(%a+)@(%a+)\")",
+        "prompt": "Définissez **split_handle(s)** pour un pseudo du type `user@host`. Utilisez un motif à deux captures — `(%a+)@(%a+)` — et renvoyez les deux chaînes capturées (user d'abord, host ensuite).\n~~~lua\nlocal u, h = split_handle(\"neo@matrix\")\n-- u == \"neo\", h == \"matrix\"\n~~~"
+      },
+      "lua-redact": {
+        "title": "CENSURER LES CHIFFRES",
+        "brief": "Masquer chaque chiffre et les compter.",
+        "hint": "return string.gsub(s, \"%d\", \"#\")  -- gsub returns string AND count",
+        "prompt": "Définissez **redact(s)** qui remplace chaque chiffre dans **s** par `#` à l'aide de **string.gsub**, et renvoie À LA FOIS la nouvelle chaîne et le nombre de chiffres remplacés (gsub renvoie déjà ces deux valeurs, dans cet ordre).\n~~~lua\nlocal out, n = redact(\"a1b2c3\")\n-- out == \"a#b#c#\", n == 3\n~~~"
+      },
+      "lua-swap-handle": {
+        "title": "INVERSER LE PSEUDO",
+        "brief": "Réécrire user@host en host.user à l'aide de captures.",
+        "hint": "local out = string.gsub(s, \"(%a+)@(%a+)\", \"%2.%1\"); return out",
+        "prompt": "Définissez **flip_handle(s)** qui transforme un pseudo `user@host` en `host.user`, en utilisant **string.gsub** avec deux captures `(%a+)@(%a+)` et un remplacement qui utilise `%2` et `%1`. Renvoyez UNIQUEMENT la chaîne réécrite (gsub renvoie le compteur en second — ignorez-le).\n~~~lua\nflip_handle(\"neo@matrix\")  -- \"matrix.neo\"\n~~~"
+      },
+      "lua-sum-numbers": {
+        "title": "TOTALISER LE FLUX",
+        "brief": "Additionner chaque nombre trouvé dans le texte.",
+        "hint": "for n in string.gmatch(s, \"%d+\") do total = total + tonumber(n) end",
+        "prompt": "Définissez **sum_numbers(s)** qui trouve chaque suite de chiffres dans **s** et renvoie leur total sous forme de nombre. Bouclez avec **string.gmatch(s, \"%d+\")**, convertissez chaque correspondance avec **tonumber**, et additionnez. S'il n'y a aucun nombre, renvoyez **0**.\n~~~lua\nsum_numbers(\"a3 b10 c2\")   -- 15\nsum_numbers(\"none here\")   -- 0\n~~~"
+      },
+      "lua-driftgap": {
+        "title": "ÉCART DE DÉRIVE",
+        "brief": "À quelle distance de la cible ?",
+        "hint": "math.abs(target - actual) supprime le signe moins.",
+        "prompt": "Définissez **drift_gap(target, actual)** qui renvoie à quelle distance `actual` se trouve de `target`, sous forme de nombre positif, en utilisant **math.abs**.\n~~~lua\ndrift_gap(10, 7)  -- 3\ndrift_gap(7, 10)  -- 3\n~~~"
+      },
+      "lua-peaksignal": {
+        "title": "SIGNAL DE POINTE",
+        "brief": "Le plus fort des trois.",
+        "hint": "math.max prend un nombre quelconque d'arguments et renvoie le plus grand.",
+        "prompt": "Définissez **peak_signal(a, b, c)** qui renvoie le plus grand des trois nombres, en utilisant **math.max**.\n~~~lua\npeak_signal(4, 9, 2)  -- 9\n~~~"
+      },
+      "lua-floorvolts": {
+        "title": "PLANCHER DE VOLTS",
+        "brief": "Arrondir la mesure vers le bas.",
+        "hint": "math.floor(3.9) vaut 3 — il arrondit toujours vers le plus petit.",
+        "prompt": "Définissez **floor_volts(reading)** qui renvoie la mesure arrondie VERS LE BAS à un entier, en utilisant **math.floor**.\n~~~lua\nfloor_volts(3.9)   -- 3\nfloor_volts(7.01)  -- 7\n~~~"
+      },
+      "lua-vectorlen": {
+        "title": "LONGUEUR DE VECTEUR",
+        "brief": "L'hypoténuse à partir de deux côtés.",
+        "hint": "math.sqrt(x*x + y*y). On élève au carré avant d'additionner, comme Pythagore.",
+        "prompt": "Définissez **vector_len(x, y)** qui renvoie la longueur en ligne droite du vecteur — la racine carrée de `x*x + y*y` — en utilisant **math.sqrt**.\n~~~lua\nvector_len(3, 4)  -- 5.0\n~~~"
+      },
+      "lua-factorial": {
+        "title": "FACTORIELLE",
+        "brief": "Multiplier toute la chaîne.",
+        "hint": "Cas de base : if n <= 1 return 1. Sinon return n * factorial(n - 1).",
+        "prompt": "Définissez **factorial(n)** par **récursion**. Elle renvoie `n * (n-1) * ... * 1`. La factorielle de 0 vaut 1.\n~~~lua\nfactorial(5)  -- 120\nfactorial(0)  -- 1\n~~~"
+      },
+      "lua-euclidgcd": {
+        "title": "PGCD D'EUCLIDE",
+        "brief": "Plus grand commun diviseur.",
+        "hint": "If b == 0 return a ; sinon return gcd(b, a % b). Le % est le reste.",
+        "prompt": "Définissez **gcd(a, b)** avec l'**algorithme d'Euclide** (récursion) : quand `b` vaut 0, renvoyez `a` ; sinon renvoyez `gcd(b, a % b)`.\n~~~lua\ngcd(48, 18)  -- 6\ngcd(7, 0)    -- 7\n~~~"
+      },
+      "lua-fibwave": {
+        "title": "ONDE DE FIB",
+        "brief": "Chaque terme additionne les deux précédents.",
+        "hint": "If n < 2 return n. Sinon return fib(n-1) + fib(n-2).",
+        "prompt": "Définissez **fib(n)** par **récursion**. La suite est 0, 1, 1, 2, 3, 5, 8, ... donc `fib(0)` vaut 0 et `fib(1)` vaut 1 ; sinon `fib(n) = fib(n-1) + fib(n-2)`.\n~~~lua\nfib(7)  -- 13\nfib(0)  -- 0\n~~~"
+      },
+      "lua-rankdesc": {
+        "title": "CLASSEMENT DÉCROISSANT",
+        "brief": "Trier une table, le plus grand d'abord.",
+        "hint": "table.sort(t, function(a, b) return a > b end), puis return t.",
+        "prompt": "Définissez **rank_desc(t)** qui trie le tableau `t` du plus grand au plus petit et le renvoie. Utilisez **table.sort** avec un comparateur. Souvenez-vous que `table.sort` modifie `t` sur place, donc triez-le puis `return t`.\n~~~lua\nrank_desc({3, 1, 4, 1, 5})  -- {5, 4, 3, 1, 1}\n~~~"
       }
     }
   },
