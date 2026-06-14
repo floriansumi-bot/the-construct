@@ -22,27 +22,45 @@
         subtitle: "print · variables · functions · strings",
         theory: `
 ## Hello, operator
-Lua prints with **print()**. Strings concatenate with **..** (two dots), not +.
+**print()** writes a line to the console — your window into a running program.
+**WHY** — it is how you make the machine talk back: check a value, trace a bug, transmit a signal to the operator.
+~~~lua
+print("Wake up, operator")
+~~~
+
+To stitch text together, Lua uses **..** — two dots, the concatenation operator.
+**WHY** — you rarely send a fixed string; you splice a name, a status, a number into a message.
 ~~~lua
 local name = "Lain"
-print("Wake up, " .. name)
+print("Wake up, " .. name)   -- Wake up, Lain
 ~~~
+
+> WARNING — Strings join with **..**, never with **+**. The plus sign is for math only; "a" + "b" is an error in Lua.
 
 ## Variables
-Use **local** for variables (globals exist but locals are best practice).
+A variable is a labeled slot in memory. Declare it with **local**, then read or overwrite it by name.
+**WHY** — store a value once, reuse it everywhere, and change it in one place instead of retyping it.
 ~~~lua
 local clearance = 7
+clearance = clearance + 1   -- now 8
 ~~~
 
+> WARNING — Always write **local** when you create a variable. Drop it and Lua makes the name a hidden GLOBAL that leaks across your whole program. Also: there is no **++** — bump a number with x = x + 1.
+
 ## Functions
-Define with **function ... end** and hand back with **return**.
+A function is a named, reusable block of logic. It takes inputs (parameters), runs, and hands a result back with **return**.
+**WHY** — package a routine once and call it a hundred times. Less repetition, fewer bugs, cleaner core.
 ~~~lua
 function amplify(signal)
   return signal * 2
 end
+
+print(amplify(21))   -- 42
 ~~~
 
-> INTEL — Lua uses **..** to join strings and **==** to compare. There is no ++; write x = x + 1.
+> WARNING — **=** assigns (puts a value in a slot); **==** compares (asks "are these equal?"). Mixing them up is the classic rookie crash.
+
+> INTEL — Define a function with **function ... end**. Once **return** fires, the function stops — nothing after it on that path runs.
 `,
         exercises: [
           {
@@ -132,6 +150,8 @@ end
         subtitle: "if/elseif · for · tables · ipairs",
         theory: `
 ## Branching
+**if / elseif / else** lets your code choose a path based on a condition that is true or false.
+**WHY** — a program that can't decide is just a calculator. Branching is how it reacts: grant or deny, fire or hold.
 ~~~lua
 if level < 1 then
   return "DENIED"
@@ -141,24 +161,38 @@ else
   return "ROOT"
 end
 ~~~
+Lua checks each test top to bottom and takes the FIRST one that is true. **else** is the fallback when none match. Comparisons return true/false: **==** equal, **~=** not-equal, **< > <= >=**.
+
+> WARNING — Use **==** to compare and **=** to assign — they are not interchangeable. And "not equal" in Lua is **~=**, not != like other languages.
 
 ## Tables
-Tables are Lua's everything — arrays AND maps. Arrays are **1-indexed**. **#t** is the length.
+A table is Lua's one container for everything — it works as a list (array) AND as a key/value map.
+**WHY** — almost all real data is plural: a crew, a inventory, a stream of readings. A table holds the whole set under one name.
 ~~~lua
 local crew = {"Spike", "Jet", "Faye"}
-print(crew[1])   -- Spike
-print(#crew)     -- 3
+print(crew[1])   -- Spike   (first slot)
+print(#crew)     -- 3       (how many)
 ~~~
+Index a slot with square brackets **crew[1]**. The **#** operator gives the length of an array-style table.
+
+> WARNING — Lua arrays are **1-INDEXED**: the first element is **t[1]**, not t[0]. Reaching for index 0 gives you nil. (This trips up almost everyone coming from other languages.)
 
 ## Looping a table
+A **numeric for** counts through a range; **ipairs** walks an array in order, handing you each index and value.
+**WHY** — to act on every element — sum them, transform them, search them — without writing the same line N times.
 ~~~lua
 local total = 0
 for _, v in ipairs({10, 20, 12}) do
-  total = total + v
+  total = total + v   -- 10, then 30, then 42
+end
+
+for i = 1, 3 do       -- numeric for: 1, 2, 3
+  print(i)
 end
 ~~~
+The **_** is a throwaway name for the index when you only care about the value.
 
-> WARNING — Lua arrays start at 1, not 0. The first element is t[1].
+> WARNING — Don't compare two tables with **==** to check their contents — that test is reference equality. {1,2} == {1,2} is **false** because they are two different objects in memory, even though they look alike.
 `,
         exercises: [
           {
@@ -259,24 +293,31 @@ end
         subtitle: "string methods · # length · sub",
         theory: `
 ## The string library
-Strings carry methods you call with a colon, or via the **string** table:
+Every Lua string comes wired with a toolkit of methods. Call them with a colon — **s:upper()** — or through the **string** table — **string.upper(s)**.
+**WHY** — text is everywhere: names, codes, messages. The string library transforms and inspects it so you don't hand-roll the logic yourself.
 ~~~lua
 local s = "lain"
-print(s:upper())        -- LAIN
-print(string.reverse(s)) -- nial
-print(#s)               -- 4   (length)
-print(s:sub(1, 2))      -- la  (chars 1..2)
+print(s:upper())         -- LAIN   (uppercase copy)
+print(string.reverse(s)) -- nial   (reversed copy)
+print(#s)                -- 4      (length)
+print(s:sub(1, 2))       -- la     (chars 1 through 2)
 ~~~
+**s:sub(i, j)** returns the slice from position **i** to **j**, inclusive. **#s** measures the length.
+
+> WARNING — These methods return a NEW string; the original **s** is never changed. Lua strings are immutable, so capture the result: s = s:upper() — calling s:upper() alone throws the answer away.
 
 ## Walking characters
-**#s** is the length; **s:sub(i, i)** is the i-th character (1-indexed).
+To read a string one character at a time, count from 1 to **#s** and pull each slot with **s:sub(i, i)** (start and end equal = a single character).
+**WHY** — counting, searching, filtering, encrypting — anything per-character starts with walking the string.
 ~~~lua
 for i = 1, #s do
-  print(s:sub(i, i))
+  print(s:sub(i, i))   -- l, then a, then i, then n
 end
 ~~~
 
-> INTEL — s:upper() and string.upper(s) are the same call, two ways.
+> WARNING — String positions are **1-INDEXED**, just like tables: the first character is **s:sub(1, 1)**, not s:sub(0, 0). Position 0 is not the start.
+
+> INTEL — **s:upper()** and **string.upper(s)** are the exact same call written two ways. The colon form quietly passes **s** as the first argument for you.
 `,
         exercises: [
           {
