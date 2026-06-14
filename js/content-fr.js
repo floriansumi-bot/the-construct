@@ -3467,18 +3467,43 @@ window.CONTENT_FR = {
     "modules": {
       "rbm01-core": {
         "title": "PREMIÈRE LUEUR",
-        "subtitle": "puts · methods · string interpolation",
-        "theory": "\n## Parler Ruby\nRuby affiche avec **puts**. Les chaînes s'interpolent avec **#{...}** entre guillemets doubles.\n~~~ruby\nname = \"Lain\"\nputs \"Wake up, #{name}\"\n~~~\n\n## Les méthodes\nDéfinissez-les avec **def ... end**. La dernière expression est renvoyée automatiquement — **return** est optionnel.\n~~~ruby\ndef amplify(signal)\n  signal * 2\nend\n~~~\n\n> INTEL — Ruby renvoie la dernière ligne évaluée de manière implicite. Net et silencieux.\n"
+        "subtitle": "puts · méthodes · interpolation de chaînes",
+        "theory": "\n## Parler le Ruby — puts\n**puts** écrit une ligne dans la console et fait sauter le curseur à la ligne suivante. **POURQUOI** — c'est votre fenêtre sur la machine : le moyen le plus rapide de voir ce que votre code fait vraiment.\n~~~ruby\nputs \"Wake up, Neo...\"\nputs \"The Matrix has you...\"\n~~~\nChaque **puts** imprime sa propre ligne ; les deux appels ci-dessus s'empilent donc en deux lignes de sortie.\n\n## Interpolation de chaînes — #{...}\nGlissez une valeur vivante au milieu d'une chaîne avec **#{...}**. Ruby évalue tout ce qui se trouve entre les accolades et insère le résultat directement dans le texte. **POURQUOI** — c'est bien meilleur que de coller des chaînes avec **+**, et ça se lit comme du langage courant.\n~~~ruby\nname = \"Lain\"\nputs \"Wake up, #{name}\"   # Wake up, Lain\n~~~\n\n> WARNING — L'interpolation **#{...}** ne se déclenche qu'à l'intérieur des **guillemets doubles**. Entre guillemets simples, 'Hi #{name}' affiche littéralement les caractères #{name}, intacts. Dans le doute, utilisez les guillemets doubles.\n\n## Méthodes — def ... end\nUne méthode est un bloc de logique nommé et réutilisable. Définissez-la avec **def**, fermez-la avec **end**, et alimentez-la avec des entrées appelées paramètres. **POURQUOI** — écrivez la logique une fois, appelez-la par son nom mille fois.\n~~~ruby\ndef amplify(signal)\n  signal * 2\nend\n\namplify(21)   # 42\n~~~\nRuby vous renvoie la valeur de la **dernière ligne qu'il évalue** — ici, **signal * 2** — vous ne tapez donc presque jamais **return**.\n\n> WARNING — La dernière ligne est renvoyée **implicitement**. Les débutants parsèment des **return** partout ou ajoutent un **puts** égaré comme dernière ligne — et la méthode renvoie alors **nil** au lieu de votre valeur. Laissez la dernière expression parler d'elle-même.\n\n> INTEL — Ruby renvoie automatiquement la dernière ligne évaluée. Net, silencieux, et très Ruby.\n"
       },
       "rbm02-blocks": {
         "title": "COLLECTIONS & BLOCS",
-        "subtitle": "arrays · select · map · sum",
-        "theory": "\n## Tableaux & blocs\nLa puissance de Ruby, ce sont les **blocs** — des morceaux de code que vous passez aux méthodes avec **{ |x| ... }**.\n~~~ruby\n[1, 2, 3, 4].select { |n| n.even? }   # [2, 4]\n[1, 2, 3].map { |n| n * 2 }           # [2, 4, 6]\n[10, 20, 12].sum                      # 42\n~~~\n\n## Hachages\nClé/valeur, souvent avec des clés symboles :\n~~~ruby\ntrack = { name: \"Da Funk\", bpm: 112 }\ntrack[:bpm]   # 112\n~~~\n\n> INTEL — **select** conserve les éléments correspondants, **map** transforme chacun, **sum** les additionne. Enchaînez-les librement.\n"
+        "subtitle": "tableaux · select · map · sum",
+        "theory": "\n## Tableaux\nUn **tableau** est une liste ordonnée de valeurs, écrite entre crochets. **POURQUOI** — la plupart des données arrivent par lots : signaux, pistes, scores. Un tableau retient le lot entier dans une seule variable.\n~~~ruby\nlevels = [10, 20, 12]\nlevels[0]      # 10  (counting starts at zero)\nlevels.length  # 3\n~~~\n\n## Blocs — { |x| ... }\nUn **bloc** est un fragment de code que vous confiez à une méthode. La méthode exécute votre bloc une fois par élément, en passant chaque élément dans l'emplacement **|x|**. **POURQUOI** — au lieu d'écrire des boucles à la main, vous décrivez quoi faire avec un seul élément et laissez Ruby parcourir toute la liste.\n~~~ruby\n[1, 2, 3].each { |n| puts n }   # prints 1, then 2, then 3\n~~~\n\n## select — garder ce qui correspond\n**select** exécute le bloc sur chaque élément et ne garde que ceux où le bloc renvoie **true**. **POURQUOI** — c'est un filtre : extrayez uniquement les éléments qui vous intéressent.\n~~~ruby\n[1, 2, 3, 4].select { |n| n.even? }   # [2, 4]\n~~~\n\n## map — transformer chaque élément\n**map** exécute le bloc sur chaque élément et collecte les **résultats** dans un tableau flambant neuf. **POURQUOI** — remodelez une liste entière d'un coup : doublez chaque nombre, récupérez chaque nom.\n~~~ruby\n[1, 2, 3].map { |n| n * 2 }   # [2, 4, 6]\n~~~\n\n> WARNING — **map** renvoie un **nouveau tableau** et laisse l'original intact. La version avec point d'exclamation **map!** réécrit le tableau original sur place. Optez pour **map** tout simple, sauf si vous voulez vraiment muter.\n\n## sum — replier vers un seul nombre\n**sum** additionne tous les éléments en un total unique. **POURQUOI** — totaux et agrégats sans boucle manuelle. Vous pouvez l'enchaîner après **select** ou **map**.\n~~~ruby\n[10, 20, 12].sum   # 42\n~~~\n\n## Hashes — clés symboles\nUn **hash** stocke des paires **clé → valeur**, comme une fiche étiquetée. Les clés sont souvent des **symboles** — des noms qui commencent par deux-points, comme **:bpm**. **POURQUOI** — quand chaque élément a des champs nommés (une piste a un nom et un bpm), un hash vaut mieux que de retenir quel emplacement du tableau contenait quoi.\n~~~ruby\ntrack = { name: \"Da Funk\", bpm: 112 }\ntrack[:bpm]   # 112\n~~~\n\n> WARNING — Un symbole **:bpm** n'est **pas** la chaîne \"bpm\". Si vous avez construit le hash avec des clés symboles, cherchez les valeurs avec le symbole : **track[:bpm]**, jamais **track[\"bpm\"]** — ça renvoie **nil**.\n\n> INTEL — **select** filtre, **map** transforme, **sum** replie. Chacun renvoie une valeur que vous pouvez transmettre au suivant — enchaînez-les en une seule ligne élégante.\n"
       },
       "rbm03-objects": {
         "title": "CHAÎNES & OBJETS",
         "subtitle": "méthodes de chaîne · classes · attr",
-        "theory": "\n## Chaînes\n~~~ruby\n\"lain\".upcase     # \"LAIN\"\n\"LAIN\".reverse    # \"NIAL\"\n\"lain\".length     # 4\n~~~\n\n## Classes\nEn Ruby, tout est un objet. Définissez les vôtres avec **class ... end** et un constructeur **initialize**. **@var** est une variable d'instance ; **attr_reader** l'expose.\n~~~ruby\nclass Mech\n  attr_reader :hp\n  def initialize(name, hp)\n    @name = name\n    @hp = hp\n  end\n  def damage(amount)\n    @hp = [0, @hp - amount].max\n  end\nend\n~~~\n\n> INTEL — [0, x].max est un verrou élégant : il ne renvoie jamais en dessous de 0.\n"
+        "theory": "\n## Méthodes de chaîne\nUne chaîne embarque toute une boîte à outils de méthodes intégrées pour remodeler le texte. **POURQUOI** — nettoyer, formater et transformer du texte, c'est la moitié du code en conditions réelles, et Ruby vous fournit un verbe pour chaque tâche.\n~~~ruby\n\"lain\".upcase       # \"LAIN\"   (all caps)\n\"LAIN\".reverse      # \"NIAL\"   (back to front)\n\"lain\".length       # 4        (how many characters)\n\"signal\".sub(\"s\", \"S\")  # \"Signal\"  (replace first match)\n~~~\n\n> WARNING — Ces méthodes renvoient une **nouvelle** chaîne et laissent l'originale intacte. Donc **s.upcase** seul ne change rien de durable — vous devez **utiliser** la valeur, par ex. **loud = s.upcase**, ou la réassigner. Les jumeaux à point d'exclamation comme **upcase!** modifient la chaîne sur place.\n\n## Classes — class ... end\nEn Ruby, tout est un **objet**, et une **classe** est le plan qui définit un nouveau type d'objet. **POURQUOI** — quand des données et les actions sur ces données vont de pair (un mech a des points de vie, et il encaisse des dégâts), une classe les regroupe en une seule unité bien rangée.\n~~~ruby\nclass Mech\n  def initialize(name, hp)\n    @name = name\n    @hp = hp\n  end\nend\n\nm = Mech.new(\"Unit-01\", 400)\n~~~\n**initialize** est le **constructeur** — Ruby l'exécute automatiquement quand vous appelez **.new**, mettant en place l'état initial de l'objet.\n\n## Variables d'instance — @ivars\nUn nom qui commence par **@**, comme **@hp**, est une **variable d'instance** : elle appartient à un objet bien précis et vit aussi longtemps que cet objet. **POURQUOI** — c'est la mémoire privée de l'objet, conservée à travers chaque appel de méthode sur cet objet.\n\n## attr_reader — ouvrir une fenêtre\nPar défaut, les **@ivars sont cachées** du monde extérieur. **attr_reader :hp** génère une méthode publique **hp** pour que d'autre code puisse la lire avec **m.hp**. **POURQUOI** — ça expose exactement ce que vous choisissez, ni plus ni moins, en une seule ligne nette.\n~~~ruby\nclass Mech\n  attr_reader :hp\n  def initialize(name, hp)\n    @name = name\n    @hp = hp\n  end\n  def damage(amount)\n    @hp = [0, @hp - amount].max\n  end\nend\n\nm = Mech.new(\"Unit-01\", 400)\nm.hp   # 400  (readable thanks to attr_reader)\n~~~\n\n> WARNING — Sans **attr_reader :hp**, appeler **m.hp** depuis l'extérieur plante avec une NoMethodError — la variable **@hp** existe toujours, elle est juste scellée à l'intérieur de l'objet. **attr_reader** est la fenêtre qui laisse l'extérieur la lire.\n\n> INTEL — **[0, x].max** est un clamp bien net : il ne laisse jamais la valeur descendre sous 0, donc un mech amoché plafonne à zéro hp au lieu de passer en négatif.\n"
+      },
+      "rbm04-hashes": {
+        "title": "HACHAGES & SYMBOLES",
+        "subtitle": "littéraux de hash · clés symboles · fetch · tally",
+        "theory": "\n## Qu'est-ce qu'un hash ?\nUn **hash** est une table de correspondance : il associe des **clés** à des **valeurs**. Voyez ça comme un tiroir étiqueté — au lieu de réclamer « l'élément numéro 3 » (un indice de tableau), vous demandez le tiroir nommé `:bpm`.\n~~~ruby\ntrack = { name: \"Da Funk\", bpm: 112, key: \"Am\" }\ntrack[:bpm]   # 112\n~~~\nLe **POURQUOI** : les tableaux sont parfaits quand l'ordre compte, mais quand vous voulez retrouver quelque chose *par nom* — une valeur de config, le score d'un joueur, un décompte — un hash est plus rapide et plus clair.\n\n## Clés symboles\nCes clés `name:` / `bpm:` sont des **symboles**. Un symbole comme `:bpm` est une étiquette légère et immuable — écrite avec un deux-points en tête. Le littéral `{ bpm: 112 }` n'est qu'un raccourci pour `{ :bpm => 112 }`.\n~~~ruby\n{ bpm: 112 }          # symbol key, the modern style\n{ :bpm => 112 }       # exactly the same hash\n{ \"bpm\" => 112 }      # a STRING key — a DIFFERENT key!\n~~~\n\n> WARNING — `:bpm` (symbole) et `\"bpm\"` (chaîne) ne sont **pas** la même clé. `h[:bpm]` renverra **nil** si le hash a été construit avec des clés chaînes. Quand vous écrivez `{ bpm: 112 }`, la clé est le *symbole* `:bpm`, alors relisez-la avec `h[:bpm]`.\n\n## Lecture : `[ ]` vs `fetch`\nDeux façons de lire une valeur :\n~~~ruby\ntrack[:bpm]              # 112\ntrack[:genre]            # nil  (missing key -> nil, no error)\ntrack.fetch(:bpm)        # 112\ntrack.fetch(:genre, 0)   # 0    (missing key -> the default you pass)\ntrack.fetch(:genre)      # raises KeyError!  (no default given)\n~~~\nUtilisez **`h[:k]`** pour une lecture rapide où `nil` ne pose pas de problème. Utilisez **`h.fetch(:k, default)`** quand une clé absente doit retomber sur une valeur sensée, ou **`h.fetch(:k)`** quand une clé absente est un vrai bug que vous voulez voir exploser bruyamment.\n\n## Itérer\nParcourez chaque paire avec **`each`** (ou son jumeau **`each_pair`**). Le bloc reçoit la clé et la valeur :\n~~~ruby\nscores = { ren: 3, lain: 5 }\nscores.each { |name, points| puts \"#{name}: #{points}\" }\n# ren: 3\n# lain: 5\n~~~\nBesoin d'un seul côté ? **`scores.keys`** donne `[:ren, :lain]`, **`scores.values`** donne `[3, 5]`.\n\n## Compter avec `Hash.new(0)`\nUn simple `{}` renvoie `nil` pour les clés inconnues, donc `count[x] += 1` planterait (`nil + 1`). Donnez au hash une **valeur par défaut** avec `Hash.new(0)` — désormais toute clé jamais vue se lit comme `0`, parfait pour les décomptes :\n~~~ruby\ntally = Hash.new(0)\n[\"a\", \"b\", \"a\"].each { |c| tally[c] += 1 }\ntally   # { \"a\" => 2, \"b\" => 1 }\n~~~\n\n> INTEL — `Hash.new(0)` est l'astuce de hash la plus utile qui soit : elle transforme le comptage en une seule ligne. Le `0` est la valeur restituée pour toute clé que vous n'avez jamais définie.\n\n## Combiner : `merge`\n**`merge`** renvoie un **nouveau** hash contenant les deux jeux de paires ; en cas de conflit, c'est **l'argument qui l'emporte**. Il ne modifie **pas** l'original.\n~~~ruby\ndefaults = { hp: 100, mp: 30 }\ndefaults.merge({ mp: 50, lvl: 9 })   # { hp: 100, mp: 50, lvl: 9 }\ndefaults                             # { hp: 100, mp: 30 }  (untouched)\n~~~\n\n> WARNING — `merge` renvoie le hash combiné — il ne modifie **pas** le receveur. L'erreur classique du débutant est d'appeler `a.merge(b)` en s'attendant à ce que `a` change. Capturez le résultat : `merged = a.merge(b)` (ou utilisez `merge!` uniquement quand vous voulez vraiment muter). Et n'oubliez pas le retour implicite de Ruby — la **dernière expression** est la valeur de la méthode, alors écrivez le hash en dernier au lieu de dégainer un `return` explicite.\n"
+      },
+      "rbm05-enum": {
+        "title": "ENUMERABLE",
+        "subtitle": "reduce · group_by · sort_by · min_by/max_by",
+        "theory": "## La boîte à outils Enumerable\n\nChaque tableau (et hash) en Ruby intègre **Enumerable** — une énorme caisse d'outils de bouclage. Vous n'écrivez quasiment jamais une boucle `for` à la main. À la place, vous choisissez l'outil qui fait déjà ce que vous voulez et vous lui passez un **bloc** : `{ |x| ... }` pour une ligne, ou `do |x| ... end` pour plusieurs.\n\nLa règle d'or des blocs : **la dernière ligne du bloc est sa valeur**. Pas besoin de `return` — et `return` à l'intérieur d'un bloc est en fait une erreur qui fait sortir de la méthode entière.\n\n## reduce / inject — replier une liste en une seule valeur\n\n`reduce` parcourt la liste en transportant un **accumulateur**. Le résultat du bloc devient l'accumulateur suivant.\n~~~ruby\n[1, 2, 3, 4].reduce(0) { |sum, n| sum + n }   # 10\n[1, 2, 3, 4].reduce(1) { |prod, n| prod * n } # 24\n~~~\nLe nombre dans `reduce(0)` est l'accumulateur de **départ**. Pour un produit, démarrez à **1** (démarrer à 0 mettrait tout à zéro — un piège classique de débutant). Il existe même un raccourci pour les opérateurs simples : `[1,2,3].reduce(:+)  # 6`.\n\n> INTEL — `inject` est exactement la même méthode sous un autre nom. `reduce` et `inject` sont interchangeables.\n\n## each_with_object — construire une collection au fil de l'eau\n\nQuand vous voulez remplir un hash ou un tableau, `each_with_object` est plus propre que `reduce`. Vous passez l'objet **une fois**, et il vous est repassé à chaque tour de boucle :\n~~~ruby\n[\"a\", \"b\", \"a\"].each_with_object(Hash.new(0)) do |word, counts|\n  counts[word] += 1\nend\n# { \"a\" => 2, \"b\" => 1 }\n~~~\n\n> WARNING — `each_with_object` **renvoie l'objet que vous avez passé**, pas la dernière ligne du bloc. Donc vous mutez `counts` (par ex. `counts[word] += 1`) et vous laissez Ruby vous repasser l'objet terminé. Essayer de `return counts` depuis l'intérieur, ou écrire le compteur en dernière ligne, sont les deux bourdes les plus fréquentes.\n\n## group_by — répartir les éléments par clé\n\nVous donne un **hash** associant chaque résultat du bloc au tableau des éléments qui l'ont produit.\n~~~ruby\n[1, 2, 3, 4, 5].group_by { |n| n.even? }\n# { false => [1, 3, 5], true => [2, 4] }\n~~~\n\n## sort_by — ordonner par une valeur calculée\n\nTrie en ordre croissant selon ce que renvoie le bloc. Pour inverser, négativez un nombre ou appelez `.reverse` ensuite.\n~~~ruby\n[\"ruby\", \"go\", \"perl\"].sort_by { |w| w.length }   # [\"go\", \"ruby\", \"perl\"]\n~~~\n\n## min_by / max_by — le seul meilleur élément\n\nRenvoie l'**élément** réel dont la valeur du bloc est la plus petite / la plus grande — pas le nombre lui-même.\n~~~ruby\n[\"ruby\", \"go\", \"perl\"].max_by { |w| w.length }   # \"perl\"\n~~~\n\n## count, find / detect\n\n`count { |x| ... }` compte combien d'éléments correspondent. `find` (alias `detect`) renvoie le **premier** élément correspondant, ou `nil` si aucun.\n~~~ruby\n[1, 2, 3, 4].count { |n| n.even? }     # 2\n[1, 2, 3, 4].find { |n| n > 2 }        # 3\n~~~\n\n> INTEL — Le chaînage, c'est tout le jeu : `select` puis `map` est la combinaison la plus courante — filtrer d'abord, transformer ensuite. `data.select { |x| x.live? }.map { |x| x.name }` se lit de haut en bas comme un pipeline.\n\n> WARNING — Les clés symboles et les clés chaînes sont deux mondes différents. Un hash écrit `{ bpm: 128 }` se lit avec `h[:bpm]` (symbole), tandis que `{ \"bpm\" => 128 }` exige `h[\"bpm\"]` (chaîne). Les confondre renvoie `nil`.\n"
+      },
+      "rbm06-control": {
+        "title": "CONTRÔLE & INTERVALLES",
+        "subtitle": "if/unless · case · intervalles · times · while",
+        "theory": "## Branchement : if / unless\nRuby choisit une voie avec **if**. L'opposé de `if` est **unless** — il s'exécute quand la condition est **fausse**. Les deux se terminent par **end**.\n~~~ruby\nif power > 50\n  \"online\"\nelsif power > 0\n  \"low\"\nelse\n  \"dead\"\nend\n~~~\nComme `if` est une **expression**, le bloc entier possède une valeur — vous pouvez la retourner ou l'assigner :\n~~~ruby\nstatus = if power > 0 then \"on\" else \"off\" end\n~~~\n\n## case / when\nQuand vous comparez une valeur à de nombreuses options, **case** est plus propre qu'un empilement de `elsif`. Chaque **when** peut lister plusieurs valeurs.\n~~~ruby\ncase code\nwhen 200 then \"ok\"\nwhen 404 then \"missing\"\nwhen 500, 502, 503 then \"server down\"\nelse \"unknown\"\nend\n~~~\n\n## Intervalles : 1..n et 1...n\nUn **intervalle** est une plage de valeurs. Deux points **1..5** est *inclusif* (1,2,3,4,5). Trois points **1...5** est *exclusif* — il s'arrête juste avant (1,2,3,4). Transformez-en un en tableau avec **.to_a**.\n~~~ruby\n(1..5).to_a    # [1, 2, 3, 4, 5]\n(1...5).to_a   # [1, 2, 3, 4]\n(1..5).include?(5)   # true\n(1...5).include?(5)  # false\n~~~\n\n> INTEL — Comptez les points. Deux points atteignent la fin ; trois points la laissent de côté. Le bug classique du décalage d'un cran, c'est d'utiliser `...` quand vous vouliez `..`.\n\n## Boucler sans compteur : times / upto / while\nVous écrivez rarement un compteur manuel en Ruby. **n.times** exécute un bloc n fois (avec un index 0..n-1). **a.upto(b)** compte de a jusqu'à b inclus. **while** répète tant qu'une condition tient.\n~~~ruby\nsum = 0\n3.times { |i| sum += i }   # i = 0,1,2  -> sum 3\n\ntotal = 0\n1.upto(4) { |n| total += n }  # 1+2+3+4 -> 10\n\nn = 10\nwhile n > 1\n  n = n / 2\nend\n~~~\n\n> WARNING — `3.times` vous donne les index **0, 1, 2** — pas 1, 2, 3. Si vous avez besoin de 1..3, utilisez plutôt `1.upto(3)`.\n\n## Le ternaire : cond ? a : b\nUn `if/else` sur une seule ligne. Lisez-le comme « condition ? alors a, sinon b ».\n~~~ruby\nlabel = score >= 60 ? \"pass\" : \"fail\"\n~~~\n\n## Clauses de garde : sortir tôt\nPlutôt que d'envelopper toute la méthode dans un gros `if`, **dégagez tôt** avec une garde sur une ligne. `return value if condition` se lit de gauche à droite et garde le chemin nominal sans indentation.\n~~~ruby\ndef reciprocal(x)\n  return 0 if x == 0\n  1.0 / x\nend\n~~~\n\n> INTEL — `return x if cond` et `puts x unless cond` sont des *modificateurs d'instruction* : l'action vient d'abord, la condition suit. Ils n'ont de sens que pour une seule ligne.\n"
+      },
+      "rbm07-regex": {
+        "title": "REGEX & TEXTE",
+        "subtitle": "gsub · scan · match? · split · format",
+        "theory": "## Des motifs dans le bruit\nLe texte est le format de transport du réseau. Ruby vous offre une boîte à outils nette pour le découper, le filtrer et le reconstruire. Une **regex** (expression régulière) est un motif écrit entre slashes : `/cat/` détecte les lettres c-a-t n'importe où dans une chaîne.\n\n## Rechercher : match? et =~\n**match?** pose une question oui/non et renvoie **true** ou **false** — rapide et propre.\n~~~ruby\n\"NEON-7\".match?(/[0-9]/)   # true  (contains a digit)\n\"abc\".match?(/[0-9]/)      # false\n~~~\nL'ancien opérateur **=~** renvoie l'*indice* de la première correspondance, ou **nil** s'il n'y en a aucune. Comme nil est falsy, il fonctionne aussi dans un `if`.\n~~~ruby\n\"abc7\" =~ /[0-9]/   # 3   (digit is at index 3)\n\"abc\"  =~ /[0-9]/   # nil\n~~~\n\n> INTEL — Optez pour **match?** quand vous n'avez besoin que d'un true/false. C'est plus rapide et ça se lit comme de l'anglais courant.\n\n## Remplacer : gsub et sub\n**gsub** remplace *toutes* les correspondances ; **sub** ne remplace que la *première*. Les deux **renvoient une nouvelle chaîne** — l'originale reste intacte.\n~~~ruby\n\"a-b-c\".gsub(\"-\", \"_\")   # \"a_b_c\"   (all)\n\"a-b-c\".sub(\"-\", \"_\")    # \"a_b-c\"   (first only)\n\"r2d2\".gsub(/[0-9]/, \"#\") # \"r#d#\"   (regex)\n~~~\n\n> WARNING — gsub ne modifie PAS la chaîne sur place ; il vous en remet une toute neuve. `s.gsub(\"x\",\"y\")` seul ne sert à rien — vous devez conserver le résultat : `s = s.gsub(\"x\",\"y\")`. (Les versions avec bang `gsub!`/`sub!` mutent, mais pour l'instant préférez renvoyer une nouvelle valeur.)\n\n## Collecter : scan\n**scan** parcourt toute la chaîne et renvoie un **tableau** de chaque correspondance.\n~~~ruby\n\"a1 b2 c3\".scan(/[0-9]/)   # [\"1\", \"2\", \"3\"]\n\"id-42 id-99\".scan(/[0-9]+/) # [\"42\", \"99\"]  (+ means one or more)\n~~~\n\n## Découper et recoller : split et join\n**split** coupe une chaîne en tableau sur un séparateur ; **join** recolle un tableau en chaîne.\n~~~ruby\n\"red,green,blue\".split(\",\")   # [\"red\", \"green\", \"blue\"]\n[\"a\", \"b\", \"c\"].join(\"-\")      # \"a-b-c\"\n~~~\n\n## Nettoyer les bords : strip\n**strip** renvoie une copie sans les espaces en début et en fin (il ne touche PAS aux espaces du milieu).\n~~~ruby\n\"  hello  \".strip   # \"hello\"\n~~~\n\n## Gabarits : format et %\nConstruisez une chaîne à partir d'un gabarit avec **format(...)** (ou son jumeau, l'opérateur **%**). `%s` insère une chaîne, `%d` un entier, `%05d` complète un entier à la largeur 5 avec des zéros.\n~~~ruby\nformat(\"USER %s :: LVL %d\", \"Neo\", 7)   # \"USER Neo :: LVL 7\"\n\"ID-%05d\" % 42                          # \"ID-00042\"\n~~~\n\n## Vérifs express : start_with? et include?\n**start_with?** teste le début ; **include?** teste n'importe où à l'intérieur.\n~~~ruby\n\"NEON-CITY\".start_with?(\"NEON\")  # true\n\"NEON-CITY\".include?(\"CITY\")     # true\n~~~\n\n> INTEL — Ces méthodes prédicat se terminent par **?** et renvoient true/false. Ce `?` final fait simplement partie du nom en Ruby."
+      },
+      "rbm08-oop": {
+        "title": "CLASSES & POO II",
+        "subtitle": "attr_accessor · état · méthodes · to_s",
+        "theory": "## Des objets qui SE SOUVIENNENT\n\nDans le secteur 0x03, vous avez bâti votre première classe. Maintenant on creuse plus profond : des objets qui portent un **état** — des données qui vivent *à l'intérieur* de l'objet et changent au fil du temps. Un compte bancaire se souvient de son solde. Une pile se souvient de ce que vous y avez empilé. L'objet est une petite machine qui garde de la mémoire entre les appels.\n\nL'état vit dans les **variables d'instance** — des noms qui commencent par `@`. Chaque objet en reçoit sa propre copie.\n\n~~~ruby\nclass Drone\n  def initialize\n    @energy = 100   # this drone's private store\n  end\nend\n~~~\n\nChaque `Drone.new` possède son *propre* `@energy`. Deux drones ne le partagent jamais.\n\n> INTEL — `@energy` est invisible depuis l'extérieur de l'objet. Vous ne pouvez pas écrire `drone.@energy`. La seule porte d'entrée ou de sortie passe par les **méthodes** que vous définissez. C'est tout l'enjeu de la POO : l'objet garde ses propres données.\n\n## Laisser le monde lire et écrire : attr_*\n\nÉcrire un getter à la main est fastidieux :\n\n~~~ruby\nclass Drone\n  def energy        # getter\n    @energy\n  end\n  def energy=(v)    # setter\n    @energy = v\n  end\nend\n~~~\n\nRuby les génère pour vous. Mettez une ligne près du haut de la classe :\n\n- **`attr_reader :energy`** — crée un getter. Vous pouvez faire `drone.energy` (lecture seule).\n- **`attr_writer :energy`** — crée un setter. Vous pouvez faire `drone.energy = 50` (écriture seule).\n- **`attr_accessor :energy`** — crée LES DEUX. Lecture et écriture.\n\n~~~ruby\nclass Drone\n  attr_accessor :energy\n  def initialize\n    @energy = 100\n  end\nend\n\nd = Drone.new\nd.energy          # 100   (reader)\nd.energy = 60     # sets @energy\nd.energy          # 60\n~~~\n\nNotez le symbole : `attr_accessor :energy` — un nom avec deux-points, pas une chaîne, et SURTOUT PAS `@energy`. Il nomme l'*attribut* ; Ruby le relie au `@energy` correspondant en coulisses.\n\n> WARNING — Une confusion classique de débutant : `attr_accessor :energy` vs `attr_accessor \"energy\"` vs `attr_accessor @energy`. Utilisez le **symbole** `:energy`. Les chaînes et les noms en `@` ne vous donneront pas l'accesseur voulu.\n\n## Des méthodes qui MODIFIENT l'état\n\nLes méthodes les plus intéressantes ne font pas que lire — elles *mutent*. Elles plongent dans les `@vars`, les changent, et l'objet se souvient de la nouvelle valeur pour la prochaine fois.\n\n~~~ruby\nclass Counter\n  attr_reader :count\n  def initialize\n    @count = 0\n  end\n  def tick\n    @count += 1     # mutate the stored state\n    @count          # return the new value\n  end\nend\n\nc = Counter.new\nc.tick   # 1\nc.tick   # 2\nc.count  # 2  — it stuck\n~~~\n\nLa différence entre **muter** et **retourner** fait trébucher les nouveaux venus. `@count += 1` *change* l'objet. La dernière ligne `@count` est ce que la méthode *renvoie*. Ce sont deux tâches distinctes. Une méthode peut muter ET aussi retourner — mais soyez délibéré sur la valeur qui sort.\n\n> INTEL — La DERNIÈRE expression d'une méthode est sa valeur de retour (pas besoin du mot-clé `return`). Si vous voulez que `tick` retourne le nouveau compte, faites de `@count` la dernière ligne. Si la dernière ligne était `puts @count`, la méthode retournerait `nil`, parce que `puts` retourne `nil` — une surprise très fréquente.\n\n## Gardes : refuser les opérations interdites\n\nUn bon objet à état protège ses invariants. Un compte doit refuser de passer à découvert. Une pile doit refuser de dépiler quand elle est vide. Vous imposez ça avec une **garde** — un contrôle en tête de la méthode.\n\n~~~ruby\nclass Account\n  attr_reader :balance\n  def initialize(start = 0)\n    @balance = start\n  end\n\n  def deposit(n)\n    @balance += n\n    @balance\n  end\n\n  def withdraw(n)\n    return false if n > @balance   # GUARD: refuse overdraft\n    @balance -= n\n    @balance\n  end\nend\n~~~\n\nIci `withdraw` retourne `false` et ne change rien quand l'argent n'est pas là. Parfois vous voulez plutôt **lever une erreur** pour un coup vraiment illégal :\n\n~~~ruby\ndef pop\n  raise \"stack empty\" if @items.empty?   # explode loudly\n  @items.pop\nend\n~~~\n\n`raise \"message\"` stoppe la méthode et signale un échec que l'appelant doit gérer. Les tests peuvent le vérifier avec `assert_raises { ... }`.\n\n> WARNING — `raise` interrompt la méthode immédiatement. Placez votre garde EN PREMIER, avant toute mutation, pour qu'un appel rejeté laisse l'objet intact.\n\n## Un visage avenant : to_s\n\nQuand vous faites `puts` sur un objet ou que vous l'interpolez dans une chaîne, Ruby appelle sa méthode **`to_s`**. Par défaut elle est laide (`#<Account:0x000...>`). Définissez la vôtre pour donner à l'objet une forme lisible :\n\n~~~ruby\nclass Account\n  def initialize(name, balance)\n    @name = name\n    @balance = balance\n  end\n  def to_s\n    \"#{@name}: #{@balance} credits\"\n  end\nend\n\nputs Account.new(\"Trinity\", 500)   # => Trinity: 500 credits\n\"Balance — #{Account.new(\"Neo\", 9)}\"  # => \"Balance — Neo: 9 credits\"\n~~~\n\n`to_s` doit **retourner** la chaîne (dernière expression), pas la faire `puts`. Si vous faites `puts` à l'intérieur de `to_s`, vous imprimez trop tôt et retournez `nil`, et l'interpolation s'affiche vide.\n\n> INTEL — L'interpolation de chaîne `\"#{obj}\"` appelle automatiquement `obj.to_s`. Définissez `to_s` une seule fois et votre objet se lit bien partout.\n\nVous avez maintenant la panoplie complète : `@state`, les accesseurs `attr_*`, les méthodes mutantes, les gardes et `to_s`. Construisez des objets qui se souviennent, se défendent et expliquent qui ils sont."
       }
     },
     "exercises": {
@@ -3486,7 +3511,7 @@ window.CONTENT_FR = {
         "title": "RÉVEIL",
         "brief": "Transmettez le signal.",
         "hint": "Trois appels à puts.",
-        "prompt": "\nAffichez ces trois lignes, exactement, dans l'ordre, en utilisant **puts** :\n~~~text\nWake up, Neo...\nThe Matrix has you...\nFollow the white rabbit.\n~~~\n"
+        "prompt": "\nAffichez ces trois lignes, exactement, dans l'ordre, avec **puts** :\n~~~text\nWake up, Neo...\nThe Matrix has you...\nFollow the white rabbit.\n~~~\n"
       },
       "rb-amplify": {
         "title": "AMPLIFIER",
@@ -3498,7 +3523,37 @@ window.CONTENT_FR = {
         "title": "DÉMARRAGE IA",
         "brief": "Mettez un cœur en ligne.",
         "hint": "\"#{name} online. All systems nominal.\"",
-        "prompt": "\nDéfinissez **boot_message(name)** qui renvoie :\n~~~text\n<name> online. All systems nominal.\n~~~\nUtilisez l'interpolation de chaîne : **#{name}**.\n"
+        "prompt": "\nDéfinissez **boot_message(name)** qui renvoie :\n~~~text\n<name> online. All systems nominal.\n~~~\nUtilisez l'interpolation de chaînes : **#{name}**.\n"
+      },
+      "rb-greet-op": {
+        "title": "SALUT À L'OPÉRATEUR",
+        "brief": "Hélez l'opérateur.",
+        "hint": "\"Welcome to the Construct, #{handle}.\"",
+        "prompt": "Définissez une méthode **greet(handle)** qui renvoie une chaîne de salutation.\n\nÀ partir d'un pseudo, renvoyez exactement :\n~~~text\nWelcome to the Construct, <handle>.\n~~~\nUtilisez l'interpolation de chaînes : **#{handle}**.\n\n~~~ruby\ngreet(\"Trinity\")  # \"Welcome to the Construct, Trinity.\"\n~~~"
+      },
+      "rb-id-tag": {
+        "title": "BADGE D'IDENTITÉ",
+        "brief": "Estampez le badge d'un runner.",
+        "hint": "Deux emplacements #{} dans une seule chaîne : \"[#{name}] clearance level #{level}\".",
+        "prompt": "Définissez une méthode **id_tag(name, level)** qui renvoie une chaîne de badge combinant un nom et un niveau numérique.\n\nRenvoyez exactement :\n~~~text\n[<name>] clearance level <level>\n~~~\nLes deux valeurs vont dans une seule chaîne interpolée.\n\n~~~ruby\nid_tag(\"Switch\", 7)  # \"[Switch] clearance level 7\"\n~~~"
+      },
+      "rb-ping": {
+        "title": "BALAYAGE PING",
+        "brief": "Diffusez un balayage d'état.",
+        "hint": "Dans ping : puts \"PING #{host} ... ACK\". Puis appelez-la trois fois.",
+        "prompt": "Définissez une méthode **ping(host)** qui **puts** (affiche) la ligne :\n~~~text\nPING <host> ... ACK\n~~~\nPuis, au niveau supérieur, appelez-la trois fois avec **\"core\"**, **\"relay\"** et **\"gateway\"**, dans cet ordre.\n\n~~~ruby\nping(\"core\")    # prints: PING core ... ACK\n~~~"
+      },
+      "rb-status-line": {
+        "title": "LIGNE D'ÉTAT",
+        "brief": "Composez un relevé de télémétrie.",
+        "hint": "state = online ? \"ONLINE\" : \"OFFLINE\", puis interpolez les deux.",
+        "prompt": "Définissez une méthode **status_line(name, online)** qui renvoie une chaîne d'état. L'argument **online** est un booléen.\n\nQuand **online** vaut true, renvoyez :\n~~~text\n<name>: ONLINE\n~~~\nQuand il vaut false, renvoyez :\n~~~text\n<name>: OFFLINE\n~~~\nLe mot d'état change ; le nom est interpolé.\n\n~~~ruby\nstatus_line(\"MAGI\", true)   # \"MAGI: ONLINE\"\nstatus_line(\"MAGI\", false)  # \"MAGI: OFFLINE\"\n~~~"
+      },
+      "rb-banner": {
+        "title": "BANNIÈRE DE DÉMARRAGE",
+        "brief": "Encadrez l'en-tête de démarrage à froid.",
+        "hint": "\"#{title}\\n#{\"-\" * title.length}\" donne un filet de la même largeur que le titre.",
+        "prompt": "Définissez une méthode **banner(title)** qui renvoie une chaîne sur DEUX LIGNES : le titre, puis une ligne de tirets (**-**) exactement aussi longue que le titre. Séparez les deux lignes par un saut de ligne **\\n**.\n\n~~~ruby\nbanner(\"CORE\")\n# \"CORE\\n----\"\n~~~\nUtilisez l'interpolation et **String#length**. La chaîne **\"-\" * n** répète un tiret n fois."
       },
       "rb-even": {
         "title": "CONTRÔLE DE PARITÉ",
@@ -3514,9 +3569,39 @@ window.CONTENT_FR = {
       },
       "rb-loud": {
         "title": "FILTRE DE FRÉQUENCE",
-        "brief": "Filtrez l'ensemble pour ne garder que les bangers.",
+        "brief": "Filtrez l'ensemble pour ne garder que les tueries.",
         "hint": "tracks.select { |t| t[:bpm] >= 120 }.map { |t| t[:name] }",
-        "prompt": "\n**tracks** est un tableau de hachages comme **{ name: \"Spice\", bpm: 128 }**. Définissez **loud_tracks(tracks)** qui renvoie un tableau des **names** dont le bpm est **>= 120**, dans l'ordre. Utilisez select + map.\n"
+        "prompt": "\n**tracks** est un tableau de hashes comme **{ name: \"Spice\", bpm: 128 }**. Définissez **loud_tracks(tracks)** qui renvoie un tableau des **names** dont le bpm est **>= 120**, dans l'ordre. Utilisez select + map.\n"
+      },
+      "rb-doubles": {
+        "title": "AMPLIFICATEUR DE SIGNAL",
+        "brief": "Doublez chaque relevé.",
+        "hint": "nums.map { |n| n * 2 } returns a fresh, amplified array.",
+        "prompt": "Définissez une méthode **doubles(nums)** qui prend un tableau d'entiers et renvoie un NOUVEAU tableau avec chaque valeur multipliée par 2.\n\nUtilisez **map** avec un bloc : **nums.map { |n| ... }**.\n\n~~~ruby\ndoubles([1, 2, 3])  # [2, 4, 6]\ndoubles([])         # []\n~~~"
+      },
+      "rb-positives": {
+        "title": "PORTE DE BRUIT",
+        "brief": "Ne gardez que les canaux actifs.",
+        "hint": "nums.select { |n| n > 0 } filters; zero is NOT greater than zero.",
+        "prompt": "Définissez une méthode **positives(nums)** qui renvoie un NOUVEAU tableau contenant uniquement les nombres strictement supérieurs à zéro, dans leur ordre d'origine.\n\nUtilisez **select** avec un bloc : **nums.select { |n| ... }**.\n\n~~~ruby\npositives([-2, 5, 0, 9, -1])  # [5, 9]\npositives([-3, -1])           # []\n~~~"
+      },
+      "rb-name-tags": {
+        "title": "FORGE D'ÉTIQUETTES",
+        "brief": "Marquez chaque pseudo au fer rouge.",
+        "hint": "names.map { |n| \"[#{n.upcase}]\" } builds each branded tag.",
+        "prompt": "Définissez une méthode **name_tags(names)** qui prend un tableau de chaînes (des pseudos) et renvoie un NOUVEAU tableau où chaque pseudo est encadré de crochets et passé en majuscules.\n\nEnchaînez **map** avec des méthodes de chaîne et de l'interpolation.\n\n~~~ruby\nname_tags([\"neo\", \"Trinity\"])  # [\"[NEO]\", \"[TRINITY]\"]\nname_tags([])                  # []\n~~~"
+      },
+      "rb-avg-load": {
+        "title": "MOYENNEUR DE CHARGE",
+        "brief": "Calculez la charge moyenne du cœur.",
+        "hint": "Guard the empty case, then readings.reduce(0) { |a, n| a + n }.to_f / readings.length.",
+        "prompt": "Définissez une méthode **avg_load(readings)** qui renvoie la moyenne d'un tableau d'entiers sous forme de **Float**. Additionnez les valeurs avec **reduce** (ou **sum**) et divisez par le nombre d'éléments.\n\nRenvoyez **0.0** quand le tableau est vide (ne divisez jamais par zéro).\n\n~~~ruby\navg_load([2, 4, 6])  # 4.0\navg_load([1, 2])     # 1.5\navg_load([])         # 0.0\n~~~"
+      },
+      "rb-runner-card": {
+        "title": "DOSSIER DU RUNNER",
+        "brief": "Assemblez la fiche d'un runner.",
+        "hint": "{ name: name, level: level, active: level >= 5 } - the >= test yields the boolean directly.",
+        "prompt": "Définissez une méthode **runner_card(name, level)** qui renvoie un **Hash à clés symboles** : **:name** contenant le nom fourni, **:level** contenant le niveau fourni, et **:active** réglé sur **true** quand le niveau vaut 5 ou plus, sinon **false**.\n\nConstruisez et renvoyez le hash littéral **{ name: ..., level: ..., active: ... }**.\n\n~~~ruby\nrunner_card(\"Neo\", 9)\n# { name: \"Neo\", level: 9, active: true }\nrunner_card(\"Mouse\", 2)\n# { name: \"Mouse\", level: 2, active: false }\n~~~"
       },
       "rb-reverse": {
         "title": "GLACE PALINDROME",
@@ -3535,6 +3620,276 @@ window.CONTENT_FR = {
         "brief": "Modélisez une unité EVA sous forme de classe.",
         "hint": "Utilisez attr_reader :hp ; dans damage, affectez @hp = [0, @hp - amount].max",
         "prompt": "\nDéfinissez une classe **Mech** avec :\n- **initialize(name, hp)** qui stocke les deux (exposez hp via **attr_reader :hp**)\n- **damage(amount)** qui soustrait amount de hp, jamais en dessous de **0**, et renvoie le nouveau hp\n~~~ruby\nm = Mech.new(\"Unit-01\", 400)\nm.damage(150)   # 250\nm.damage(999)   # 0   (clamped)\n~~~\n"
+      },
+      "rb-titlecase": {
+        "title": "CASSE TITRE",
+        "brief": "Mettez en capitale un mot unique.",
+        "hint": "s.capitalize met le premier caractère en majuscule et le reste en minuscules.",
+        "prompt": "Définissez **titlecase(s)** qui renvoie la chaîne `s` avec sa première lettre en majuscule et le reste en minuscules. Utilisez `capitalize`.\n\n~~~ruby\ntitlecase(\"lAIN\")    # \"Lain\"\ntitlecase(\"WIRED\")   # \"Wired\"\n~~~"
+      },
+      "rb-swapfix": {
+        "title": "CORRECTIF SWAP",
+        "brief": "Remplacez chaque correspondance dans une chaîne.",
+        "hint": "s.gsub(\" \", \"_\") touche chaque correspondance, pas seulement la première.",
+        "prompt": "Définissez **swapfix(s)** qui renvoie `s` avec CHAQUE espace remplacé par un underscore `\"_\"`. Utilisez `gsub`, qui remplace toutes les correspondances.\n\n~~~ruby\nswapfix(\"break the ice\")   # \"break_the_ice\"\nswapfix(\"node\")            # \"node\"\n~~~"
+      },
+      "rb-echo-len": {
+        "title": "LONGUEUR D'ÉCHO",
+        "brief": "Passez en minuscules puis mesurez.",
+        "hint": "Chaînez : s.downcase.length.",
+        "prompt": "Définissez **echo_len(s)** qui met `s` en minuscules puis renvoie le nombre de caractères du résultat. Chaînez `downcase` et `length`.\n\n~~~ruby\necho_len(\"LAIN\")    # 4\necho_len(\"Wired!\")  # 6\n~~~"
+      },
+      "rb-callsign": {
+        "title": "INDICATIF",
+        "brief": "Une classe qui stocke et mute un indicatif via accesseur.",
+        "hint": "attr_accessor :sign fournit à la fois le lecteur et l'écrivain ; broadcast vaut @sign.upcase.",
+        "prompt": "Définissez une classe **CallSign** qui détient l'indicatif d'un opérateur.\n\n- **initialize(sign)** stocke l'indicatif dans `@sign`\n- exposez-le en LECTURE et ÉCRITURE avec **attr_accessor :sign**\n- **broadcast** renvoie l'indicatif en majuscules\n\nL'accesseur doit permettre aux appelants de réassigner `sign=` après construction.\n\n~~~ruby\nc = CallSign.new(\"raven\")\nc.sign            # \"raven\"\nc.broadcast       # \"RAVEN\"\nc.sign = \"ghost\"\nc.broadcast       # \"GHOST\"\n~~~"
+      },
+      "rb-counter": {
+        "title": "COMPTEUR DE COUPS",
+        "brief": "Une classe qui mute son état interne d'un appel à l'autre.",
+        "hint": "@count += 1 mute la valeur stockée ; renvoyez @count en dernière ligne.",
+        "prompt": "Définissez une classe **Counter** qui suit un décompte.\n\n- **initialize** met `@count` à `0` (aucun argument)\n- exposez le décompte avec **attr_reader :count**\n- **hit** augmente `@count` de 1 et renvoie le nouveau décompte\n\nChaque appel à `hit` doit se souvenir de la valeur précédente.\n\n~~~ruby\nc = Counter.new\nc.count   # 0\nc.hit     # 1\nc.hit     # 2\nc.count   # 2\n~~~"
+      },
+      "rb-hlook": {
+        "title": "LECTURE DE TIROIR",
+        "brief": "Extraire une seule valeur d'un hash.",
+        "hint": "track[:bpm]  — notez le deux-points en tête, c'est une clé symbole.",
+        "prompt": "\nUn **track** est un hash à clés symboles comme **{ name: \"Spice\", bpm: 128 }**. Définissez **get_bpm(track)** qui renvoie la valeur sous la clé **:bpm**.\n~~~ruby\nget_bpm({ name: \"Spice\", bpm: 128 })  # 128\n~~~\n"
+      },
+      "rb-hfetch": {
+        "title": "FETCH SÉCURISÉ",
+        "brief": "Lire une clé avec une valeur de repli.",
+        "hint": "settings.fetch(:volume, 5)  — le second argument est renvoyé quand la clé est absente.",
+        "prompt": "\nDéfinissez **volume_of(settings)** qui renvoie la valeur **:volume** du hash **settings**, ou **5** si cette clé est absente. Utilisez **fetch** avec une valeur par défaut.\n~~~ruby\nvolume_of({ volume: 9 })  # 9\nvolume_of({})             # 5\n~~~\n"
+      },
+      "rb-hkeys": {
+        "title": "REGISTRE DES NOMS",
+        "brief": "Lister les clés d'un hash.",
+        "hint": "roster.keys renvoie les clés sous forme de tableau ; roster.values donnerait les scores.",
+        "prompt": "\n**roster** est un hash qui associe chaque indicatif (un symbole) à un score, comme **{ ren: 3, lain: 5 }**. Définissez **callsigns(roster)** qui renvoie un **tableau contenant seulement les clés**, dans l'ordre.\n~~~ruby\ncallsigns({ ren: 3, lain: 5 })  # [:ren, :lain]\n~~~\n"
+      },
+      "rb-hsumv": {
+        "title": "TOTAL DU GRAND LIVRE",
+        "brief": "Additionner toutes les valeurs du hash.",
+        "hint": "ledger.values.sum  — sortez les nombres, puis repliez-les.",
+        "prompt": "\n**ledger** associe un nom à un nombre, comme **{ spike: 25, jet: 10 }**. Définissez **total(ledger)** qui renvoie la **somme de toutes les valeurs**. Un grand livre vide totalise **0**. Pensez à **values**.\n~~~ruby\ntotal({ spike: 25, jet: 10 })  # 35\ntotal({})                      # 0\n~~~\n"
+      },
+      "rb-hmerge": {
+        "title": "SURCOUCHE DE CONFIG",
+        "brief": "Corriger les valeurs par défaut avec des surcharges, sans mutation.",
+        "hint": "defaults.merge(overrides) renvoie un hash tout neuf ; en cas de conflit, c'est la valeur de l'argument qui l'emporte.",
+        "prompt": "\nDéfinissez **apply(defaults, overrides)** qui renvoie un **nouveau** hash avec toutes les paires des deux, où **overrides** l'emporte sur toute clé partagée. Ne modifiez **pas** **defaults**. Utilisez **merge**.\n~~~ruby\napply({ hp: 100, mp: 30 }, { mp: 50, lvl: 9 })  # { hp: 100, mp: 50, lvl: 9 }\n~~~\n"
+      },
+      "rb-htally": {
+        "title": "DÉCOMPTE DE PAQUETS",
+        "brief": "Compter combien de fois chaque élément apparaît.",
+        "hint": "Hash.new(0) fait que toute clé jamais vue se lit comme 0, donc counts[x] += 1 fonctionne tout seul.",
+        "prompt": "\nDéfinissez **tally(items)** qui prend un tableau et renvoie un hash associant **chaque élément au nombre de fois qu'il apparaît**. Construisez-le avec **Hash.new(0)** et **each**.\n~~~ruby\ntally([\"a\", \"b\", \"a\"])  # { \"a\" => 2, \"b\" => 1 }\n~~~\n"
+      },
+      "rb-hpairs": {
+        "title": "LIGNES DE DOSSIER",
+        "brief": "Transformer chaque paire en une ligne formatée.",
+        "hint": "dossier.each_pair { |key, value| out << \"#{key}: #{value}\" } — la clé symbole s'interpole sans son deux-points.",
+        "prompt": "\n**dossier** associe un champ symbole à une valeur chaîne, comme **{ name: \"Lain\", city: \"Tokyo\" }**. Définissez **lines(dossier)** qui renvoie un **tableau de chaînes** — une par paire, formatée **\"key: value\"** — dans l'ordre. Itérez avec **each_pair** (ou **each**).\n~~~ruby\nlines({ name: \"Lain\", city: \"Tokyo\" })  # [\"name: Lain\", \"city: Tokyo\"]\n~~~\n"
+      },
+      "rb-hwinner": {
+        "title": "MEILLEUR INDICATIF",
+        "brief": "Afficher l'entrée au plus haut score d'un décompte.",
+        "hint": "Gardez un meilleur courant et un best_points ; remplacez les deux dès que points est plus grand.",
+        "prompt": "\nCeci est une tâche de type **script**. Partez exactement de ce tableau de scores :\n~~~ruby\nscores = { \"ren\" => 3, \"lain\" => 5, \"akira\" => 1 }\n~~~\nParcourez chaque paire avec **each**, trouvez l'indicatif au score le **plus élevé** (supposez aucune égalité), et faites un **puts** de cet indicatif sur sa propre ligne.\n~~~text\nlain\n~~~\n"
+      },
+      "rb-fold": {
+        "title": "SUM CORE",
+        "brief": "Replier les cellules en une seule somme.",
+        "hint": "nums.reduce(0) { |sum, n| sum + n }",
+        "prompt": "Définissez **fold_sum(nums)** qui utilise **reduce** pour additionner chaque nombre du tableau et renvoyer le total. Démarrez l'accumulateur à **0**.\n~~~ruby\nfold_sum([1, 2, 3, 4])  # 10\n~~~"
+      },
+      "rb-product": {
+        "title": "REACTOR PRODUCT",
+        "brief": "Multiplier toute la chaîne.",
+        "hint": "Démarrez à 1, pas à 0 : nums.reduce(1) { |prod, n| prod * n }",
+        "prompt": "Définissez **chain_product(nums)** qui utilise **reduce** pour multiplier tous les nombres ensemble. Démarrez l'accumulateur à **1** pour qu'un tableau vide renvoie 1.\n~~~ruby\nchain_product([2, 3, 4])  # 24\n~~~"
+      },
+      "rb-tally": {
+        "title": "PACKET TALLY",
+        "brief": "Compter combien de fois chaque tag apparaît.",
+        "hint": "words.each_with_object(Hash.new(0)) { |w, counts| counts[w] += 1 }",
+        "prompt": "Définissez **tally(words)** qui renvoie un **hash** associant chaque chaîne au nombre de fois où elle apparaît. Utilisez **each_with_object** avec un `Hash.new(0)` pour que les clés manquantes valent 0 par défaut.\n~~~ruby\ntally([\"a\", \"b\", \"a\"])  # { \"a\" => 2, \"b\" => 1 }\n~~~"
+      },
+      "rb-bucket": {
+        "title": "PARITY BUCKETS",
+        "brief": "Séparer les nombres en pairs et impairs.",
+        "hint": "nums.group_by { |n| n.even? }",
+        "prompt": "Définissez **by_parity(nums)** qui utilise **group_by** pour répartir les nombres selon qu'ils sont pairs ou non. Renvoyez le hash indexé par **true** (pair) et **false** (impair).\n~~~ruby\nby_parity([1, 2, 3, 4])  # { false => [1, 3], true => [2, 4] }\n~~~"
+      },
+      "rb-longest": {
+        "title": "MAX SIGNAL",
+        "brief": "Trouver l'indicatif le plus long.",
+        "hint": "words.max_by { |w| w.length }",
+        "prompt": "Définissez **longest(words)** qui utilise **max_by** pour renvoyer la **chaîne** comptant le plus de caractères. En cas d'égalité, renvoyer la première convient. Supposez que le tableau n'est jamais vide.\n~~~ruby\nlongest([\"go\", \"ruby\", \"kernel\"])  # \"kernel\"\n~~~"
+      },
+      "rb-rank": {
+        "title": "RANK BY BPM",
+        "brief": "Ordonner les morceaux du plus lent au plus rapide.",
+        "hint": "tracks.sort_by { |t| t[:bpm] }.map { |t| t[:name] }",
+        "prompt": "**tracks** est un tableau de hashes comme **{ name: \"Spice\", bpm: 128 }**. Définissez **ranked_names(tracks)** qui renvoie un tableau des **names** triés par **bpm** croissant. Utilisez **sort_by** puis **map**.\n~~~ruby\nranked_names([{ name: \"Fast\", bpm: 140 }, { name: \"Slow\", bpm: 90 }])  # [\"Slow\", \"Fast\"]\n~~~"
+      },
+      "rb-hunt": {
+        "title": "FIRST HIT",
+        "brief": "Trouver le premier franchissement de seuil.",
+        "hint": "nums.find { |n| n > limit }",
+        "prompt": "Définissez **first_over(nums, limit)** qui utilise **find** (alias detect) pour renvoyer le **premier** nombre strictement supérieur à **limit**. Renvoyez **nil** si aucun ne convient.\n~~~ruby\nfirst_over([1, 5, 8, 2], 4)  # 5\nfirst_over([1, 2], 9)        # nil\n~~~"
+      },
+      "rb-stats": {
+        "title": "SQUAD REPORT",
+        "brief": "Synthétiser les agents actifs.",
+        "hint": "live = units.select { |u| u[:online] }; ensuite count, reduce hp, et max_by hp sur live.",
+        "prompt": "**units** est un tableau de hashes comme **{ name: \"Trin\", hp: 80, online: true }**. Définissez **report(units)** qui renvoie un **hash** avec trois clés :\n- **:online** — combien d'unités ont `online: true` (utilisez **count**)\n- **:total_hp** — la somme des `hp` parmi les unités en ligne uniquement (utilisez **select** puis **reduce** ou **sum**)\n- **:strongest** — le **name** de l'unité en ligne ayant le plus de hp (utilisez **max_by**)\n\nSupposez qu'au moins une unité est en ligne.\n~~~ruby\nreport([{ name: \"Trin\", hp: 80, online: true }, { name: \"Dozer\", hp: 50, online: false }])\n# { online: 1, total_hp: 80, strongest: \"Trin\" }\n~~~"
+      },
+      "rb-clamp-zero": {
+        "title": "METTRE LE SIGNAL À LA MASSE",
+        "brief": "Les négatifs deviennent zéro.",
+        "hint": "if n < 0 then 0 else n.",
+        "prompt": "Définissez une méthode **clamp_zero(n)** qui retourne `n` quand il est nul ou positif, mais retourne **0** quand `n` est négatif.\n~~~ruby\nclamp_zero(7)   # 7\nclamp_zero(-3)  # 0\n~~~"
+      },
+      "rb-access-check": {
+        "title": "SAS D'ACCÈS",
+        "brief": "Refuser sauf si habilité.",
+        "hint": "return \"DENIED\" unless level >= 5",
+        "prompt": "Définissez **access(level)** qui retourne `\"GRANTED\"` uniquement quand `level` vaut **5 ou plus**, sinon `\"DENIED\"`. Utilisez **unless** (refuser *sauf si* le niveau est assez élevé) ou un if classique — à vous de voir.\n~~~ruby\naccess(5)  # \"GRANTED\"\naccess(2)  # \"DENIED\"\n~~~"
+      },
+      "rb-status-code": {
+        "title": "DÉCODEUR DE STATUT",
+        "brief": "Associer les codes à des mots.",
+        "hint": "when 500, 502, 503 then \"SERVER ERROR\"",
+        "prompt": "Définissez **status_text(code)** en utilisant **case ... when** qui retourne :\n- `\"OK\"` pour **200**\n- `\"NOT FOUND\"` pour **404**\n- `\"SERVER ERROR\"` pour **500, 502 ou 503**\n- `\"UNKNOWN\"` pour tout le reste\n~~~ruby\nstatus_text(502)  # \"SERVER ERROR\"\n~~~"
+      },
+      "rb-range-sum": {
+        "title": "TOTAL D'INTERVALLE",
+        "brief": "Sommer de 1 jusqu'à n.",
+        "hint": "Deux points incluent n : (1..n).sum",
+        "prompt": "Définissez **range_sum(n)** qui retourne la somme de chaque entier de **1 à n inclus**. Construisez l'intervalle inclusif avec **(1..n)** et utilisez **.sum**.\n~~~ruby\nrange_sum(5)  # 15  (1+2+3+4+5)\n~~~"
+      },
+      "rb-countdown": {
+        "title": "COMPTE À REBOURS DE LANCEMENT",
+        "brief": "De n à 1, puis LIFTOFF.",
+        "hint": "n.downto(1) { |i| out << i }, puis out << \"LIFTOFF\".",
+        "prompt": "Définissez **countdown(n)** qui retourne un **tableau** comptant à rebours de `n` à `1`, avec la chaîne `\"LIFTOFF\"` ajoutée à la fin. Utilisez **n.downto(1)** pour collecter les nombres.\n~~~ruby\ncountdown(3)  # [3, 2, 1, \"LIFTOFF\"]\n~~~"
+      },
+      "rb-grade-tag": {
+        "title": "VERDICT",
+        "brief": "Réussi ou raté en une ligne.",
+        "hint": "score >= 60 ? \"PASS\" : \"FAIL\"",
+        "prompt": "Définissez **verdict(score)** qui retourne `\"PASS\"` quand `score` vaut **60 ou plus**, sinon `\"FAIL\"`. Écrivez-la comme une **unique expression ternaire** : `cond ? a : b`.\n~~~ruby\nverdict(72)  # \"PASS\"\nverdict(40)  # \"FAIL\"\n~~~"
+      },
+      "rb-halving-steps": {
+        "title": "PROTOCOLE DE BISSECTION",
+        "brief": "Compter les divisions par deux pour atteindre 1.",
+        "hint": "while n > 1 : n = n / 2 ; steps += 1.",
+        "prompt": "Définissez **halving_steps(n)** qui effectue répétitivement une division entière par 2 jusqu'à ce que `n` atteigne **1**, et retourne **combien de divisions par deux** ont été nécessaires. Utilisez une boucle **while**. Supposez `n >= 1`.\n~~~ruby\nhalving_steps(8)  # 3   (8 -> 4 -> 2 -> 1)\nhalving_steps(1)  # 0\n~~~"
+      },
+      "rb-fizz-pulse": {
+        "title": "GRILLE D'IMPULSIONS",
+        "brief": "Construire une grille façon FizzBuzz de 1..n.",
+        "hint": "Testez i % 3 == 0 && i % 5 == 0 AVANT les vérifications simples.",
+        "prompt": "Définissez **pulse_grid(n)** retournant un **tableau** de longueur `n`. Pour chaque nombre de **1 à n inclus**, l'entrée vaut :\n- `\"FIZZBUZZ\"` s'il est divisible à la fois par 3 et par 5\n- `\"FIZZ\"` s'il est divisible par 3\n- `\"BUZZ\"` s'il est divisible par 5\n- sinon le **nombre lui-même**\n\nUtilisez **1.upto(n)** (ou **(1..n)**) et vérifiez d'abord le cas des deux.\n~~~ruby\npulse_grid(5)  # [1, 2, \"FIZZ\", 4, \"BUZZ\"]\n~~~"
+      },
+      "rb-scrub": {
+        "title": "NETTOYER LA STATIQUE",
+        "brief": "Remplacez chaque tiret par une espace.",
+        "hint": "text.gsub(\"-\", \" \") renvoie une chaîne toute neuve.",
+        "prompt": "Définissez une méthode **scrub(text)** qui renvoie une nouvelle chaîne où **chaque** tiret `-` est remplacé par une seule espace. Utilisez **gsub**.\n~~~ruby\nscrub(\"de-tox-now\")  # \"de tox now\"\n~~~"
+      },
+      "rb-hasdigit": {
+        "title": "SCAN DE CHIFFRES",
+        "brief": "True si le code contient un chiffre.",
+        "hint": "code.match?(/[0-9]/) est déjà true ou false.",
+        "prompt": "Définissez une méthode **has_digit?(code)** qui renvoie **true** si la chaîne contient au moins un chiffre (0-9), sinon **false**. Utilisez **match?** avec la regex `/[0-9]/`.\n~~~ruby\nhas_digit?(\"NEON7\")  # true\nhas_digit?(\"NEON\")   # false\n~~~"
+      },
+      "rb-firsthit": {
+        "title": "PREMIER IMPACT",
+        "brief": "Indice du premier chiffre, ou -1.",
+        "hint": "(code =~ /[0-9]/) || -1  — nil est falsy, donc || donne la valeur de repli.",
+        "prompt": "Définissez une méthode **first_digit_index(code)** qui renvoie l'**indice** du premier chiffre à l'aide de l'opérateur **=~** avec `/[0-9]/`. S'il n'y a aucun chiffre, `=~` donne **nil** — renvoyez **-1** dans ce cas.\n~~~ruby\nfirst_digit_index(\"abc7\")  # 3\nfirst_digit_index(\"abc\")   # -1\n~~~"
+      },
+      "rb-harvest": {
+        "title": "MOISSONNER LES CODES",
+        "brief": "Collectez chaque séquence de chiffres.",
+        "hint": "text.scan(/[0-9]+/) renvoie un tableau de correspondances.",
+        "prompt": "Définissez une méthode **harvest(text)** qui renvoie un **tableau de chaque nombre** trouvé dans la chaîne, chacun sous forme de chaîne. Utilisez **scan** avec `/[0-9]+/` (le `+` signifie un ou plusieurs chiffres à la suite).\n~~~ruby\nharvest(\"id-42 port-99\")  # [\"42\", \"99\"]\nharvest(\"no codes\")       # []\n~~~"
+      },
+      "rb-rejoin": {
+        "title": "RE-ROUTAGE",
+        "brief": "Découpez sur les virgules, recollez avec des flèches.",
+        "hint": "path.split(\",\").join(\" -> \")",
+        "prompt": "Définissez une méthode **reroute(path)** qui **découpe** la chaîne sur les virgules, puis **recolle** les morceaux avec ` -> ` (espace, flèche, espace).\n~~~ruby\nreroute(\"node1,node2,node3\")  # \"node1 -> node2 -> node3\"\n~~~"
+      },
+      "rb-badge": {
+        "title": "BADGE D'IDENTITÉ",
+        "brief": "Formatez une chaîne de badge complétée de zéros.",
+        "hint": "format(\"%s-%03d\", name, level) — %03d complète de zéros jusqu'à la largeur 3.",
+        "prompt": "Définissez une méthode **badge(name, level)** qui renvoie une chaîne de la forme `NAME-LVL` où le niveau est **complété de zéros sur 3 chiffres**. Utilisez **format** avec `%s` et `%03d`.\n~~~ruby\nbadge(\"Neo\", 7)    # \"Neo-007\"\nbadge(\"Trinity\", 42) # \"Trinity-042\"\n~~~"
+      },
+      "rb-trim": {
+        "title": "ROGNER LES BORDS",
+        "brief": "Nettoyez les bords, puis testez le préfixe.",
+        "hint": "line.strip.start_with?(\"CMD:\") — strip d'abord, puis testez.",
+        "prompt": "Définissez une méthode **valid_command?(line)** qui **rogne** d'abord les espaces de début/fin, puis renvoie **true** seulement si le texte nettoyé **commence par** `\"CMD:\"`. Utilisez **strip** et **start_with?**.\n~~~ruby\nvalid_command?(\"  CMD: run  \")  # true\nvalid_command?(\"run CMD:\")      # false\n~~~"
+      },
+      "rb-redact": {
+        "title": "CAVIARDER",
+        "brief": "Masquez chaque chiffre par un dièse.",
+        "hint": "if text.include?(\"SECRET\") then text.gsub(/[0-9]/, \"#\") else text end",
+        "prompt": "Définissez une méthode **redact(text)** qui renvoie une nouvelle chaîne où **chaque chiffre** est remplacé par `#`, mais seulement **si** le texte contient la sous-chaîne `\"SECRET\"`. Si `\"SECRET\"` est absent (utilisez **include?**), renvoyez le texte inchangé. Utilisez **gsub** avec `/[0-9]/` pour le masquage.\n~~~ruby\nredact(\"SECRET pin 4827\")  # \"SECRET pin ####\"\nredact(\"public 4827\")      # \"public 4827\"\n~~~"
+      },
+      "rb-vault": {
+        "title": "LE COFFRE",
+        "brief": "Exposez les crédits stockés avec attr_reader.",
+        "hint": "attr_reader :credits en haut, et stockez l'argument : @credits = credits.",
+        "prompt": "Définissez une classe **Vault**.\n\n- **initialize(credits)** stocke le montant dans `@credits`\n- exposez-le avec **attr_reader :credits** pour que le monde puisse lire `v.credits`\n\n~~~ruby\nv = Vault.new(500)\nv.credits   # 500\n~~~"
+      },
+      "rb-handle": {
+        "title": "INDICATIF",
+        "brief": "Un attribut en lecture/écriture avec attr_accessor.",
+        "hint": "attr_accessor :handle crée à la fois un reader et un writer (handle=).",
+        "prompt": "Définissez une classe **Operator**.\n\n- **initialize(handle)** stocke le pseudo dans `@handle`\n- utilisez **attr_accessor :handle** pour que le pseudo puisse être à la fois LU et MODIFIÉ depuis l'extérieur\n\n~~~ruby\no = Operator.new(\"Neo\")\no.handle          # \"Neo\"\no.handle = \"The One\"\no.handle          # \"The One\"\n~~~"
+      },
+      "rb-killtally": {
+        "title": "COMPTEUR DE FRAGS",
+        "brief": "Un compteur qui mute et retourne son état.",
+        "hint": "Dans bump : @count += 1 mute l'état, puis faites de @count la dernière ligne pour qu'il soit retourné.",
+        "prompt": "Définissez une classe **Tally** qui compte les événements.\n\n- **initialize** met `@count` à **0**\n- exposez-le avec **attr_reader :count**\n- **bump** augmente le compte de 1 et RETOURNE le nouveau compte\n\n~~~ruby\nt = Tally.new\nt.bump    # 1\nt.bump    # 2\nt.count   # 2\n~~~"
+      },
+      "rb-stack": {
+        "title": "EMPILEMENT",
+        "brief": "Une pile avec push, pop et size.",
+        "hint": "Array a déjà .push, .pop et .size — déléguez à @items et retournez la bonne valeur.",
+        "prompt": "Définissez une classe **Stack** adossée à un tableau `@items`.\n\n- **initialize** met `@items` à un tableau vide `[]`\n- **push(x)** ajoute x au sommet et retourne x\n- **pop** retire et retourne l'élément du sommet (le DERNIER ajouté)\n- **size** retourne le nombre d'éléments stockés\n\n~~~ruby\ns = Stack.new\ns.push(\"a\")\ns.push(\"b\")\ns.size   # 2\ns.pop    # \"b\"\ns.size   # 1\n~~~"
+      },
+      "rb-meter": {
+        "title": "JAUGE DE PUISSANCE",
+        "brief": "Mutez une valeur mais bornez-la à un plafond.",
+        "hint": "Utilisez [@max, @level + n].min pour que le niveau puisse monter sans jamais dépasser @max.",
+        "prompt": "Définissez une classe **Meter** qui se charge vers un maximum.\n\n- **initialize(max)** stocke `@max` et met `@level` à **0**\n- exposez le niveau courant avec **attr_reader :level**\n- **charge(n)** ajoute n au niveau mais JAMAIS au-dessus de `@max`, puis retourne le nouveau niveau\n\n~~~ruby\nm = Meter.new(100)\nm.charge(40)   # 40\nm.charge(80)   # 100  (clamped at max)\nm.level        # 100\n~~~"
+      },
+      "rb-account": {
+        "title": "GARDE-FOU DÉCOUVERT",
+        "brief": "Un compte qui refuse de passer en négatif.",
+        "hint": "Placez la garde EN PREMIER : return false if n > @balance — avant de toucher à @balance.",
+        "prompt": "Définissez une classe **Account** avec une garde contre le découvert.\n\n- **initialize(start)** stocke le solde d'ouverture dans `@balance`\n- exposez-le avec **attr_reader :balance**\n- **deposit(n)** ajoute n et retourne le nouveau solde\n- **withdraw(n)** soustrait n et retourne le nouveau solde — MAIS si n est supérieur au solde, elle ne doit rien changer et retourner **false**\n\n~~~ruby\na = Account.new(100)\na.deposit(50)    # 150\na.withdraw(60)   # 90\na.withdraw(999)  # false  (refused, balance unchanged)\na.balance        # 90\n~~~"
+      },
+      "rb-buffer": {
+        "title": "PANIQUE DE BUFFER VIDE",
+        "brief": "Une file qui lève une erreur quand on la dépile à vide.",
+        "hint": "Garde en premier : raise \"buffer empty\" if @items.empty?  puis @items.shift pour le FIFO.",
+        "prompt": "Définissez une classe **Buffer** (une file premier-entré premier-sorti) adossée à `@items`.\n\n- **initialize** met `@items` à `[]`\n- **add(x)** ajoute x à la fin et retourne x\n- **take** retire et retourne l'élément le PLUS ANCIEN (le premier ajouté) — mais si le buffer est vide, elle doit **lever** une erreur\n- **empty?** retourne true quand il n'y a aucun élément\n\n~~~ruby\nb = Buffer.new\nb.add(\"a\")\nb.add(\"b\")\nb.take     # \"a\"\nb.take     # \"b\"\nb.take     # raises — nothing left\n~~~"
+      },
+      "rb-profile": {
+        "title": "CHAÎNE D'IDENTITÉ",
+        "brief": "Donnez à un objet un to_s lisible.",
+        "hint": "Construisez-la par interpolation et faites-en la DERNIÈRE expression : \"#{@name} [LV.#{@level}]\".",
+        "prompt": "Définissez une classe **Runner** avec un **to_s** personnalisé pour que l'objet se lise bien à l'impression ou à l'interpolation.\n\n- **initialize(name, level)** stocke les deux dans `@name` et `@level`\n- **to_s** RETOURNE la chaîne `\"NAME [LV.LEVEL]\"` — le nom, une espace, puis le niveau entre crochets préfixé par `LV.`\n\n~~~ruby\nr = Runner.new(\"Neo\", 7)\nr.to_s              # \"Neo [LV.7]\"\n\"#{Runner.new(\"Trinity\", 12)}\"   # \"Trinity [LV.12]\"\n~~~"
       }
     }
   }
