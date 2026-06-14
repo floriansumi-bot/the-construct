@@ -36,6 +36,19 @@
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
   <link rel="stylesheet" href="css/style.css">
+  <!-- ░░ Privacy-first analytics (no cookies, no consent banner needed) ░░
+       To turn ON: create a FREE site at dash.cloudflare.com → "Web Analytics",
+       copy the token it gives you, and paste it between the quotes below.
+       Until you do, nothing is sent — it stays completely inert. -->
+  <script>window.CF_ANALYTICS_TOKEN = "";</script>
+  <script>
+    if (window.CF_ANALYTICS_TOKEN) {
+      var _cfa = document.createElement("script");
+      _cfa.defer = true; _cfa.src = "https://static.cloudflareinsights.com/beacon.min.js";
+      _cfa.setAttribute("data-cf-beacon", '{"token":"' + window.CF_ANALYTICS_TOKEN + '"}');
+      document.head.appendChild(_cfa);
+    }
+  </script>
 </head>
 <body>
   <!-- ░░ CRT SCANLINE / VIGNETTE OVERLAY ░░ -->
