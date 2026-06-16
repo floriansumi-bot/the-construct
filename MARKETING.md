@@ -136,6 +136,39 @@ Until you paste a token it stays **completely inert** (nothing is sent). Prefer 
 
 ---
 
+## Launch kit: X/Twitter + a 20‑second video
+
+### Single tweet / X post
+> I built THE CONSTRUCT 🟢 — learn to code in 6 languages, free, in your browser.
+>
+> Python · JavaScript · TypeScript · SQL · Lua · Ruby — each runs the REAL engine (real CPython, the actual tsc, real SQLite…). ~577 exercises, graded live against hidden tests. Works offline. EN/FR.
+>
+> https://floriansumi-bot.github.io/the-construct/
+
+### Thread version (post tweet 1, reply with the rest)
+> 1/ I built a free site to learn 6 programming languages in your browser — and the twist is every exercise runs the *real* language engine, not a checker that regex‑matches your answer. 🧵
+>
+> 2/ Real CPython (Pyodide), the actual TypeScript compiler, real SQLite, Lua, Ruby, and V8 in a Worker — all client‑side via WebAssembly. You write code, hit run, it's graded live against hidden tests. Infinite loops are auto‑halted.
+>
+> 3/ ~577 exercises across the 6 languages, 8 sectors each, climbing difficulty. Read a short self‑contained theory brief, then breach the "nodes". Styled like a cyberpunk hacker terminal with sci‑fi/anime/music references.
+>
+> 4/ Installable web app, works fully offline, and 100% bilingual — English AND French (577 exercises, not just the menus). No signup, no paywall.
+>
+> 5/ Free, solo project. I'd love feedback on the early lessons + grading. 🙏 https://floriansumi-bot.github.io/the-construct/
+
+### 20‑second video script (TikTok / Shorts / Reels)
+Record with a phone screen‑recorder or OBS. Keep the animation ON for video (it's the appeal). Add on‑screen captions. First 2 seconds decide everything — lead with the terminal boot.
+
+| Time | On screen | Caption |
+|---|---|---|
+| 0–2s | Boot screen: matrix rain + "[ PRESS ENTER TO JACK IN ]". Press it. | "a free site that teaches you to code…" |
+| 2–6s | The language grid — all 6 cards (Python, JS, TS, SQL, Lua, Ruby). | "…in 6 languages, in your browser" |
+| 6–13s | Open a Python lesson. Paste the solution, hit ▸ EXECUTE → ◈ NODE CLEARED + XP pops, PROTO.EXE blasts the aliens. | "every exercise runs the REAL engine 🤯" |
+| 13–17s | Settings → flip theme Matrix → Synthwave → Amber. | "3 themes. works offline. free." |
+| 17–20s | End card on the dashboard. | "THE CONSTRUCT — link in bio 🟢" |
+
+---
+
 ## Honest expectations
 - Most posts get little. **That's normal.** It's a numbers game — keep showing up.
 - One post hitting r/all or HN's front page can bring **thousands** in a day. You only need a few of those.
